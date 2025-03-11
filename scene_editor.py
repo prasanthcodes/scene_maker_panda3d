@@ -77,6 +77,7 @@ class LookingDemo(ShowBase):
         self.cameraAngleP = 0   # Vertical angle (pitch)
         self.camLens.setNear(0.01)
         self.camLens.setFar(1500)
+        self.camera.setPos(0,0,1)
         
         #---if camera y,z axis rotated 90 deg, use below code----
         #self.cam_node=NodePath('cam_node')
