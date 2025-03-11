@@ -53,7 +53,7 @@ panda3d.core.load_prc_file_data("", """
     #textures-power-2 up
 """)
 
-#panda3d.core.load_prc_file_data('', 'framebuffer-srgb true')
+panda3d.core.load_prc_file_data('', 'framebuffer-srgb true')
 #panda3d.core.load_prc_file_data('', 'load-display pandadx9')#pandagl,p3tinydisplay,pandadx9,pandadx8
 panda3d.core.load_prc_file_data('', 'show-frame-rate-meter true')
 #panda3d.core.load_prc_file_data('', 'fullscreen true')
@@ -63,25 +63,36 @@ class LookingDemo(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
-        #Load the first environment model
+
         self.disable_mouse()
         self.pipeline = simplepbr.init(use_normal_maps=True,exposure=0.8,sdr_lut_factor=0)
-        """
-        self.cam_node=NodePath('cam_node')
-        self.cam_node.reparentTo(self.render)
-        self.cam_node.setHpr(0,-90,0)
+        
+        #---adjustable parameters---
+        self.mouse_sensitivity=50
+        self.move_speed=0.1
 
-        self.camera.reparentTo(self.cam_node)
-        """
+        # Camera param initializations
+        self.cameraHeight = 1.5     # camera Height above ground
+        self.cameraAngleH = 0     # Horizontal angle (yaw)
+        self.cameraAngleP = 0   # Vertical angle (pitch)
         self.camLens.setNear(0.01)
         self.camLens.setFar(1500)
+        
+        #---if camera y,z axis rotated 90 deg, use below code----
+        #self.cam_node=NodePath('cam_node')
+        #self.cam_node.reparentTo(self.render)
+        #self.cam_node.setHpr(0,-90,0)
+        #self.camera.reparentTo(self.cam_node)
+        
+        #---display camera pos at bottom---
+        self.bottom_cam_label=DirectLabel(text='CamPos: ',pos=(-1,1,-0.9),scale=0.05,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.8),text_bg=(0,0,0,0.2),frameColor=(0, 0, 0, 0.1))
         
         self.set_keymap()
         self.current_model_index=0
         self.load_environment_models()
         self.setupLights()
-        taskMgr.add(self.camera_rotate3, "camera_rotateTask")
-        taskMgr.add(self.camera_move2, "camera_move2")
+        taskMgr.add(self.camera_rotate, "camera_rotateTask")
+        taskMgr.add(self.camera_move, "camera_move")
         taskMgr.add(self.general_tasks, "general_tasks")
         #self.sun_rotate()
         
@@ -92,10 +103,6 @@ class LookingDemo(ShowBase):
         self.collide_mname=''
         self.collide_flag=False
         
-        self.mouse_sensitivity=50
-        self.move_speed=0.1
-        self.mouse_last_pos=[0,0]
-
         base.accept('tab', base.bufferViewer.toggleEnable)
 
         self.param_1={}
@@ -120,12 +127,10 @@ class LookingDemo(ShowBase):
         self.create_properties_gui()
         self.create_properties_gui_2()
         self.hide_properties_gui_2()
+        #self.hide_properties_gui()
+        #self.create_daylight_gui()
         
-        # Camera setup
-        self.cameraDistance = 10  # Distance from player
-        self.cameraHeight = 5     # Height above player
-        self.cameraAngleH = 0     # Horizontal angle (yaw)
-        self.cameraAngleP = -20   # Vertical angle (pitch)
+
 
     def create_properties_gui(self):
         self.property_adjuster_gui=DirectFrame(pos=(-1.35, 1,1),frameSize=(0,0.8,-0.9,0),frameColor=(0, 0, 0, 0.1))
@@ -212,6 +217,48 @@ class LookingDemo(ShowBase):
         self.CheckButton_b10.hide()
         self.dentry_b11.hide()
 
+    def create_daylight_gui(self):
+        #self.daylight_adjuster_gui=DirectFrame(pos=(-1.35, 1,1),frameSize=(0,0.8,-0.9,0),frameColor=(0, 0, 0, 0.1))
+        self.dlabel_c1 = DirectLabel(text='Ambient light: intensity',pos=(-0.8,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dentry_c2 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.3, 1,0.75), command=self.SetEntryText_c1,initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        
+        self.dlabel_c3=DirectLabel(text='R (0 to 1): ',pos=(-0.7,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_c4=DirectLabel(text='G (0 to 1): ',pos=(-0.7,1,0.55),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_c5=DirectLabel(text='B (0 to 1): ',pos=(-0.7,1,0.45),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        
+        self.dentry_c6 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.35, 1,0.65), command=self.SetEntryText_c6,initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c7 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.35, 1,0.55), command=self.SetEntryText_c7,initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c8 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.35, 1,0.45), command=self.SetEntryText_c8,initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+        self.dlabel_c9 = DirectLabel(text='Directional light(sun): intensity',pos=(-0.8,1,0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dentry_c10 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.3, 1,0.35), command=self.SetEntryText_c10,initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        
+        self.dlabel_c11=DirectLabel(text='R (0 to 1): ',pos=(-0.7,1,0.25),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_c12=DirectLabel(text='G (0 to 1): ',pos=(-0.7,1,0.15),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_c13=DirectLabel(text='B (0 to 1): ',pos=(-0.7,1,0.05),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        
+        self.dentry_c14 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.35, 1,0.25), command=self.SetEntryText_c14,initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c15 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.35, 1,0.15), command=self.SetEntryText_c15,initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c16 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.35, 1,0.05), command=self.SetEntryText_c16,initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+        self.dlabel_c17=DirectLabel(text='H (0 to 360): ',pos=(-0.7,1,-0.05),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_c18=DirectLabel(text='P (0 to 360): ',pos=(-0.7,1,-0.15),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_c19=DirectLabel(text='R (0 to 360): ',pos=(-0.7,1,-0.25),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        
+        self.dentry_c20 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.05), command=self.SetEntryText_c20,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c21 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.15), command=self.SetEntryText_c21,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c22 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.25), command=self.SetEntryText_c22,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+        self.dlabel_c23=DirectLabel(text='X: ',pos=(-1.3,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dentry_c24 = DirectEntry(text = "", scale=0.06,width=8,pos=(-1.25, 1,-0.35), command=self.SetEntryText_c24,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_c25=DirectLabel(text='Y: ',pos=(-0.6,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dentry_c26 = DirectEntry(text = "", scale=0.06,width=8,pos=(-0.55, 1,-0.35), command=self.SetEntryText_c26,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_c27=DirectLabel(text='Z: ',pos=(0.1,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dentry_c28 = DirectEntry(text = "", scale=0.06,width=8,pos=(0.55, 1,-0.35), command=self.SetEntryText_c28,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+
+
+
     def cbuttondef_1(self,status):
         if status:
             self.show_properties_gui()
@@ -260,6 +307,124 @@ class LookingDemo(ShowBase):
             self.update_model_property(self.dslider_1['value'],1)
         except ValueError:
             print('value entered in entry1 is not number')
+
+    def SetEntryText_c1(self,textEntered):
+        try:
+            self.ambientLight_Intensity=float(textEntered)
+            cur_color=self.ambientLight.getColor()
+            self.ambientLight.setColor((self.ambientLight_Intensity,self.ambientLight_Intensity,self.ambientLight_Intensity, 1))
+            self.dentry_c6.enterText(str(self.ambientLight_Intensity))
+            self.dentry_c7.enterText(str(self.ambientLight_Intensity))
+            self.dentry_c8.enterText(str(self.ambientLight_Intensity))
+        except ValueError:
+            print('value entered in entry c1 is not number')
+
+    def SetEntryText_c6(self,textEntered):
+        try:
+            self.dentry_c6.enterText(textEntered)
+            cur_color=self.ambientLight.getColor()
+            self.ambientLight.setColor((float(textEntered),cur_color[1],cur_color[2], 1))
+        except ValueError:
+            print('value entered in entry6 is not number')
+
+    def SetEntryText_c7(self,textEntered):
+        try:
+            self.dentry_c7.enterText(textEntered)
+            cur_color=self.ambientLight.getColor()
+            self.ambientLight.setColor((cur_color[0],float(textEntered),cur_color[2], 1))
+        except ValueError:
+            print('value entered in entry7 is not number')
+
+    def SetEntryText_c8(self,textEntered):
+        try:
+            self.dentry_c8.enterText(textEntered)
+            cur_color=self.ambientLight.getColor()
+            self.ambientLight.setColor((cur_color[0],cur_color[1],float(textEntered), 1))
+        except ValueError:
+            print('value entered in entry8 is not number')            
+
+    def SetEntryText_c10(self,textEntered):
+        try:
+            self.directionalLight_intensity=float(textEntered)
+            cur_color=self.directionalLight.getColor()
+            self.directionalLight.setColor((self.directionalLight_intensity,self.directionalLight_intensity,self.directionalLight_intensity, 1))
+            self.dentry_c14.enterText(str(self.directionalLight_intensity))
+            self.dentry_c15.enterText(str(self.directionalLight_intensity))
+            self.dentry_c16.enterText(str(self.directionalLight_intensity))
+        except ValueError:
+            print('value entered in entry c1 is not number')
+
+    def SetEntryText_c14(self,textEntered):
+        try:
+            self.dentry_c14.enterText(textEntered)
+            cur_color=self.directionalLight.getColor()
+            self.directionalLight.setColor((float(textEntered),cur_color[1],cur_color[2], 1))
+        except ValueError:
+            print('value entered in entry is not number')
+
+    def SetEntryText_c15(self,textEntered):
+        try:
+            self.dentry_c15.enterText(textEntered)
+            cur_color=self.directionalLight.getColor()
+            self.directionalLight.setColor((cur_color[0],float(textEntered),cur_color[2], 1))
+        except ValueError:
+            print('value entered in entry is not number')
+
+    def SetEntryText_c16(self,textEntered):
+        try:
+            self.dentry_c16.enterText(textEntered)
+            cur_color=self.directionalLight.getColor()
+            self.directionalLight.setColor((cur_color[0],cur_color[1],float(textEntered), 1))
+        except ValueError:
+            print('value entered in entry is not number')            
+
+    def SetEntryText_c20(self,textEntered):
+        try:
+            self.dentry_c20.enterText(textEntered)
+            cur_color=self.dlight1.getHpr()
+            self.dlight1.setHpr(float(textEntered),cur_color[1],cur_color[2])
+        except ValueError:
+            print('value entered in entry is not number')
+
+    def SetEntryText_c21(self,textEntered):
+        try:
+            self.dentry_c21.enterText(textEntered)
+            cur_color=self.dlight1.getHpr()
+            self.dlight1.setHpr(cur_color[0],float(textEntered),cur_color[2])
+        except ValueError:
+            print('value entered in entry is not number')
+
+    def SetEntryText_c22(self,textEntered):
+        try:
+            self.dentry_c22.enterText(textEntered)
+            cur_color=self.dlight1.getHpr()
+            self.dlight1.setHpr(cur_color[0],cur_color[1],float(textEntered))
+        except ValueError:
+            print('value entered in entry is not number')            
+
+    def SetEntryText_c24(self,textEntered):
+        try:
+            self.dentry_c24.enterText(textEntered)
+            cur_color=self.dlight1.getPos()
+            self.dlight1.setPos(float(textEntered),cur_color[1],cur_color[2])
+        except ValueError:
+            print('value entered in entry is not number')
+
+    def SetEntryText_c26(self,textEntered):
+        try:
+            self.dentry_c26.enterText(textEntered)
+            cur_color=self.dlight1.getPos()
+            self.dlight1.setPos(cur_color[0],float(textEntered),cur_color[2])
+        except ValueError:
+            print('value entered in entry is not number')
+
+    def SetEntryText_c28(self,textEntered):
+        try:
+            self.dentry_c28.enterText(textEntered)
+            cur_color=self.dlight1.getPos()
+            self.dlight1.setPos(cur_color[0],cur_color[1],float(textEntered))
+        except ValueError:
+            print('value entered in entry is not number')            
 
     def GetSliderValue_2(self):
             self.dentry_2.enterText(str(self.dslider_2['value']))
@@ -409,7 +574,7 @@ class LookingDemo(ShowBase):
         
 
     def set_keymap(self):
-        self.keyMap = {"move_forward": 0, "move_backward": 0, "move_left": 0, "move_right": 0,"gravity_on":0,"load_model":0,"set_camera_pos":0,"x_increase":0,"x_decrease":0,"y_increase":0,"y_decrease":0,"z_increase":0,"z_decrease":0,"right_click":0,"switch_model":0,"delete_model":0,"up_arrow":0,"down_arrow":0,"right_arrow":0,"left_arrow":0}
+        self.keyMap = {"move_forward": 0, "move_backward": 0, "move_left": 0, "move_right": 0,"gravity_on":0,"load_model":0,"set_camera_pos":0,"x_increase":0,"x_decrease":0,"y_increase":0,"y_decrease":0,"z_increase":0,"z_decrease":0,"right_click":0,"switch_model":0,"delete_model":0,"up_arrow":0,"down_arrow":0,"right_arrow":0,"left_arrow":0,"look_at":0}
         self.accept('escape', sys.exit)
         self.accept("w", self.setKey, ["move_forward", True])
         self.accept("s", self.setKey, ["move_backward", True])
@@ -439,6 +604,7 @@ class LookingDemo(ShowBase):
         self.accept("mouse3-up", self.setKey, ["right_click", False])
         self.accept("z", self.setKey, ["switch_model", True])
         self.accept("delete", self.setKey, ["delete_model", False])
+        self.accept("v", self.setKey, ["look_at", True])                                                                
         
         self.accept("arrow_up", self.setKey, ["up_arrow", True])
         self.accept("arrow_up-up", self.setKey, ["up_arrow", False])
@@ -523,6 +689,8 @@ class LookingDemo(ShowBase):
             root.destroy()
             if len(openedfilename)>0:
                 modelfilepath=openedfilename[len_curdir:]
+                if modelfilepath[0]=='/': modelfilepath=modelfilepath[1:]
+                if modelfilepath[0]=='\\': modelfilepath=modelfilepath[1:]         
                 tempname=modelfilepath
                 tempname=tempname.replace('/','_')
                 tempname=tempname.replace('\\','_')
@@ -585,22 +753,24 @@ class LookingDemo(ShowBase):
 
         
     def setupLights(self):  # Sets up some default lighting
-        ambientLight = AmbientLight("ambientLight")
-        ambientLight.setColor((.1,.1,.1, 1))
-        self.render.setLight(self.render.attachNewNode(ambientLight))
-        directionalLight = DirectionalLight("directionalLight_1")
-        DL_intensity=2
-        directionalLight.setColor((DL_intensity,DL_intensity,DL_intensity, 1))
-        directionalLight.setSpecularColor((.1, .1, .1, .1))
-        directionalLight.setShadowCaster(True, 512, 512)
-        self.dlight1=self.render.attachNewNode(directionalLight)
+        self.ambientLight = AmbientLight("ambientLight")
+        self.ambientLight_Intensity=0.2
+        self.ambientLight.setColor((self.ambientLight_Intensity,self.ambientLight_Intensity,self.ambientLight_Intensity, 1))
+        self.render.setLight(self.render.attachNewNode(self.ambientLight))
+        self.directionalLight = DirectionalLight("directionalLight_1")
+        self.directionalLight_intensity=1
+        self.directionalLight.setColor((self.directionalLight_intensity,self.directionalLight_intensity,self.directionalLight_intensity, 1))
+        #self.directionalLight.setSpecularColor((.1, .1, .1, .1))
+        self.directionalLight.setShadowCaster(True, 512, 512)
+        self.dlight1=self.render.attachNewNode(self.directionalLight)
         self.dlight1.setHpr(0, -45, 0)
         self.dlight1.setPos(0,0,20)
+        #self.dlight1.look_at(0, 0, 0)
         
         self.suncube = loader.loadModel("cube_arrow.glb")
         self.suncube.reparentTo(self.render)
         self.suncube.setScale(1.5,1.5,1.5)
-        self.suncube.setPos(0,0,20)
+        self.suncube.setPos(10,10,20)
         self.suncube.setHpr(0, -45, 0)
         #self.environ1.set_shader(self.shader)
 
@@ -610,20 +780,15 @@ class LookingDemo(ShowBase):
         self.render.setLight(self.dlight1)
 
         plight = PointLight('plight')
-        plight.setColor((1,.1,.1, 1))
+        plight.setColor((1,1,1, 1))
         plight.setAttenuation(LVector3(0.9, 0.1, 0))# (constant,linear,quadratic attenuation)
         #plight.setShadowCaster(True, 512, 512)
         plnp = self.render.attachNewNode(plight)
-        plnp.setPos(0, 0, 5)
+        plnp.setPos(0, 0, 10)
+        self.render.setLight(plnp)
         
-        plight2 = PointLight('plight')
-        plight2.setColor((1,1,1, 1))
-        plight2.setAttenuation(LVector3(0.8, 0.0, 0.2))
-        plnp2 = self.render.attachNewNode(plight2)
-        plnp2.setPos(5, 10, 8)
-        self.render.setLight(plnp2)
 
-    def camera_rotate3(self,task):
+    def camera_rotate(self,task):
         # Check to make sure the mouse is readable
         if self.mouseWatcherNode.hasMouse():
             if self.keyMap['right_click']==True:
@@ -660,48 +825,13 @@ class LookingDemo(ShowBase):
         return Task.cont  # Task continues infinitely
 
     def sun_rotate(self):
-        self.dlight1_rot=self.dlight1.hprInterval(20.0, Vec3(0, 360, 0))
+        self.dlight1_rot=self.dlight1.hprInterval(10.0, Point3(0, 360, 0))
         self.dlight1_rot.loop()
-        self.suncube_rot=self.suncube.hprInterval(20.0, Vec3(0, 360, 0))
+        self.suncube_rot=self.suncube.hprInterval(10.0, Point3(0, 360, 0))
         self.suncube_rot.loop()
         return 1
     
     def camera_move(self,task):
-        pos_val=self.camera.getPos()
-        heading=(math.pi*(self.camera.getH()))/180
-        pitch=(math.pi*(self.camera.getP()))/180
-        newval_1=pos_val[1]
-        newval_2=pos_val[0]
-        newval_3=pos_val[2]
-        if self.keyMap['move_forward']==True:#forward is y direction
-
-            dir1 = base.camera.getNetTransform().getMat().getRow3(2) 
-            #dir1.setZ(0)
-            #dir1.normalize()
-            tt1=self.camera.getPos()
-            tt1 += dir1 * 0.1
-            base.camera.setPos(tt1)
-        if self.keyMap['move_backward']==True:
-            move = Mat4()
-            move.setTranslateMat(Vec3(0, 0, -1))  # Move along Z axis
-            self.cam_matrix = self.cam_matrix * move
-            self.camera.setMat(self.cam_matrix)
-        if self.keyMap['move_left']==True==1:
-            move = Mat4()
-            move.setTranslateMat(Vec3(-1, 0, 0))  # Move along X axis
-            self.cam_matrix = self.cam_matrix * move
-            self.camera.setMat(self.cam_matrix)
-        if self.keyMap['move_right']==True:#right is x direction
-            move = Mat4()
-            move.setTranslateMat(Vec3(1, 0, 0))  # Move along X axis
-            self.cam_matrix = self.cam_matrix * move
-            self.camera.setMat(self.cam_matrix)
-        if self.keyMap['gravity_on']==True:
-            newval_3=1.6
-        #self.camera.setPos(newval_2,newval_1,newval_3)
-        return Task.cont
-
-    def camera_move2(self,task):
         pos_val=self.camera.getPos()
         heading=(math.pi*(self.camera.getH()))/180
         pitch=(math.pi*(self.camera.getP()))/180
@@ -728,15 +858,21 @@ class LookingDemo(ShowBase):
         if self.keyMap['gravity_on']==True:
             newval_3=1
         self.camera.setPos(newval_2,newval_1,newval_3)
+        self.bottom_cam_label.setText('CamPos: %0.2f,%0.2f,%0.2f'%(newval_2,newval_1,newval_3))
         #print([newval_2,newval_1,newval_3])
         return Task.cont
 
     def general_tasks(self,task):
         if self.keyMap['set_camera_pos']==True:
+            #rel_pos=self.cam_node.getRelativePoint(self.render,Vec3(self.param_1['pos'][1][0],self.param_1['pos'][1][1],self.param_1['pos'][1][2]))
+            #self.camera.setPos((rel_pos[0],rel_pos[1],rel_pos[2]))                                                                                                                                                                                                       
             self.camera.setPos((self.param_1['pos'][1][0],self.param_1['pos'][1][1],self.param_1['pos'][1][2]))
             self.keyMap['set_camera_pos']=False
             self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'camera position is set to center of current model.'
             
+        if self.keyMap['look_at']==True:
+            self.camera.lookAt(self.models_all[self.current_model_index])
+            self.keyMap['look_at']=False                   
         if self.keyMap['x_increase']==True:
             if type(self.models_all[self.current_model_index])==type(NodePath()):
                 if self.current_property==1:
@@ -1038,37 +1174,7 @@ class LookingDemo(ShowBase):
                     self.data_all[self.current_model_index]['show']=False
                     self.models_all[self.current_model_index].hide()
 
-    def updatePlayer(self, task):
-        dt = globalClock.getDt()
-        moveVec = Vec3(0, 0, 0)
-
-        # WASD movement relative to camera heading
-        camH = self.camera.getH()  # Camera's heading in degrees
-        forward = Vec3(-sin(radians(camH)), cos(radians(camH)), 0).normalized()
-        right = Vec3(cos(radians(camH)), sin(radians(camH)), 0).normalized()
-
-        if self.keys["w"]:
-            moveVec += forward
-        if self.keys["s"]:
-            moveVec -= forward
-        if self.keys["a"]:
-            moveVec -= right
-        if self.keys["d"]:
-            moveVec += right
-
-        # Normalize movement vector to prevent faster diagonal movement
-        if moveVec.lengthSquared() > 0:
-            moveVec.normalize()
-            moveVec *= self.moveSpeed * dt
-
-        # Update player position
-        self.player.setPos(self.player.getPos() + moveVec)
-
-        # Optional: Rotate player to face camera direction
-        self.player.setH(self.cameraAngleH + 180)
-
-        return task.cont
-        
+ 
     def update_model_property(self,value,option):
         # option 1 is x slider, 2 is y slider and 3 is z slider
         if option==1:

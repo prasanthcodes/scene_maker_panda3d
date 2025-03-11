@@ -1,0 +1,53 @@
+mouse controls
+--------------------------------
+
+right click and drag to view 3d scene
+
+
+keyboard shortcuts
+-------------------------------
+
+w - move forward
+s - move backward
+a - move left
+d - move right
+
+b - gravity on
+e - object view on
+o - load model
+c - set camera position to the center of current object
+v - camera look at current selected model
+
+r - x increase
+f - x decrease
+t - y increase
+g - y decrease
+y - z increase
+h - z decrease
+
+q - change property
+z - switch models
+
+delete - delete the current model
+
+
+onscreen controls
+--------------------------------
+at top
+menu option (position)- to select position,scale,rotation,color
+radio button (properties)- to display or hide (X,Y,Z) sliders
+radio button (all properties)- to display extra properties for entry (details,notes,...)
+button (save) - to save the current scene (as json file)
+menu option (model name) - to select a loaded model
+
+at middle
+
+three sliders can be adjusted to set various inputs. three text entry can be edited.
+
+text entries,radio button to feed details,description,... of models
+
+
+at bottom
+
+displays the camera current position
+
