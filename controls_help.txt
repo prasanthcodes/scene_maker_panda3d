@@ -13,7 +13,6 @@ a - move left
 d - move right
 
 b - gravity on
-e - object view on
 o - load model
 c - set camera position to the center of current object
 v - camera look at current selected model
