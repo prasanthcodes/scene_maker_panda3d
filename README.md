@@ -6,7 +6,7 @@ A simple scene maker for panda3d
 2. load and transform models live
 3. easy shortcut keys
 
-![Screenshot of window](screenshot.jpg)
+![Screenshot of window](Screenshot.jpg)
 
 ## shortcuts
 mouse controls
