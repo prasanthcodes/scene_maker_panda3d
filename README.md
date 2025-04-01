@@ -9,13 +9,11 @@ A simple scene maker for panda3d
 ![Screenshot of window](Screenshot.jpg)
 
 ## shortcuts
-mouse controls
---------------------------------
 
+### mouse controls
 right click and drag to view 3d scene
 
-keyboard shortcuts
--------------------------------
+### keyboard shortcuts
 
 w - move forward
 s - move backward
