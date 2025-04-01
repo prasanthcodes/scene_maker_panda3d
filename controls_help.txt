@@ -12,10 +12,14 @@ s - move backward
 a - move left
 d - move right
 
+q - change property
+z - switch models
+
 b - gravity on
 o - load model
-c - set camera position to the center of current object
+c - set camera position to the center of current selected model
 v - camera look at current selected model
+m - to hide all GUI
 
 r - x increase
 f - x decrease
@@ -24,26 +28,16 @@ g - y decrease
 y - z increase
 h - z decrease
 
-q - change property
-z - switch models
-
 delete - delete the current model
 
 
 onscreen controls
 --------------------------------
 at top
-menu option (position)- to select position,scale,rotation,color
-radio button (properties)- to display or hide (X,Y,Z) sliders
-radio button (all properties)- to display extra properties for entry (details,notes,...)
+dropdown menu (position)- to select position,scale,rotation,color
+button (menu) - to set various options,settings
 button (save) - to save the current scene (as json file)
-menu option (model name) - to select a loaded model
-
-at middle
-
-three sliders can be adjusted to set various inputs. three text entry can be edited.
-
-text entries,radio button to feed details,description,... of models
+dropdown menu (model name) - to select a loaded model
 
 
 at bottom
