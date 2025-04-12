@@ -992,7 +992,8 @@ class LookingDemo(ShowBase):
         self.dlight1.node().get_lens().setNearFar(1, 50)
         self.dlight1.node().show_frustum()
         self.render.setLight(self.dlight1)
-                                
+        
+                                             
     def camera_rotate(self,task):
         # Check to make sure the mouse is readable
         if self.mouseWatcherNode.hasMouse():
@@ -1012,7 +1013,10 @@ class LookingDemo(ShowBase):
 
                 # Update camera angles based on mouse movement
                 self.cameraAngleH -= dx * self.mouse_sensitivity * globalClock.getDt()
-                self.cameraAngleP -= dylf.cameraAngleP = max(-90, min(90, self.cameraAngleP))
+                self.cameraAngleP -= dy * self.mouse_sensitivity * globalClock.getDt()
+
+                # Clamp pitch to avoid flipping
+                self.cameraAngleP = max(-90, min(90, self.cameraAngleP))
                 
                 #self.camera.setPos(camX, camY, camZ)
                 self.camera.setHpr(self.cameraAngleH, self.cameraAngleP, 0)
