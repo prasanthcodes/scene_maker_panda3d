@@ -972,7 +972,7 @@ class LookingDemo(ShowBase):
         self.ambientLight.setColor((self.ambientLight_Intensity,self.ambientLight_Intensity,self.ambientLight_Intensity, 1))
         self.render.setLight(self.render.attachNewNode(self.ambientLight))
         self.directionalLight = DirectionalLight("directionalLight_1")
-        self.directionalLight_intensity=1
+        self.directionalLight_intensity=5
         self.directionalLight.setColor((self.directionalLight_intensity,self.directionalLight_intensity,self.directionalLight_intensity, 1))
         #self.directionalLight.setSpecularColor((.1, .1, .1, .1))
         self.directionalLight.setShadowCaster(True, 512, 512)
@@ -986,18 +986,7 @@ class LookingDemo(ShowBase):
         self.suncube.setScale(1.5,1.5,1.5)
         #self.suncube.setPos(10,10,20)
         #self.suncube.setHpr(0, -45, 0)
-        #self.environ1.set_shader(self.shader)
-        cm = CardMaker('card')
-        card = self.dlight1.attachNewNode(cm.generate())
-        card.setBillboardPointEye()
-        card.setTexture(loader.loadTexture('flare5.png'))
-        #card.setColor(color)
-        #card.setPos(pos)
-        card.setScale(20)
-        card.setTransparency(TransparencyAttrib.MAlpha)
-        card.setLightOff()
-        #self.dlight1.attachNewNode(card)
-        #self.dlight1.setShader(Shader.load("lens_flare.sha"))                              
+        #self.environ1.set_shader(self.shader)               
 
         self.dlight1.node().get_lens().set_film_size(50, 50)
         self.dlight1.node().get_lens().setNearFar(1, 50)
