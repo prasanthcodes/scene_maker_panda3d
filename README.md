@@ -38,3 +38,5 @@ h - z decrease <br/> <br/>
 
 delete - delete the current model <br/>
 
+### Notes
+1. model files should loaded from current relative path. when loading from outside of current folder, there is a error occurs
