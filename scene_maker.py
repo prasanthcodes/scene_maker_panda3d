@@ -80,10 +80,11 @@ class SceneMakerMain(ShowBase):
         #---adjustable parameters---
         self.mouse_sensitivity=50
         self.move_speed=0.1
-        self.scene_data_filename='scene_params1.json'
-        self.scene_data_backup_filename='scene_params1_tempbackup.json'
-        self.scene_light_data_filename='scene_light_params1.json'
-        self.scene_light_data_backup_filename='scene_light_params1_tempbackup.json'
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        self.scene_data_filename=os.path.join(base_path,'scene_params1.json')
+        self.scene_data_backup_filename=os.path.join(base_path,'scene_params1_tempbackup.json')
+        self.scene_light_data_filename=os.path.join(base_path,'scene_light_params1.json')
+        self.scene_light_data_backup_filename=os.path.join(base_path,'scene_light_params1_tempbackup.json')
         self.load_lights_from_json=True #set this False if you dont want to load point lights from json file
 
         # Camera param initializations
@@ -107,6 +108,8 @@ class SceneMakerMain(ShowBase):
         self.plight_idx=0                          
         self.set_keymap()
         self.current_model_index=0
+        self.anim_name_list=[]
+        self.current_animation=None
         self.load_environment_models()
         self.setupLights()
         taskMgr.add(self.camera_rotate, "camera_rotateTask")
@@ -208,6 +211,11 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_d2.hide()
         self.create_model_lights_gui()
         self.ScrolledFrame_e1.hide()
+        self.create_model_nodepaths_viewer_gui()
+        self.ScrolledFrame_f1.hide()
+        self.create_model_animation_viewer_gui()
+        self.ScrolledFrame_g1.hide()
+        
         self.create_dropdown_main_menu()
         self.menu_dropdown_1.hide()
         
@@ -306,8 +314,29 @@ class SceneMakerMain(ShowBase):
             text_fg=(1, 1, 1, 0.9),
             indicatorValue=0
             )
+        self.CheckButton_6 = DirectCheckButton(
+            parent=self.menu_dropdown_1.getCanvas(),
+            text = "Model NodePaths Viewer" ,
+            text_align=TextNode.ALeft,
+            scale=.06,
+            command=self.cbuttondef_b6,
+            pos=(0.1, 1,-0.6),
+            frameColor=(0, 0, 0, 0.4),
+            text_fg=(1, 1, 1, 0.9),
+            indicatorValue=0
+            )
+        self.CheckButton_7 = DirectCheckButton(
+            parent=self.menu_dropdown_1.getCanvas(),
+            text = "Model Animation Viewer" ,
+            text_align=TextNode.ALeft,
+            scale=.06,
+            command=self.cbuttondef_b7,
+            pos=(0.1, 1,-0.7),
+            frameColor=(0, 0, 0, 0.4),
+            text_fg=(1, 1, 1, 0.9),
+            indicatorValue=0
+            )
         
-
     def create_properties_gui(self):
         self.dlabel_1=DirectLabel(text='X: ',pos=(-1.3,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dlabel_2=DirectLabel(text='Y: ',pos=(-1.3,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
@@ -550,12 +579,64 @@ class SceneMakerMain(ShowBase):
         self.dlabel_e21=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Notes:',pos=(0.5,0,-1),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dentry_e22 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.7, 0,-1), scale=0.06,width=25, command=self.SetEntryText_e,extraArgs=['Notes'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
+    def create_model_nodepaths_viewer_gui(self):
+        self.ScrolledFrame_f1=DirectScrolledFrame(
+            frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            #pos=(-0.35, 1,0.95)
+            frameColor=(0.3, 0.3, 0.3, 0.5)
+        )
+        
+    def create_model_animation_viewer_gui(self):
+        self.ScrolledFrame_g1=DirectScrolledFrame(
+            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            #pos=(-0.35, 1,0.95)
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_3=self.ScrolledFrame_g1.getCanvas()
+        
+        self.ScrolledFrame_g2=DirectScrolledFrame(
+            parent=canvas_3,
+            frameSize=(-1.4, -0.3, -0.9, 0.6),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            #pos=(-0.35, 1,0.95)
+            frameColor=(0.3, 0.3, 0.3, 0.5)
+        )
+        
+        self.checkbutton_g3=DirectCheckButton(
+            parent=canvas_3,
+            text = " Actor (Enable Actor)" ,
+            text_align=TextNode.ALeft,
+            scale=0.06,
+            command=self.cbuttondef_g3,
+            pos=(-1.05, 1,0.7),
+            frameColor=(0, 0, 0, 0.4),
+            text_fg=(1, 1, 1, 0.9),
+            indicatorValue=0
+            )
+
+        self.dlabel_g4 = DirectLabel(parent=canvas_3,text='Current Animation: ',pos=(-0.1,1,0.6),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_g5 = DirectLabel(parent=canvas_3,text='None',pos=(0,1,0.5),scale=0.06,text_align=TextNode.ALeft,text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dbutton_g6 = DirectButton(parent=canvas_3,text='Play',pos=(-0.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g6)
+        self.dbutton_g7 = DirectButton(parent=canvas_3,text='Pause',pos=(-0.1,1,0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g7)
+        self.dbutton_g8 = DirectButton(parent=canvas_3,text='Stop',pos=(-0.1,1,0.1),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g8)
+        self.checkbutton_g9=DirectCheckButton(parent=canvas_3,text = " Loop" ,text_align=TextNode.ALeft,scale=0.06,command=self.cbuttondef_g9,pos=(-0.05, 1,0),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),indicatorValue=0)
+        self.dbutton_g10 = DirectButton(parent=canvas_3,text='Load Egg Animation File',pos=(-0.1,1,-0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g10)
+        self.dlabel_g11 = DirectLabel(parent=canvas_3,text='Animation Index to Remove(* for all): ',pos=(-0.1,1,-0.3),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dentry_g12 = DirectEntry(parent=canvas_3,text = "", scale=0.06,width=3,pos=(0.95, 1,-0.3), command=self.SetEntryText_g12,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_g12.enterText('*')
+        self.dbutton_g13 = DirectButton(parent=canvas_3,text='Remove Animation',pos=(-0.1,1,-0.4),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g13)
+        
+
     def cbuttondef_tst(self,status):
         if status:
             print('clickd')
         else:
             print('not clickd')
-        
         
     def cbuttondef_1(self,status):
         if status:
@@ -575,8 +656,11 @@ class SceneMakerMain(ShowBase):
             self.models_all[self.current_model_index]=loader.loadModel(self.data_all[self.current_model_index]["filename"])
             self.models_all[self.current_model_index].reparentTo(self.render)
             self.load_model_from_param(fileload_flag=False,indexload_flag=True)
-            self.load_model_values_to_gui()
+            self.set_model_values_to_gui()
             self.makeup_lights_gui()
+            self.add_model_nodepaths_to_gui_f1()
+            self.add_model_animations_to_gui_g1()
+            
         else:
             self.data_all[self.current_model_index]['enable']=False
             self.models_all[self.current_model_index].removeNode()
@@ -613,7 +697,19 @@ class SceneMakerMain(ShowBase):
             self.ScrolledFrame_e1.show()
         else:
             self.ScrolledFrame_e1.hide()
+
+    def cbuttondef_b6(self,status):
+        if status:
+            self.ScrolledFrame_f1.show()
+        else:
+            self.ScrolledFrame_f1.hide()
             
+    def cbuttondef_b7(self,status):
+        if status:
+            self.ScrolledFrame_g1.show()
+        else:
+            self.ScrolledFrame_g1.hide()
+
     def cbuttondef_gs1(self,status):
         if status:
             self.crosshair.show()
@@ -625,6 +721,48 @@ class SceneMakerMain(ShowBase):
             self.gizmo.show()
         else:
             self.gizmo.hide()
+
+    def cbuttondef_g3(self,status):
+        if status:
+            self.data_all[self.current_model_index]['actor'][0]=True
+            self.param_1['actor'][0]=True
+            self.current_actor=Actor(self.ModelTemp)
+            if isinstance(self.ModelTemp, Actor):
+                self.ModelTemp.cleanup()
+            self.ModelTemp.removeNode()
+            if isinstance(self.models_all[self.current_model_index], Actor):
+                self.models_all[self.current_model_index].cleanup()
+            self.models_all[self.current_model_index].removeNode()
+            self.models_all[self.current_model_index]=self.current_actor
+            self.ModelTemp=self.current_actor
+            self.ModelTemp.setScale((5,5,5))
+            self.load_model_from_param(fileload_flag=0,indexload_flag=1)
+            self.add_model_animations_to_gui_g1()
+        else:
+            self.data_all[self.current_model_index]['actor'][0]=False
+            self.param_1['actor'][0]=False
+            if isinstance(self.ModelTemp, Actor):
+                self.ModelTemp.stop()#.pose("idle", 0)
+            model = self.ModelTemp.copyTo(self.render)
+            if isinstance(self.ModelTemp, Actor):
+                self.ModelTemp.cleanup()
+            self.ModelTemp.removeNode()
+            if isinstance(self.models_all[self.current_model_index], Actor):
+                self.models_all[self.current_model_index].cleanup()
+            self.models_all[self.current_model_index].removeNode()
+            self.ModelTemp=model
+            self.models_all[self.current_model_index]=model
+            self.load_model_from_param(fileload_flag=0,indexload_flag=1)
+            self.add_model_animations_to_gui_g1()
+            
+    def cbuttondef_g9(self,status):
+        if self.current_animation is not None:
+            if status:
+                self.current_animation.loop(0)
+                self.data_all[self.current_model_index]['actor'][2]=True
+            else:
+                self.current_animation.stop()
+                self.data_all[self.current_model_index]['actor'][2]=False
 
     def GetSliderValue_1(self):
             self.dentry_1.enterText(str(self.dslider_1['value']))
@@ -828,8 +966,8 @@ class SceneMakerMain(ShowBase):
             print('error in entry7')
 
     def SetEntryText_e(self,textEntered,identifier):
-        if 1:
-        #try:
+        #if 1:
+        try:
             idx=self.current_light_model_index
             idx2=self.plight_idx
             if identifier=='Overall_Intensity':
@@ -900,9 +1038,18 @@ class SceneMakerMain(ShowBase):
             elif identifier=='Notes':
                 val=str(textEntered)
                 self.data_all_light[idx]['plights'][idx2]['notes']=val
-        else:
-        #except:
+        #else:
+        except:
             print('error in entry_e')
+            now = datetime.datetime.now()
+            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'error in entry_e.'
+
+    def SetEntryText_g12(self,textEntered):
+        try:
+            #self.data_all[self.current_model_index]['pickable'][1]=textEntered
+            print('')
+        except:
+            print('error in entry g12')
 
     def focusInDef(self):
         self.ignoreAll()
@@ -913,6 +1060,78 @@ class SceneMakerMain(ShowBase):
 
     def focusOutDef(self):
         self.set_keymap()
+
+    def ButtonDef_g6(self):
+        if self.current_animation is not None:
+            self.current_animation.play()
+        else:
+            print('current_animation is none')
+
+    def ButtonDef_g7(self):
+        if self.current_animation is not None:
+            if self.current_animation.isPlaying():
+                self.current_animation.stop()
+        else:
+            print('current_animation is none')
+        
+    def ButtonDef_g8(self):
+        if self.current_animation is not None:
+            if self.current_animation.isPlaying():
+                self.current_animation.stop()
+                self.current_animation.pose(0)
+        else:
+            print('current_animation is none')
+            
+    def ButtonDef_g10(self):
+        try:
+            if self.param_1['actor'][0]==True:
+                openedfilenames=askopenfilename(title="open a model animation file",initialdir=".",filetypes=[("animation files", " .egg .bam .pz"),("All files", "*.*")],multiple=True)
+                for i in range(len(openedfilenames)):
+                    bname=os.path.basename(openedfilenames[i])
+                    relpath=os.path.relpath(openedfilenames[i], os.getcwd())
+                    aname=os.path.splitext(bname)[0]
+                    self.ModelTemp.loadAnims({aname: relpath})
+                    self.data_all[self.current_model_index]['actor'][3].append(relpath)
+                self.add_model_animations_to_gui_g1()
+                
+            else:
+                print('not an Actor')
+                now = datetime.datetime.now()
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'not an Actor.'
+        except:
+            print('anim loading error')
+            now = datetime.datetime.now()
+            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'animation loading error.'
+            
+    def ButtonDef_g13(self):
+        #if 1:
+        try:
+            if self.param_1['actor'][0]==True:
+                animIndex=self.dentry_g12.get()
+                if animIndex=='*':
+                    self.ModelTemp.unloadAnims()
+                    self.data_all[self.current_model_index]['actor'][3]=[]
+                else:
+                    animIndex=int(animIndex)-1
+                    self.ModelTemp.stop(self.anim_name_list[animIndex]) # this is important
+                    self.ModelTemp.unloadAnims(anims = [self.anim_name_list[animIndex]])
+                    for i in range(len(self.data_all[self.current_model_index]['actor'][3])-1,-1,-1):
+                        aname=os.path.basename(os.path.splitext(bname)[0])
+                        if aname==self.anim_name_list[animIndex]:
+                            del self.data_all[self.current_model_index]['actor'][3][i]
+                    # Release the animation control
+                    anim_control=self.ModelTemp.getAnimControl(self.anim_name_list[animIndex])
+                    self.ModelTemp.releaseAnim(anim_control)
+                    self.add_model_animations_to_gui_g1()
+            else:
+                print('not an Actor')
+                now = datetime.datetime.now()
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'not an Actor.'
+        #else:
+        except:
+            print('anim removing error')
+            now = datetime.datetime.now()
+            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'animation removing error.'
 
     def ButtonDef_1(self):
         shutil.copyfile(self.scene_data_filename, self.scene_data_backup_filename)
@@ -958,8 +1177,10 @@ class SceneMakerMain(ShowBase):
         self.load_model_from_param(fileload_flag=False,indexload_flag=True)
         #self.menu_2['items']=self.models_names_all
         #self.menu_2.set(self.current_model_index)
-        self.load_model_values_to_gui()
+        self.set_model_values_to_gui()
         self.makeup_lights_gui()
+        self.add_model_nodepaths_to_gui_f1()
+        self.add_model_animations_to_gui_g1()
 
     def DialogDef_1(self,arg):
         if arg:
@@ -1015,8 +1236,13 @@ class SceneMakerMain(ShowBase):
         for i in range(len(self.data_all)):
             data=self.data_all[i]
             self.models_names_all.append(data["uniquename"])
+            if 'actor' not in data:
+                data['actor']=[False, "",False,[]]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
             if data["enable"]:
-                self.ModelTemp=loader.loadModel(data["filename"])
+                if data['actor'][0]==True:
+                    self.ModelTemp=Actor(data["filename"])
+                else:
+                    self.ModelTemp=loader.loadModel(data["filename"])
                 #--- uncomment the below code to load the point lights from model and use save button to save the params
                 #(param_2,light_name_list,light_list,light_node_list)=self.get_point_light_properties_from_model(self.ModelTemp,data)
                 #if len(param_2)>0:
@@ -1055,8 +1281,25 @@ class SceneMakerMain(ShowBase):
                 d=data["hpr"][1]
                 if data["hpr"][0]: self.ModelTemp.setHpr(d[0],d[1],d[2])
                 d=data["color"][1]
-                if data["color"][0]: self.ModelTemp.setColorScale(d[0],d[1],d[2],d[3])
+                if data["color"][0]: self.ModelTemp.setColorScale(d[0],d[1],d[2],d[3]) 
                 #self.ModelTemp.clearLight()
+                
+                #---set actor data---
+                if data['actor'][0]==True:
+                    try:
+                        for k in range(len(data['actor'][3])):
+                            animpath=data['actor'][3][k]
+                            bname=os.path.basename(animpath)
+                            aname=os.path.splitext(bname)[0]
+                            self.ModelTemp.loadAnims({aname: animpath})
+                        
+                        self.current_animation = self.ModelTemp.getAnimControl(data['actor'][1])
+                        if data['actor'][2]==True:
+                            self.current_animation.loop(0)
+                    except Exception as err:
+                        print(err)
+                else:
+                    pass
                 
                 self.models_all.append(self.ModelTemp)
                 self.models_all[-1].reparentTo(self.render)
@@ -1067,7 +1310,6 @@ class SceneMakerMain(ShowBase):
             else:
                 self.models_all.append("")
         
-
     def set_keymap(self):
         self.keyMap = {"move_forward": 0, "move_backward": 0, "move_left": 0, "move_right": 0,"gravity_on":0,"load_model":0,"set_camera_pos":0,"x_increase":0,"x_decrease":0,"y_increase":0,"y_decrease":0,"z_increase":0,"z_decrease":0,"right_click":0,"switch_model":0,"delete_model":0,"up_arrow":0,"down_arrow":0,"right_arrow":0,"left_arrow":0,"look_at":0,"show_gui":1}
         self.accept('escape', sys.exit)
@@ -1110,7 +1352,6 @@ class SceneMakerMain(ShowBase):
         self.accept("arrow_right-up", self.setKey, ["right_arrow", False])
         self.accept("arrow_left", self.setKey, ["left_arrow", True])
         self.accept("arrow_left-up", self.setKey, ["left_arrow", False])
-        
         
     def change_property(self):
         if self.current_property==1:
@@ -1179,25 +1420,28 @@ class SceneMakerMain(ShowBase):
             data=self.data_all[self.current_model_index]
             self.param_1=data
             #self.load_model_from_param(fileload_flag=False,indexload_flag=True)
-            #self.load_model_values_to_gui()
+            #self.set_model_values_to_gui()
             self.menu_2.set(self.current_model_index)#it will trigger the DirectOptionMenu function
         elif key=="load_model":
             print('open a model to load')
             self.keyMap['load_model']=False
-            #print(self.camera.getPos())
-            len_curdir=len(os.getcwd())+1
             root = tk.Tk()
-            openedfilename=askopenfilename(title="open the model file",initialdir=".",filetypes=[("model files", ".gltf .glb .egg .bam"),("All files", "*.*")])
+            openedfilename=askopenfilename(title="open the model file",initialdir=".",filetypes=[("model files", ".gltf .glb .egg .bam .pz"),("All files", "*.*")])
             root.destroy()
             if len(openedfilename)>0:
-                modelfilepath=openedfilename[len_curdir:]
-                if modelfilepath[0]=='/': modelfilepath=modelfilepath[1:]
-                if modelfilepath[0]=='\\': modelfilepath=modelfilepath[1:]         
-                tempname=modelfilepath
-                tempname=tempname.replace('/','_')
-                tempname=tempname.replace('\\','_')
+                modelfilepath=os.path.relpath(openedfilename, os.getcwd())     
+                uqname=os.path.basename(modelfilepath)
+                tempname=uqname
+                for i in range(int(1e3)):
+                    if tempname not in self.models_names_all:
+                        continue
+                    else:
+                        tempname=uqname+'.%03d'%(i)
+                #tempname=tempname.replace('/','_')
+                #tempname=tempname.replace('\\','_')
                 self.param_1={}
-                self.param_1['uniquename']=tempname+' '+datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
+                #self.param_1['uniquename']=uqname+' '+datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
+                self.param_1['uniquename']=tempname
                 self.param_1['filename']=modelfilepath
                 self.param_1['enable']=True
                 self.param_1['show']=True
@@ -1215,8 +1459,9 @@ class SceneMakerMain(ShowBase):
                 self.param_1['pickable']=[True, ""]
                 self.param_1['enable_lights_from_model']=[False, ""]
                 self.param_1['load_lights_from_json']=[True, ""]
+                self.param_1['actor']=[False, "",False,[]]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
                 self.load_model_from_param(fileload_flag=True,indexload_flag=False)
-                self.load_model_values_to_gui()
+                self.set_model_values_to_gui()
                 self.menu_2['items']=self.models_names_all
                 self.menu_2.set(self.current_model_index)
                 print('model loaded')
@@ -1231,7 +1476,7 @@ class SceneMakerMain(ShowBase):
         else:
             self.keyMap[key] = value
 
-    def load_model_values_to_gui(self):
+    def set_model_values_to_gui(self):
         if self.current_property==1:
             data=self.data_all[self.current_model_index]['pos'][1]
         if self.current_property==2:
@@ -1254,7 +1499,13 @@ class SceneMakerMain(ShowBase):
         self.dentry_b9.enterText(self.data_all[self.current_model_index]['notes'])
         self.CheckButton_b10['indicatorValue']=self.data_all[self.current_model_index]['pickable'][0]
         self.dentry_b11.enterText(self.data_all[self.current_model_index]['pickable'][1])
-
+        
+        #---set actor data---
+        self.checkbutton_g3['indicatorValue']=self.data_all[self.current_model_index]['actor'][0]
+        self.dlabel_g5.setText(self.data_all[self.current_model_index]['actor'][1])
+        self.checkbutton_g9['indicatorValue']=self.data_all[self.current_model_index]['actor'][2]
+        self.add_model_animations_to_gui_g1()
+        
         
     def setupLights(self):  # Sets up some default lighting
         self.ambientLight = AmbientLight("ambientLight")
@@ -1283,7 +1534,6 @@ class SceneMakerMain(ShowBase):
         self.dlight1.node().show_frustum()
         self.render.setLight(self.dlight1)
         
-                                             
     def camera_rotate(self,task):
         # Check to make sure the mouse is readable
         if self.mouseWatcherNode.hasMouse():
@@ -1643,6 +1893,7 @@ class SceneMakerMain(ShowBase):
                     
             if indexload_flag==True:
                 self.ModelTemp=self.models_all[self.current_model_index]
+                self.ModelTemp.reparentTo(self.render)
                 #---load light properties---
                 try:
                     idx=self.models_with_lights.index(self.models_names_all[self.current_model_index])
@@ -1709,7 +1960,6 @@ class SceneMakerMain(ShowBase):
                 if type(self.models_all[self.current_model_index])==type(NodePath()):
                     self.data_all[self.current_model_index]['show']=False
                     self.models_all[self.current_model_index].hide()
-
 
     def update_model_property(self,value,option):
         # option 1 is x slider, 2 is y slider and 3 is z slider
@@ -1863,7 +2113,6 @@ class SceneMakerMain(ShowBase):
                 self.param_2['plights'].append(temp_dict.copy())
         #print('light_name_list',light_name_list)
         return (self.param_2,light_name_list,light_list,light_node_list)
-
     
     def makeup_lights_gui(self):
         self.scrolled_list_e1.removeAllItems()
@@ -1900,16 +2149,18 @@ class SceneMakerMain(ShowBase):
             button.bind(DGG.WITHIN, self.on_hover_1, [button])
             button.bind(DGG.WITHOUT, self.on_exit_1, [button])
             self.scrolled_list_e1.addItem(frame)
-
         
     def on_hover_1(self, button,frame):
         button["frameColor"] = (0, 0, 1, 0.5)
 
     def on_exit_1(self, button,frame):
         button["frameColor"] = (0, 0, 0, 0.3)
-            
+    
     def is_mouse_over_list(self):
         if not base.mouseWatcherNode.hasMouse():
+            return False
+            
+        if self.scrolled_list_e1.isHidden():
             return False
 
         mouse_x = base.mouseWatcherNode.getMouseX()
@@ -1924,10 +2175,7 @@ class SceneMakerMain(ShowBase):
         top = list_pos[2] + frame_size[3]
         left=-0.904;right=-0.37;bottom=-0.84;top=0.7 #values manually findout from gui
         return (left <= mouse_x <= right) and (bottom <= mouse_y <= top)
-        
-    def LightItem_func(self):
-        pass#print(i)
-
+    
     def scroll_up(self):
         if self.is_mouse_over_list():
             if self.current_scroll_index > 0:
@@ -1935,7 +2183,8 @@ class SceneMakerMain(ShowBase):
                 self.scrolled_list_e1.scrollTo(self.current_scroll_index)
                 print("Scroll Up Triggered | Index:", self.current_scroll_index)
         else:
-            print("Scroll Up Ignored - Mouse outside list")
+            pass
+            #print("Scroll Up Ignored - Mouse outside list")
 
     def scroll_down(self):
         if self.is_mouse_over_list():
@@ -1945,8 +2194,8 @@ class SceneMakerMain(ShowBase):
                 self.scrolled_list_e1.scrollTo(self.current_scroll_index)
                 print("Scroll Down Triggered | Index:", self.current_scroll_index)
         else:
-            print("Scroll Down Ignored - Mouse outside list")
-
+            pass
+            #print("Scroll Down Ignored - Mouse outside list")
 
     def on_item_click(self, item_index):
         self.plight_idx=item_index
@@ -1965,7 +2214,119 @@ class SceneMakerMain(ShowBase):
             self.dentry_e22.enterText(str(self.data_all_light[idx]['plights'][item_index]['notes']))
         else:
             pass
+
+    def add_model_nodepaths_to_gui_f1(self):
+        # Get the canvas NodePath
+        canvas = self.ScrolledFrame_f1.getCanvas()
+
+        # Remove all child nodes
+        for child in canvas.getChildren():
+            child.removeNode()
         
+        nodepathlist=[]
+        for npath in self.ModelTemp.find_all_matches("**/*"):
+            nodepathlist.append(str(npath)+' , '+str(npath.node().getClassType()))#node().getName()
+
+        # Add clickable items to the list
+        for i in range(len(nodepathlist)):
+
+            # Add label
+            label = DirectLabel(
+                parent=canvas,
+                text=f"{i+1}. ",
+                scale=0.05,
+                text_fg=(1, 1, 1, 0.9),
+                frameColor=(0, 0, 0, 0.3),
+                pos=(0, 0, -0.1*i),
+                text_align=TextNode.ALeft
+            )
+
+            # Add button
+            button = DirectButton(
+                parent=canvas,
+                text=nodepathlist[i],
+                text_fg=(1, 1, 1, 0.9),
+                scale=0.05,
+                pos=(0.1, 0, -0.1*i),
+                command=self.on_item_click_f1,
+                frameColor=(0, 0, 0, 0.3),
+                text_align=TextNode.ALeft,
+                extraArgs=[i]  # Pass item number to callback
+            )
+            # Define hover events
+            button.bind(DGG.WITHIN, self.on_hover_1, [button])
+            button.bind(DGG.WITHOUT, self.on_exit_1, [button])
+            
+            canvas_left=-0.1
+            canvas_right=6
+            canvas_bottom=-(len(nodepathlist)*button.getHeight()/10)
+            canvas_top=0.1
+            self.ScrolledFrame_f1["canvasSize"] = (canvas_left, canvas_right, canvas_bottom, canvas_top)
+
+            # Force scrollbars to recompute
+            self.ScrolledFrame_f1.guiItem.remanage()
+
+    def on_item_click_f1(self, item_index):
+        pass
+
+    def add_model_animations_to_gui_g1(self):
+        # Get the canvas NodePath
+        canvas = self.ScrolledFrame_g2.getCanvas()
+
+        # Remove all child nodes
+        for child in canvas.getChildren():
+            child.removeNode()
+        
+        self.anim_name_list=[]
+        self.current_animation=None
+        self.dlabel_g5.setText("")
+        if isinstance(self.ModelTemp, Actor):
+            self.anim_name_list=self.ModelTemp.getAnimNames()#self.ModelTemp
+        
+        # Add clickable items to the list
+        for i in range(len(self.anim_name_list)):
+
+            # Add label
+            label = DirectLabel(
+                parent=canvas,
+                text=f"{i+1}. ",
+                scale=0.05,
+                text_fg=(1, 1, 1, 0.9),
+                frameColor=(0, 0, 0, 0.3),
+                pos=(0, 0, -0.1*i),
+                text_align=TextNode.ALeft
+            )
+
+            # Add button
+            button = DirectButton(
+                parent=canvas,
+                text=self.anim_name_list[i],
+                text_fg=(1, 1, 1, 0.9),
+                scale=0.05,
+                pos=(0.1, 0, -0.1*i),
+                command=self.on_item_click_g1,
+                frameColor=(0, 0, 0, 0.3),
+                text_align=TextNode.ALeft,
+                extraArgs=[i]  # Pass item number to callback
+            )
+            # Define hover events
+            button.bind(DGG.WITHIN, self.on_hover_1, [button])
+            button.bind(DGG.WITHOUT, self.on_exit_1, [button])
+            
+            canvas_left=-0.1
+            canvas_right=2
+            canvas_bottom=-(len(self.anim_name_list)*button.getHeight()/10)
+            canvas_top=0.1
+            self.ScrolledFrame_g2["canvasSize"] = (canvas_left, canvas_right, canvas_bottom, canvas_top)
+
+            # Force scrollbars to recompute
+            self.ScrolledFrame_g2.guiItem.remanage()
+
+    def on_item_click_g1(self, item_index):
+        self.current_animation = self.ModelTemp.getAnimControl(self.anim_name_list[item_index])
+        self.data_all[self.current_model_index]['actor'][1]=self.anim_name_list[item_index]
+        self.dlabel_g5.setText(self.anim_name_list[item_index])
+
     def create_gizmo(self, position=Vec3(0, 0, 0), scale=1.0):
         # Create a LineSegs object for drawing the gizmo axes
         lines = LineSegs()
