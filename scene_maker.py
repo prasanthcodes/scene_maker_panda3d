@@ -105,7 +105,7 @@ class SceneMakerMain(ShowBase):
         self.light_list=[]
         self.light_node_list=[]
         self.current_light_model_index=None
-        self.plight_idx=0                          
+        self.plight_idx=0
         self.set_keymap()
         self.current_model_index=0
         self.anim_name_list=[]
@@ -215,6 +215,8 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_f1.hide()
         self.create_model_animation_viewer_gui()
         self.ScrolledFrame_g1.hide()
+        self.create_model_parent_editor_gui()
+        self.ScrolledFrame_h1.hide()
         
         self.create_dropdown_main_menu()
         self.menu_dropdown_1.hide()
@@ -268,7 +270,7 @@ class SceneMakerMain(ShowBase):
             pos=(0.1,1,-0.1),
             frameColor=(0, 0, 0, 0.4),
             text_fg=(1, 1, 1, 0.9),
-            indicatorValue=1
+            indicatorValue=0
             )
         self.CheckButton_2 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
@@ -336,7 +338,18 @@ class SceneMakerMain(ShowBase):
             text_fg=(1, 1, 1, 0.9),
             indicatorValue=0
             )
-        
+        self.CheckButton_8 = DirectCheckButton(
+            parent=self.menu_dropdown_1.getCanvas(),
+            text = "Model Parent Editor" ,
+            text_align=TextNode.ALeft,
+            scale=.06,
+            command=self.cbuttondef_b8,
+            pos=(0.1, 1,-0.8),
+            frameColor=(0, 0, 0, 0.4),
+            text_fg=(1, 1, 1, 0.9),
+            indicatorValue=0
+            )
+                
     def create_properties_gui(self):
         self.dlabel_1=DirectLabel(text='X: ',pos=(-1.3,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dlabel_2=DirectLabel(text='Y: ',pos=(-1.3,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
@@ -631,7 +644,69 @@ class SceneMakerMain(ShowBase):
         self.dentry_g12.enterText('*')
         self.dbutton_g13 = DirectButton(parent=canvas_3,text='Remove Animation',pos=(-0.1,1,-0.4),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g13)
         
-
+    def create_model_parent_editor_gui(self):
+        self.ScrolledFrame_h1=DirectScrolledFrame(
+            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_4=self.ScrolledFrame_h1.getCanvas()
+        
+        self.ScrolledFrame_h2=DirectScrolledFrame(
+            parent=canvas_4,
+            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            #pos=(-0.35, 1,0.95)
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        
+        # description label at top
+        self.dlabel_h0=DirectLabel(
+            parent=canvas_4,
+            text="Tip: Type 'render' or 0 to reparent to render. 'none' or -1 to detach the model.",
+            text_scale=0.06,
+            text_align=TextNode.ALeft,
+            pos=(-1.4, 0, 0.7),
+            text_fg=(0, 0.5, 0, 0.8),frameColor=(1,1,1,0.7)
+        )
+        # Title labels
+        self.dlabel_h1=DirectLabel(
+            parent=canvas_4,
+            text="Index",
+            text_scale=0.06,
+            text_align=TextNode.ALeft,
+            pos=(-1.4, 0, 0.6),
+            text_fg=(0, 0, 0.5, 0.9),frameColor=(1,1,1,0.7)
+        )
+        self.dlabel_h2=DirectLabel(
+            parent=canvas_4,
+            text="Model Name",
+            text_scale=0.06,
+            text_align=TextNode.ALeft,
+            pos=(-1.15, 0, 0.6),
+            text_fg=(0, 0, 0.5, 0.9),frameColor=(1,1,1,0.7)
+        )
+        self.dlabel_h3=DirectLabel(
+            parent=canvas_4,
+            text="Parent Name",
+            text_scale=0.06,
+            text_align=TextNode.ALeft,
+            pos=(-0.25, 0, 0.6),
+            text_fg=(0, 0, 0.5, 0.9),frameColor=(1,1,1,0.7)
+        )
+        self.dlabel_h4=DirectLabel(
+            parent=canvas_4,
+            text="Parent Index",
+            text_scale=0.06,
+            text_align=TextNode.ALeft,
+            pos=(0.86, 0, 0.6),
+            text_fg=(0, 0, 0.5, 0.9),frameColor=(1,1,1,0.7)
+        )
+        self.add_items_to_model_parent_editor()
+        
+        
     def cbuttondef_tst(self,status):
         if status:
             print('clickd')
@@ -654,15 +729,19 @@ class SceneMakerMain(ShowBase):
         if status:
             self.data_all[self.current_model_index]['enable']=True
             self.models_all[self.current_model_index]=loader.loadModel(self.data_all[self.current_model_index]["filename"])
-            self.models_all[self.current_model_index].reparentTo(self.render)
+            #self.models_all[self.current_model_index].reparentTo(self.render)
             self.load_model_from_param(fileload_flag=False,indexload_flag=True)
             self.set_model_values_to_gui()
             self.makeup_lights_gui()
             self.add_model_nodepaths_to_gui_f1()
             self.add_model_animations_to_gui_g1()
+            if self.model_parent_enabled_all[self.current_model_index]==True:
+                self.attach_to_parent_2(self.models_all[self.current_model_index],self.model_parent_indices_all[self.current_model_index])
+            #self.add_items_to_model_parent_editor()
             
         else:
             self.data_all[self.current_model_index]['enable']=False
+            self.models_all[self.current_model_index].detachNode()
             self.models_all[self.current_model_index].removeNode()
             self.models_all[self.current_model_index]=''
             
@@ -709,6 +788,12 @@ class SceneMakerMain(ShowBase):
             self.ScrolledFrame_g1.show()
         else:
             self.ScrolledFrame_g1.hide()
+
+    def cbuttondef_b8(self,status):
+        if status:
+            self.ScrolledFrame_h1.show()
+        else:
+            self.ScrolledFrame_h1.hide()
 
     def cbuttondef_gs1(self,status):
         if status:
@@ -887,24 +972,24 @@ class SceneMakerMain(ShowBase):
     def SetEntryText_c24(self,textEntered):
         try:
             self.dentry_c24.enterText(textEntered)
-            cur_color=self.dlight1.getPos()
-            self.dlight1.setPos(float(textEntered),cur_color[1],cur_color[2])
+            cur_pos=self.dlight1.getPos()
+            self.dlight1.setPos(float(textEntered),cur_pos[1],cur_pos[2])
         except ValueError:
             print('value entered in entry is not number')
 
     def SetEntryText_c26(self,textEntered):
         try:
             self.dentry_c26.enterText(textEntered)
-            cur_color=self.dlight1.getPos()
-            self.dlight1.setPos(cur_color[0],float(textEntered),cur_color[2])
+            cur_pos=self.dlight1.getPos()
+            self.dlight1.setPos(cur_pos[0],float(textEntered),cur_pos[2])
         except ValueError:
             print('value entered in entry is not number')
 
     def SetEntryText_c28(self,textEntered):
         try:
             self.dentry_c28.enterText(textEntered)
-            cur_color=self.dlight1.getPos()
-            self.dlight1.setPos(cur_color[0],cur_color[1],float(textEntered))
+            cur_pos=self.dlight1.getPos()
+            self.dlight1.setPos(cur_pos[0],cur_pos[1],float(textEntered))
         except ValueError:
             print('value entered in entry is not number')            
 
@@ -938,12 +1023,36 @@ class SceneMakerMain(ShowBase):
 
     def SetEntryText_4(self,textEntered):
         try:
-                                                                             
-            self.dentry_3.enterText(textEntered)
-            self.data_all[self.current_model_index]['uniquename']=textEntered
-            self.models_names_all[self.current_model_index]=textEntered
-            self.menu_2['items']=self.models_names_all
-            #self.menu_2.set(self.current_model_index)
+            if (textEntered.lower()=='render') or (textEntered.lower()=='none'):
+                print('unique name should not be render or none')
+                self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'unique name should not be render or none.'
+            else:
+                if textEntered not in self.models_names_all:
+                    curname=self.data_all[self.current_model_index]['uniquename']
+                    self.dentry_3.enterText(textEntered)
+                    self.data_all[self.current_model_index]['uniquename']=textEntered
+                    self.models_names_all[self.current_model_index]=textEntered
+                    self.menu_2['items']=self.models_names_all
+                    #self.menu_2.set(self.current_model_index)
+                    self.param_1['uniquename']=textEntered
+                    if self.param_1['uniquename']==curname: 
+                        self.param_1['uniquename']=textEntered
+                    if curname in self.models_names_enabled:
+                        idx=self.models_names_enabled.index(curname)
+                        self.models_names_enabled[idx]=textEntered
+                    if curname in self.models_with_lights:
+                        idx=self.models_with_lights.index(curname)
+                        self.models_with_lights[idx]=textEntered
+                        self.data_all_light[idx]['uniquename']=textEntered
+                    for i in range(len(self.model_parent_names_all)):
+                        if self.model_parent_names_all[i]==curname:
+                            self.model_parent_names_all[i]=textEntered
+                            self.data_all[i]['parent'][1]=textEntered
+                    
+                    self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'uniquename updated.'
+                else:
+                    print('entered uniquename already exist.')
+                    self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'entered uniquename already exist.'
         except:
             print('error in entry4')
 
@@ -1181,11 +1290,14 @@ class SceneMakerMain(ShowBase):
         self.makeup_lights_gui()
         self.add_model_nodepaths_to_gui_f1()
         self.add_model_animations_to_gui_g1()
+        self.add_items_to_model_parent_editor()
 
     def DialogDef_1(self,arg):
         if arg:
             try:
                 del self.models_names_all[self.current_model_index]
+                if isinstance(self.models_all[self.current_model_index], Actor):
+                    self.models_all[self.current_model_index].cleanup()
                 if type(self.models_all[self.current_model_index])==type(NodePath()):
                     self.models_all[self.current_model_index].removeNode()
                 del self.models_all[self.current_model_index]
@@ -1197,6 +1309,10 @@ class SceneMakerMain(ShowBase):
                     del self.models_light_all[idx]
                     del self.models_light_names[idx]
                     del self.models_light_node_all[idx]
+                    del self.data_all_light[idx]
+                #---update model parent vars---
+                self.create_model_parent_vars()
+                
                 self.current_model_index-=1
                 if self.current_model_index<0: self.current_model_index=0
                 self.menu_2['items']=self.models_names_all
@@ -1238,6 +1354,9 @@ class SceneMakerMain(ShowBase):
             self.models_names_all.append(data["uniquename"])
             if 'actor' not in data:
                 data['actor']=[False, "",False,[]]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
+            if 'parent' not in data:
+                data['parent']=[True, "render"]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
+                
             if data["enable"]:
                 if data['actor'][0]==True:
                     self.ModelTemp=Actor(data["filename"])
@@ -1302,13 +1421,47 @@ class SceneMakerMain(ShowBase):
                     pass
                 
                 self.models_all.append(self.ModelTemp)
-                self.models_all[-1].reparentTo(self.render)
+                #self.models_all[-1].reparentTo(self.render)
                 if data['show']==True:
                     self.models_all[-1].show()
                 else:
                     self.models_all[-1].hide()
             else:
                 self.models_all.append("")
+        
+        #---parenting---
+        self.create_model_parent_vars()
+        for i in range(len(self.data_all)):
+            if self.models_enabled_all[i]==True:
+                if self.model_parent_enabled_all[i]==True:
+                    self.attach_to_parent_2(self.models_all[i],self.model_parent_indices_all[i])
+
+
+    def create_model_parent_vars(self):
+        self.model_parent_names_all=[]
+        self.model_parent_indices_all=[]
+        self.model_parent_availability_all=[]#true means, the parent name is present in model names
+        self.model_parent_enabled_all=[]
+        self.models_enabled_all=[]
+        for i in range(len(self.data_all)):
+            self.models_enabled_all.append(self.data_all[i]['enable'])
+            self.model_parent_enabled_all.append(self.data_all[i]['parent'][0])
+            self.model_parent_names_all.append(self.data_all[i]['parent'][1])
+            parent=self.data_all[i]['parent'][1]
+            if parent=='render':
+                self.model_parent_availability_all.append(True)
+                self.model_parent_indices_all.append(0)
+            elif parent=='none':
+                self.model_parent_availability_all.append(True)
+                self.model_parent_indices_all.append(-1)
+            elif parent in self.models_names_all:
+                idx=self.models_names_all.index(parent)
+                self.model_parent_availability_all.append(True)
+                self.model_parent_indices_all.append(idx+1)
+            else:
+                self.model_parent_availability_all.append(False)
+                self.model_parent_indices_all.append(-1)
+                
         
     def set_keymap(self):
         self.keyMap = {"move_forward": 0, "move_backward": 0, "move_left": 0, "move_right": 0,"gravity_on":0,"load_model":0,"set_camera_pos":0,"x_increase":0,"x_decrease":0,"y_increase":0,"y_decrease":0,"z_increase":0,"z_decrease":0,"right_click":0,"switch_model":0,"delete_model":0,"up_arrow":0,"down_arrow":0,"right_arrow":0,"left_arrow":0,"look_at":0,"show_gui":1}
@@ -1460,10 +1613,11 @@ class SceneMakerMain(ShowBase):
                 self.param_1['enable_lights_from_model']=[False, ""]
                 self.param_1['load_lights_from_json']=[True, ""]
                 self.param_1['actor']=[False, "",False,[]]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
+                self.param_1['parent']=[True,'render']
                 self.load_model_from_param(fileload_flag=True,indexload_flag=False)
-                self.set_model_values_to_gui()
+                #self.set_model_values_to_gui()# this function called inside menu_2 function, so here it is redundant
                 self.menu_2['items']=self.models_names_all
-                self.menu_2.set(self.current_model_index)
+                self.menu_2.set(self.current_model_index)#the respective function is called when setting the menu item
                 print('model loaded')
                 self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'model file loaded.'
             else:
@@ -1516,10 +1670,11 @@ class SceneMakerMain(ShowBase):
         self.directionalLight_intensity=5
         self.directionalLight.setColor((self.directionalLight_intensity,self.directionalLight_intensity,self.directionalLight_intensity, 1))
         #self.directionalLight.setSpecularColor((.1, .1, .1, .1))
-        self.directionalLight.setShadowCaster(True, 512, 512)
+        self.directionalLight.setShadowCaster(True, 512,512)
         self.dlight1=self.render.attachNewNode(self.directionalLight)
         self.dlight1.setHpr(0, -45, 0)
         self.dlight1.setPos(0,0,20)
+        #self.dlight1.setPos(0,-30,30)
         #self.dlight1.look_at(0, 0, 0)
         
         self.suncube = loader.loadModel("cube_arrow.glb")
@@ -1893,7 +2048,8 @@ class SceneMakerMain(ShowBase):
                     
             if indexload_flag==True:
                 self.ModelTemp=self.models_all[self.current_model_index]
-                self.ModelTemp.reparentTo(self.render)
+                #self.ModelTemp.reparentTo(self.render)
+                self.attach_to_parent_2(self.ModelTemp,self.model_parent_indices_all[self.current_model_index])
                 #---load light properties---
                 try:
                     idx=self.models_with_lights.index(self.models_names_all[self.current_model_index])
@@ -1938,13 +2094,17 @@ class SceneMakerMain(ShowBase):
             if fileload_flag==True:
                 self.data_all.append(self.param_1.copy())
                 self.models_all.append(self.ModelTemp)
-                self.models_all[-1].reparentTo(self.render)
+                #self.models_all[-1].reparentTo(self.render)
+                self.create_model_parent_vars()
+                self.attach_to_parent_2(self.ModelTemp,self.model_parent_indices_all[-1])
+                
             if indexload_flag==True:
                 self.data_all[self.current_model_index]['show']=True
                 self.models_all[self.current_model_index].show()
             
             postemp=self.ModelTemp.getPos()
-            self.gizmo.reparentTo(self.ModelTemp)
+            self.preserve_scale_on_reparent(self.gizmo,self.ModelTemp)                                      
+            #self.gizmo.reparentTo(self.ModelTemp)
             #self.gizmo.setPos(postemp)
             #self.gizmo.setScale(10,10,10)
             if self.param_1['show']==True:
@@ -1956,10 +2116,26 @@ class SceneMakerMain(ShowBase):
                 self.ModelTemp=''
                 self.data_all.append(self.param_1.copy())
                 self.models_all.append(self.ModelTemp)
+                self.create_model_parent_vars()
             if indexload_flag==True:
                 if type(self.models_all[self.current_model_index])==type(NodePath()):
                     self.data_all[self.current_model_index]['show']=False
                     self.models_all[self.current_model_index].hide()
+
+    def preserve_scale_on_reparent(self, node, new_parent):
+        # Step 1: Get the world-space scale (relative to render)
+        world_scale = node.getScale(self.render)
+        # Step 2: Reparent the node
+        node.reparentTo(new_parent)
+        # Step 3: Calculate the required local scale to maintain world-space scale
+        parent_scale = new_parent.getScale(self.render)
+        local_scale = (
+            world_scale[0] / parent_scale[0],
+            world_scale[1] / parent_scale[1],
+            world_scale[2] / parent_scale[2]
+        )
+        # Step 4: Set the local scale to preserve the world-space scale
+        node.setScale(local_scale)
 
     def update_model_property(self,value,option):
         # option 1 is x slider, 2 is y slider and 3 is z slider
@@ -2361,6 +2537,149 @@ class SceneMakerMain(ShowBase):
 
         return gizmo_np            
 
+    def add_items_to_model_parent_editor(self):
+        canvas_5=self.ScrolledFrame_h2.getCanvas()
+        
+        # Remove all child nodes
+        for child in canvas_5.getChildren():
+            child.removeNode()
+        
+        # Populate table with models
+        self.Tentry_MNames = []
+        self.Tentry_MIndices = []
+        for i in range(len(self.models_names_all)):
+            # Serial number
+            DirectLabel(
+                parent=canvas_5,
+                text=str(i + 1),
+                text_scale=0.05,
+                text_align=TextNode.ALeft,
+                pos=(-1.4, 0, 0.5 - i * 0.1),
+                text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.3)
+            )
+            # Model name
+            DirectLabel(
+                parent=canvas_5,
+                text=self.models_names_all[i],
+                text_scale=0.05,
+                text_align=TextNode.ALeft,
+                pos=(-1.15, 0, 0.5 - i * 0.1),
+                text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.3)
+            )
+            # Text entry
+            entry = DirectEntry(
+                parent=canvas_5,
+                scale=0.06,
+                pos=(-0.25, 0, 0.5 - i * 0.1),
+                initialText=self.model_parent_names_all[i],
+                numLines=1,
+                width=20,
+                frameColor=(1,1,1,0.8),
+                text_fg=(0, 0, 0, 1),
+                command=self.update_model_parent,
+                extraArgs=[i],
+                focusInCommand=self.focusInDef,
+                focusOutCommand=self.focusOutDef
+            )
+            # Text entry 2
+            entry2 = DirectEntry(
+                parent=canvas_5,
+                scale=0.06,
+                pos=(1.05, 0, 0.5 - i * 0.1),
+                initialText=str(self.model_parent_indices_all[i]),
+                numLines=1,
+                width=2,
+                frameColor=(1,1,1,0.8),
+                text_fg=(0, 0, 0, 1),
+                command=self.update_model_parent_2,
+                extraArgs=[i],
+                focusInCommand=self.focusInDef,
+                focusOutCommand=self.focusOutDef
+            )
+            self.Tentry_MNames.append(entry)
+            self.Tentry_MIndices.append(entry2)
+        
+    def update_model_parent(self, textEntered,index):
+        now = datetime.datetime.now()
+        try:
+            if textEntered=='render':
+                self.models_all[index].reparentTo(self.render)
+                self.Tentry_MIndices[index].enterText(str(0))
+                self.data_all[index]['parent'][1]='render'
+                self.model_parent_names_all[index]='render'
+                self.model_parent_indices_all[index]=0
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model reparented.'
+            elif textEntered=='none':
+                self.models_all[index].detachNode()
+                self.Tentry_MIndices[index].enterText(str(-1))
+                self.data_all[index]['parent'][1]='none'
+                self.model_parent_names_all[index]='none'
+                self.model_parent_indices_all[index]=-1
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model detached.'
+            elif textEntered in self.models_names_all:
+                idx=self.models_names_all.index(textEntered)
+                self.models_all[index].reparentTo(self.models_all[idx])
+                self.Tentry_MIndices[index].enterText(str(idx+1))
+                self.data_all[index]['parent'][1]=self.models_names_all[idx]
+                print(idx+1)
+                self.model_parent_names_all[index]=self.models_names_all[idx]
+                self.model_parent_indices_all[index]=idx+1
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model reparented.'
+            else:
+                print('model name not present.')
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model name not present.'
+        except:
+            print('model is not reparented. there is an error occurs.')
+
+    def update_model_parent_2(self,textEntered,index):
+        now = datetime.datetime.now()
+        try:
+            idx=int(textEntered)
+            self.Tentry_MIndices[index].enterText(str(idx))
+        except:
+            print('not a number')
+            return
+        print(idx)
+        #print(self.Tentry_MIndices[index].get())
+
+        #if type(self.models_all[index])==type(NodePath()):
+        try:
+            if idx==-1:
+                self.models_all[index].detachNode()
+                self.Tentry_MNames[index].enterText('none')
+                self.data_all[index]['parent'][1]='none'
+                self.model_parent_names_all[index]='none'
+                self.model_parent_indices_all[index]=-1
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model detached.'
+            elif idx==0:
+                self.models_all[index].reparentTo(self.render)
+                self.Tentry_MNames[index].enterText('render')
+                self.data_all[index]['parent'][1]='render'
+                self.model_parent_names_all[index]='render'
+                self.model_parent_indices_all[index]=0
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model reparented.'
+            elif ((idx>0) & (idx<len(self.models_names_all)+1)):
+                self.models_all[index].reparentTo(self.models_all[idx-1])
+                self.Tentry_MNames[index].enterText(self.models_names_all[idx-1])
+                self.data_all[index]['parent'][1]=self.models_names_all[idx-1]
+                self.model_parent_names_all[index]=self.models_names_all[idx-1]
+                self.model_parent_indices_all[index]=idx
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model reparented.'
+            else:
+                print('index is not in range.')
+                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'index is not in range.'
+        except:
+            print('model is not reparented. there is an error occurs.')
+
+    def attach_to_parent_2(self,model,idx):
+        #now = datetime.datetime.now()
+        if idx==0:
+            model.reparentTo(self.render)
+        elif idx==-1:
+            model.detachNode()
+        else:
+            model.reparentTo(self.models_all[idx-1])
+        
 Scene_1=SceneMakerMain()
 Scene_1.run()
 

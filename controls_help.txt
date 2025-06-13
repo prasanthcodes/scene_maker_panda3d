@@ -44,3 +44,14 @@ at bottom
 
 displays the camera current position
 
+
+some help
+------------------------------
+
+model unique names should not be 'render' or 'none'.
+in 'model parent editor', type 'render' to attach a model to render(reparent to render). type 'none' to detach from its parent(child to none)
+
+
+
+
+
