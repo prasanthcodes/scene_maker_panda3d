@@ -25,6 +25,7 @@ from direct.filter.CommonFilters import CommonFilters
 from panda3d.core import ClockObject
 
 from panda3d.core import *
+import panda3d.core as p3d
 from panda3d.core import SamplerState
 import tkinter
 from tkinter.filedialog import askopenfilename
@@ -32,12 +33,13 @@ from tkinter import messagebox
 import tkinter as tk
 
 import simplepbr
+import complexpbr
 import gltf
 
 import json
 import datetime
 import time
-
+from math import sin, cos, pi
 
 panda3d.core.load_prc_file_data("", """
     textures-power-2 none
@@ -75,8 +77,17 @@ class SceneMakerMain(ShowBase):
         self.disable_mouse()
         
         self.FilterManager_1 = FilterManager(base.win, base.cam)
-        self.Filters=CommonFilters(base.win, base.cam)                                       
-        self.pipeline = simplepbr.init(use_normal_maps=True,exposure=0.8,sdr_lut_factor=0,max_lights=16,enable_fog=True)
+        self.Filters=CommonFilters(base.win, base.cam)
+        
+        self.pipeline = simplepbr.init(
+        #env_map=env_map,
+        use_normal_maps=True,
+        #exposure=0.8,
+        #sdr_lut_factor=0,
+        max_lights=16,
+        enable_fog=True
+        )
+        
         #---adjustable parameters---
         self.mouse_sensitivity=50
         self.move_speed=0.1
@@ -141,12 +152,14 @@ class SceneMakerMain(ShowBase):
         self.scale_increment=0.01
         self.temp_count=1
         self.create_top_level_main_gui()
-        #self.hide_top_level_main_gui()
-        #self.create_model_lights_gui()                              
 
+
+    def update_skybox(self, task):
+        # Update skybox position to follow camera
+        self.skybox.setPos(self.camera.getPos())
+        return task.cont
         
-        #self.set_cubemap()
-
+            
     def set_crosshair(self):
         self.crosshair = OnscreenImage(image='crosshair.png', pos=(0,0,0),scale=0.1)
         self.crosshair.setTransparency(TransparencyAttrib.MAlpha)
@@ -1559,7 +1572,8 @@ class SceneMakerMain(ShowBase):
             if self.keyMap[key]==True:
                 self.show_top_level_main_gui()
             else:
-                self.hide_top_level_main_gui()                             
+                self.hide_top_level_main_gui()
+        
         elif key=="change_property":
             self.current_property+=1
             if self.current_property>len(self.property_names):
@@ -1578,6 +1592,7 @@ class SceneMakerMain(ShowBase):
         elif key=="load_model":
             print('open a model to load')
             self.keyMap['load_model']=False
+            len_curdir=len(os.getcwd())+1
             root = tk.Tk()
             openedfilename=askopenfilename(title="open the model file",initialdir=".",filetypes=[("model files", ".gltf .glb .egg .bam .pz"),("All files", "*.*")])
             root.destroy()
@@ -1590,8 +1605,11 @@ class SceneMakerMain(ShowBase):
                         continue
                     else:
                         tempname=uqname+'.%03d'%(i)
-                #tempname=tempname.replace('/','_')
-                #tempname=tempname.replace('\\','_')
+                
+                modelfilepath=openedfilename[len_curdir:]
+                if modelfilepath[0]=='/': modelfilepath=modelfilepath[1:]
+                if modelfilepath[0]=='\\': modelfilepath=modelfilepath[1:]  
+                
                 self.param_1={}
                 #self.param_1['uniquename']=uqname+' '+datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
                 self.param_1['uniquename']=tempname
@@ -2554,7 +2572,7 @@ class SceneMakerMain(ShowBase):
                 text=str(i + 1),
                 text_scale=0.05,
                 text_align=TextNode.ALeft,
-                pos=(-1.4, 0, 0.5 - i * 0.1),
+                pos=(-1.48, 0, 0.5 - i * 0.1),
                 text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.3)
             )
             # Model name
@@ -2563,14 +2581,14 @@ class SceneMakerMain(ShowBase):
                 text=self.models_names_all[i],
                 text_scale=0.05,
                 text_align=TextNode.ALeft,
-                pos=(-1.15, 0, 0.5 - i * 0.1),
+                pos=(-1.23, 0, 0.5 - i * 0.1),
                 text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.3)
             )
             # Text entry
             entry = DirectEntry(
                 parent=canvas_5,
                 scale=0.06,
-                pos=(-0.25, 0, 0.5 - i * 0.1),
+                pos=(-0.33, 0, 0.5 - i * 0.1),
                 initialText=self.model_parent_names_all[i],
                 numLines=1,
                 width=20,
@@ -2585,7 +2603,7 @@ class SceneMakerMain(ShowBase):
             entry2 = DirectEntry(
                 parent=canvas_5,
                 scale=0.06,
-                pos=(1.05, 0, 0.5 - i * 0.1),
+                pos=(0.97, 0, 0.5 - i * 0.1),
                 initialText=str(self.model_parent_indices_all[i]),
                 numLines=1,
                 width=2,
