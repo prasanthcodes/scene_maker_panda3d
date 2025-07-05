@@ -8,8 +8,7 @@ issues to check
 -----------------------------------
 1. model files should loaded from current relative path. when loading from outside of current folder, there is a error occurs
 2. when clicking on 'remove animation' in GUI, animation names are not immediately removed, but it will not shown next restart.
-3. when actor is on, the model did not change its pos,scale,.. (check it later why)
-4. when an actor is parented to another actor and when the parent is changed to actor to non-actor to actor , childs animations duplicated and child is not displaying.
+(fixed) 3. when actor is on, the model did not change its pos,scale,..(fixed) 4. when an actor is parented to another actor and when the parent is changed to actor to non-actor to actor , childs animations duplicated and child is not displaying.
 
 
 dev notes
@@ -40,6 +39,20 @@ to do
 ---------------------------------
 1. change the 'model nodepath viewer' gui to treeview.
 2. add buttons to create new pointlight, new empty node. (if needed)
+
+
+
+
+to do raw
+-------------------------------
+load ralph in autoshader and simplepbr separately. compare the lighting (if shadow is enabled, acne occurs)
+convert ralph to glb model suitable for simplepbr
+analyse the possibility to make ralph model lighting same as autoshader in simplepbr
+skybox can be set in simplepbr. but skybox not shown.
+transparency,volume,sheen of glb models not works in simplepbr.
+
+
+
 
 
 
