@@ -41,3 +41,7 @@ delete - delete the current model <br/>
 ### Notes
 1. model files should loaded from current relative path. when loading from outside of current folder, there is a error occurs
 2. when clicking on 'remove animation' in GUI, animation names are not immediately removed, but it will not shown next restart.
+
+### Disclaimer
+1. the functionalities used in this program may not represent full or true functionalities of panda3d engine. some functions may partially used. some may twisted for specific use cases. for true explanations, refer panda3d documentation
+   
