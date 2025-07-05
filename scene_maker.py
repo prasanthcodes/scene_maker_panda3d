@@ -824,31 +824,36 @@ class SceneMakerMain(ShowBase):
         if status:
             self.data_all[self.current_model_index]['actor'][0]=True
             self.param_1['actor'][0]=True
-            self.current_actor=Actor(self.ModelTemp)
+            #---cleanup existing actors---
             if isinstance(self.ModelTemp, Actor):
                 self.ModelTemp.cleanup()
             self.ModelTemp.removeNode()
             if isinstance(self.models_all[self.current_model_index], Actor):
                 self.models_all[self.current_model_index].cleanup()
             self.models_all[self.current_model_index].removeNode()
-            self.models_all[self.current_model_index]=self.current_actor
-            self.ModelTemp=self.current_actor
-            self.ModelTemp.setScale((5,5,5))
+            #---load actor---
+            self.current_actor=Actor(self.param_1["filename"])
+            self.actors_all[self.current_model_index]=self.current_actor
+            self.ModelTemp=self.render.attachNewNode("actor_node")
+            self.current_actor.reparentTo(self.ModelTemp)
+            self.models_all[self.current_model_index]=self.ModelTemp
             self.load_model_from_param(fileload_flag=0,indexload_flag=1)
             self.add_model_animations_to_gui_g1()
         else:
             self.data_all[self.current_model_index]['actor'][0]=False
             self.param_1['actor'][0]=False
+            #---cleanup existing actors---
             if isinstance(self.ModelTemp, Actor):
                 self.ModelTemp.stop()#.pose("idle", 0)
+            self.gizmo.detachNode()
             model = self.ModelTemp.copyTo(self.render)
             if isinstance(self.ModelTemp, Actor):
                 self.ModelTemp.cleanup()
             self.ModelTemp.removeNode()
+            self.ModelTemp=''
             if isinstance(self.models_all[self.current_model_index], Actor):
                 self.models_all[self.current_model_index].cleanup()
             self.models_all[self.current_model_index].removeNode()
-            self.ModelTemp=model
             self.models_all[self.current_model_index]=model
             self.load_model_from_param(fileload_flag=0,indexload_flag=1)
             self.add_model_animations_to_gui_g1()
@@ -1212,7 +1217,8 @@ class SceneMakerMain(ShowBase):
                     bname=os.path.basename(openedfilenames[i])
                     relpath=os.path.relpath(openedfilenames[i], os.getcwd())
                     aname=os.path.splitext(bname)[0]
-                    self.ModelTemp.loadAnims({aname: relpath})
+                    self.current_actor=self.actors_all[self.current_model_index]
+                    self.current_actor.loadAnims({aname: relpath})
                     self.data_all[self.current_model_index]['actor'][3].append(relpath)
                 self.add_model_animations_to_gui_g1()
                 
@@ -1226,31 +1232,34 @@ class SceneMakerMain(ShowBase):
             self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'animation loading error.'
             
     def ButtonDef_g13(self):
-        #if 1:
-        try:
+        if 1:
+        #try:
             if self.param_1['actor'][0]==True:
                 animIndex=self.dentry_g12.get()
                 if animIndex=='*':
-                    self.ModelTemp.unloadAnims()
+                    self.current_actor=self.actors_all[self.current_model_index]
+                    self.current_actor.unloadAnims()
+                    self.actors_all[self.current_model_index].unloadAnims()
                     self.data_all[self.current_model_index]['actor'][3]=[]
                 else:
                     animIndex=int(animIndex)-1
-                    self.ModelTemp.stop(self.anim_name_list[animIndex]) # this is important
-                    self.ModelTemp.unloadAnims(anims = [self.anim_name_list[animIndex]])
+                    self.current_actor.stop(self.anim_name_list[animIndex]) # this is important
+                    self.current_actor.unloadAnims(anims = [self.anim_name_list[animIndex]])
                     for i in range(len(self.data_all[self.current_model_index]['actor'][3])-1,-1,-1):
-                        aname=os.path.basename(os.path.splitext(bname)[0])
+                        aname=self.data_all[self.current_model_index]['actor'][3][i]
                         if aname==self.anim_name_list[animIndex]:
                             del self.data_all[self.current_model_index]['actor'][3][i]
                     # Release the animation control
-                    anim_control=self.ModelTemp.getAnimControl(self.anim_name_list[animIndex])
-                    self.ModelTemp.releaseAnim(anim_control)
+                    #anim_control=self.current_actor.getAnimControl(self.anim_name_list[animIndex])
+                    #self.current_actor.releaseAnim(anim_control)
                     self.add_model_animations_to_gui_g1()
+                self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'animation unloaded.'
             else:
                 print('not an Actor')
                 now = datetime.datetime.now()
                 self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'not an Actor.'
-        #else:
-        except:
+        else:
+        #except:
             print('anim removing error')
             now = datetime.datetime.now()
             self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'animation removing error.'
@@ -1352,6 +1361,7 @@ class SceneMakerMain(ShowBase):
             self.data_all_light = json.load(json_data)
             
         self.models_all=[]
+        self.actors_all=[]
         self.models_names_all=[]
         self.models_names_enabled=[]
         self.ModelTemp=""
@@ -1372,8 +1382,14 @@ class SceneMakerMain(ShowBase):
                 
             if data["enable"]:
                 if data['actor'][0]==True:
-                    self.ModelTemp=Actor(data["filename"])
+                    self.current_actor=Actor(data["filename"])
+                    self.actors_all.append(self.current_actor)
+                    self.ModelTemp=self.render.attachNewNode("actor_node")
+                    self.current_actor.reparentTo(self.ModelTemp)
+                    #self.ModelTemp=Actor(ModelTemp.find("**/__Actor_modelRoot"))
                 else:
+                    self.current_actor=''
+                    self.actors_all.append(self.current_actor)
                     self.ModelTemp=loader.loadModel(data["filename"])
                 #--- uncomment the below code to load the point lights from model and use save button to save the params
                 #(param_2,light_name_list,light_list,light_node_list)=self.get_point_light_properties_from_model(self.ModelTemp,data)
@@ -1423,9 +1439,11 @@ class SceneMakerMain(ShowBase):
                             animpath=data['actor'][3][k]
                             bname=os.path.basename(animpath)
                             aname=os.path.splitext(bname)[0]
-                            self.ModelTemp.loadAnims({aname: animpath})
+                            #print(self.ModelTemp.getChild(0).ls())
+                            #tmp=Actor(ModelTemp.find("**/__Actor_modelRoot"))
+                            self.current_actor.loadAnims({aname: animpath})
                         
-                        self.current_animation = self.ModelTemp.getAnimControl(data['actor'][1])
+                        self.current_animation = self.current_actor.getAnimControl(data['actor'][1])
                         if data['actor'][2]==True:
                             self.current_animation.loop(0)
                     except Exception as err:
@@ -2023,6 +2041,7 @@ class SceneMakerMain(ShowBase):
     def load_model_from_param(self,fileload_flag,indexload_flag):
         if self.param_1["uniquename"] not in self.models_names_all:
             self.models_names_all.append(self.param_1["uniquename"])
+            self.actors_all.append('')
             fileload_flag=True
             indexload_flag=False
             self.current_model_index=len(self.models_names_all)-1
@@ -2472,10 +2491,12 @@ class SceneMakerMain(ShowBase):
             child.removeNode()
         
         self.anim_name_list=[]
+        self.current_actor=self.actors_all[self.current_model_index]
         self.current_animation=None
-        self.dlabel_g5.setText("")
-        if isinstance(self.ModelTemp, Actor):
-            self.anim_name_list=self.ModelTemp.getAnimNames()#self.ModelTemp
+        if self.param_1['actor'][1]:
+            self.dlabel_g5.setText(self.param_1['actor'][1])
+        if isinstance(self.current_actor, Actor):
+            self.anim_name_list=self.current_actor.getAnimNames()#self.ModelTemp
         
         # Add clickable items to the list
         for i in range(len(self.anim_name_list)):
@@ -2517,7 +2538,7 @@ class SceneMakerMain(ShowBase):
             self.ScrolledFrame_g2.guiItem.remanage()
 
     def on_item_click_g1(self, item_index):
-        self.current_animation = self.ModelTemp.getAnimControl(self.anim_name_list[item_index])
+        self.current_animation = self.current_actor.getAnimControl(self.anim_name_list[item_index])
         self.data_all[self.current_model_index]['actor'][1]=self.anim_name_list[item_index]
         self.dlabel_g5.setText(self.anim_name_list[item_index])
 
