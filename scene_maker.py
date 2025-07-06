@@ -79,6 +79,10 @@ class SceneMakerMain(ShowBase):
         self.FilterManager_1 = FilterManager(base.win, base.cam)
         self.Filters=CommonFilters(base.win, base.cam)
         
+        #env_map = simplepbr.EnvPool.ptr().load('#cc.jpg')
+        #tex = loader.loadCubeMap("#.jpg")
+        #env_map = simplepbr.EnvPool.load_env_map('#.jpg')
+        
         self.pipeline = simplepbr.init(
         #env_map=env_map,
         use_normal_maps=True,
@@ -153,6 +157,125 @@ class SceneMakerMain(ShowBase):
         self.temp_count=1
         self.create_top_level_main_gui()
 
+        # Create a skybox node
+        self.skybox = self.render.attachNewNode("skybox")
+        self.skybox.setScale(1000)  # Scale to surround scene
+
+        # Create a sphere programmatically
+        sphere = self.create_sphere(radius=1.0, segments=32)
+        sphere.reparentTo(self.skybox)
+
+        # Load the equirectangular texture
+        tex = self.loader.loadTexture("Screenshot.jpg")
+        
+        self.skybox.setTexture(tex)
+        # reverse normals
+        #self.skybox.node().setAttrib(CullFaceAttrib.make(CullFaceAttrib.MCullCounterClockwise))
+        # Flip texture horizontally
+        self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)  # Negative x-scale for horizontal flip
+        self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)  # Adjust offset to align (U=1 to shift origin)
+
+        # Configure skybox rendering
+        self.skybox.setTwoSided(True)  # Render both sides to see inside
+        self.skybox.setBin("background", 0)  # Render first
+        self.skybox.setDepthWrite(False)  # Disable depth writing
+        self.skybox.setDepthTest(False)  # Disable depth testing
+        #self.skybox.setLightOff()  # Ignore lighting
+        #self.skybox.setShaderOff()
+        #self.skybox.setShaderAuto()
+
+        # Make the skybox follow the camera
+        self.taskMgr.add(self.update_skybox, "update_skybox")
+        
+        
+        #base.saveSphereMap('streetscene_env.jpg', size = 256)
+
+        #base.saveCubeMap('#_envmap.jpg', size = 512)
+        
+        """
+        myFog = Fog("Fog Name")
+        myFog.setColor(1, 1, 1)
+        myFog.setExpDensity(0.1)
+        #self.render.setFog(myFog)
+        self.models_all[0].setFog(myFog)
+        """
+        
+        """
+        terrain = GeoMipTerrain("myTerrain")
+        terrain.setHeightfield("heightfield.png")
+
+        # Set terrain properties
+        terrain.setBlockSize(32)
+        terrain.setNear(40)
+        terrain.setFar(100)
+        terrain.setFocalPoint(base.camera)
+
+        # Store the root NodePath for convenience
+        terrainTexture = self.loader.loadTexture("grass.png")
+        root = terrain.getRoot()
+        root.setTexture(TextureStage.getDefault(), terrainTexture)
+        root.setTexScale(TextureStage.getDefault(), 500)
+        root.reparentTo(self.render)
+        root.setSz(50)
+        root.setPos(-50,-50,-15)
+
+        # Generate it.
+        terrain.generate()
+        """
+
+    def create_sphere(self, radius=1.0, segments=32):
+        # Create vertex format
+        vformat = GeomVertexFormat.getV3n3t2()
+        vdata = GeomVertexData('sphere', vformat, Geom.UHStatic)
+        
+        # Vertex writers
+        vertex = GeomVertexWriter(vdata, 'vertex')
+        normal = GeomVertexWriter(vdata, 'normal')
+        texcoord = GeomVertexWriter(vdata, 'texcoord')
+        
+        # Generate sphere vertices
+        for i in range(segments + 1):
+            phi = pi * i / segments
+            sin_phi = sin(phi)
+            cos_phi = cos(phi)
+            
+            for j in range(segments + 1):
+                theta = 2 * pi * j / segments
+                sin_theta = sin(theta)
+                cos_theta = cos(theta)
+                
+                # Calculate vertex position
+                x = radius * sin_phi * cos_theta
+                y = radius * sin_phi * sin_theta
+                z = radius * cos_phi
+                
+                # Add vertex data
+                vertex.addData3(x, y, z)
+                normal.addData3(x/radius, y/radius, z/radius)  # Normalized
+                texcoord.addData2(j/segments, 1.0-i/segments)
+        
+        # Create triangles
+        prim = GeomTriangles(Geom.UHStatic)
+        for i in range(segments):
+            for j in range(segments):
+                v0 = i * (segments + 1) + j
+                v1 = v0 + 1
+                v2 = (i + 1) * (segments + 1) + j
+                v3 = v2 + 1
+                
+                # First triangle
+                prim.addVertices(v0, v1, v2)
+                # Second triangle
+                prim.addVertices(v1, v3, v2)
+        
+        # Create geometry
+        geom = Geom(vdata)
+        geom.addPrimitive(prim)
+        
+        # Create and return GeomNode
+        node = GeomNode('sphere')
+        node.addGeom(geom)
+        return NodePath(node)
 
     def update_skybox(self, task):
         # Update skybox position to follow camera
@@ -230,6 +353,8 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_g1.hide()
         self.create_model_parent_editor_gui()
         self.ScrolledFrame_h1.hide()
+        self.create_skybox_settings_gui()
+        self.ScrolledFrame_i1.hide()
         
         self.create_dropdown_main_menu()
         self.menu_dropdown_1.hide()
@@ -267,8 +392,8 @@ class SceneMakerMain(ShowBase):
 
     def create_dropdown_main_menu(self):
         self.menu_dropdown_1=DirectScrolledFrame(
-            canvasSize=(0, 1, -0.9, 0),  # left, right, bottom, top
-            frameSize=(0, 1, -0.9, 0),
+            canvasSize=(0, 1, -1.5, 0),  # left, right, bottom, top
+            frameSize=(0, 1, -1.5, 0),
             pos=(-1,0,0.9),
             #pos=(-0.35, 1,0.95)
             frameColor=(0.3, 0.3, 0.3, 0.3)
@@ -358,6 +483,17 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b8,
             pos=(0.1, 1,-0.8),
+            frameColor=(0, 0, 0, 0.4),
+            text_fg=(1, 1, 1, 0.9),
+            indicatorValue=0
+            )
+        self.CheckButton_9 = DirectCheckButton(
+            parent=self.menu_dropdown_1.getCanvas(),
+            text = "Skybox Settings" ,
+            text_align=TextNode.ALeft,
+            scale=.06,
+            command=self.cbuttondef_b9,
+            pos=(0.1, 1,-0.9),
             frameColor=(0, 0, 0, 0.4),
             text_fg=(1, 1, 1, 0.9),
             indicatorValue=0
@@ -719,7 +855,27 @@ class SceneMakerMain(ShowBase):
         )
         self.add_items_to_model_parent_editor()
         
+    def create_skybox_settings_gui(self):
+        self.ScrolledFrame_i1=DirectScrolledFrame(
+            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_5=self.ScrolledFrame_i1.getCanvas()
         
+        self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "enable skybox" ,scale=.06,command=self.cbuttondef_i1,pos=(-1.15, 1,0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.CheckButton_i2 = DirectCheckButton(parent=canvas_5,text = "show skybox" ,scale=.06,command=self.cbuttondef_i1,pos=(-1.15, 1,0.5),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.4, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dbutton_i5 = DirectButton(parent=canvas_5,text='Select Image',pos=(-1.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.cbuttondef_i1)
+        self.dlabel_i6=DirectLabel(parent=canvas_5,text="Skybox Ambient Light:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i7=DirectLabel(parent=canvas_5,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.7),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dentry_i8 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=3,pos=(0.95, 1,-0.3), command=self.cbuttondef_i1,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+    def cbuttondef_i1():
+        print('')
+
     def cbuttondef_tst(self,status):
         if status:
             print('clickd')
@@ -807,6 +963,12 @@ class SceneMakerMain(ShowBase):
             self.ScrolledFrame_h1.show()
         else:
             self.ScrolledFrame_h1.hide()
+
+    def cbuttondef_b9(self,status):
+        if status:
+            self.ScrolledFrame_i1.show()
+        else:
+            self.ScrolledFrame_i1.hide()
 
     def cbuttondef_gs1(self,status):
         if status:
