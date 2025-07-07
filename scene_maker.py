@@ -163,6 +163,8 @@ class SceneMakerMain(ShowBase):
         self.collide_flag=False
         
         base.accept('tab', base.bufferViewer.toggleEnable)
+        
+        self.global_params={}
 
         self.param_1={}
         self.param_1['pos']=[True,[0,0,0]]
@@ -1248,11 +1250,11 @@ class SceneMakerMain(ShowBase):
         except ValueError:
             print('value entered in entry3 is not number')
 
-    def SetEntryText_4(self,textEntered):
+    def SetEntryText_4(self, ):
         try:
             if (textEntered.lower()=='render') or (textEntered.lower()=='none'):
-                print('unique name should not be render or none')
-                self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'unique name should not be render or none.'
+                logger.info('unique name should not be render or none')
+                self.display_last_status('unique name should not be render or none.')
             else:
                 if textEntered not in self.models_names_all:
                     curname=self.data_all[self.current_model_index]['uniquename']
@@ -1276,12 +1278,14 @@ class SceneMakerMain(ShowBase):
                             self.model_parent_names_all[i]=textEntered
                             self.data_all[i]['parent'][1]=textEntered
                     
-                    self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'uniquename updated.'
+                    self.display_last_status('uniquename updated.')
+                    logger.info('uniquename of model index '+str(self.current_model_index)+' is '+curname+' updated with '+textEntered)
                 else:
-                    print('entered uniquename already exist.')
-                    self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'entered uniquename already exist.'
+                    logger.info('entered uniquename already exist.')
+                    self.display_last_status('entered uniquename already exist.')
         except:
-            print('error in entry4')
+            logger.error('error in entry4')
+            self.display_last_status('error in entry4')
 
     def SetEntryText_5(self,textEntered):
         try:
@@ -1376,9 +1380,8 @@ class SceneMakerMain(ShowBase):
                 self.data_all_light[idx]['plights'][idx2]['notes']=val
         #else:
         except:
-            print('error in entry_e')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'error in entry_e.'
+            logger.error('error in entry_e')
+            self.display_last_status('error in entry_e.')
 
     def SetEntryText_g12(self,textEntered):
         try:
@@ -1433,16 +1436,15 @@ class SceneMakerMain(ShowBase):
                 
             else:
                 print('not an Actor')
-                now = datetime.datetime.now()
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'not an Actor.'
-        except:
-            print('anim loading error')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'animation loading error.'
+                self.display_last_status('not an Actor.')
+        except Exception as e:
+            logger.error('anim loading error:')
+            logger.error(e)
+            self.display_last_status('animation loading error.')
             
     def ButtonDef_g13(self):
-        if 1:
-        #try:
+        #if 1:
+        try:
             if self.param_1['actor'][0]==True:
                 animIndex=self.dentry_g12.get()
                 if animIndex=='*':
@@ -1462,16 +1464,15 @@ class SceneMakerMain(ShowBase):
                     #anim_control=self.current_actor.getAnimControl(self.anim_name_list[animIndex])
                     #self.current_actor.releaseAnim(anim_control)
                     self.add_model_animations_to_gui_g1()
-                self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'animation unloaded.'
+                self.display_last_status('animation unloaded.')
             else:
                 print('not an Actor')
-                now = datetime.datetime.now()
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'not an Actor.'
-        else:
-        #except:
-            print('anim removing error')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'animation removing error.'
+                self.display_last_status('not an Actor.')
+        #else:
+        except Exception as e:
+            logger.error('anim removing error:')
+            logger.error(e)
+            self.display_last_status('animation removing error.')
 
     def ButtonDef_1(self):
         shutil.copyfile(self.scene_data_filename, self.scene_data_backup_filename)
@@ -1544,17 +1545,18 @@ class SceneMakerMain(ShowBase):
                 if self.current_model_index<0: self.current_model_index=0
                 self.menu_2['items']=self.models_names_all
                 self.menu_2.set(self.current_model_index)
-                self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'current model deleted.'
+                self.display_last_status('current model deleted.')
                 self.dialog_1.cleanup()
                 print('deleted.')
-            except KeyError:
-                print('error while deleting the model.')
-                self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'error while deleting current model.'
+            except Exception as e:
+                logger.error('error while deleting the model:')
+                logger.error(e)
+                self.display_last_status('error while deleting current model.')
                 self.dialog_1.cleanup()
                 pass
         else:
             print('model not deleted.')
-            self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'current model not deleted. (option NO selected?)'
+            self.display_last_status('current model not deleted. (option NO selected?)')
             self.dialog_1.cleanup()
         
     def load_environment_models(self):
@@ -1813,7 +1815,7 @@ class SceneMakerMain(ShowBase):
             #self.set_model_values_to_gui()
             self.menu_2.set(self.current_model_index)#it will trigger the DirectOptionMenu function
         elif key=="load_model":
-            print('open a model to load')
+            print('opening askfilename dialog to to load a model')
             self.keyMap['load_model']=False
             len_curdir=len(os.getcwd())+1
             root = tk.Tk()
@@ -1859,11 +1861,11 @@ class SceneMakerMain(ShowBase):
                 #self.set_model_values_to_gui()# this function called inside menu_2 function, so here it is redundant
                 self.menu_2['items']=self.models_names_all
                 self.menu_2.set(self.current_model_index)#the respective function is called when setting the menu item
-                print('model loaded')
-                self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'model file loaded.'
+                logger.info('model '+modelfilepath+' loaded')
+                self.display_last_status('model file loaded.')
             else:
                 print('opened file name empty')
-                self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'model file not loaded.'
+                self.display_last_status('model file not loaded.')
         elif key=="delete_model":
             print('delete pressed.')
             self.dialog_1 = YesNoDialog(dialogName="YesNoCancelDialog", text="Delete the current model?",
@@ -2010,7 +2012,7 @@ class SceneMakerMain(ShowBase):
             #self.camera.setPos((rel_pos[0],rel_pos[1],rel_pos[2]))                                                                                                                                                                                                       
             self.camera.setPos((self.param_1['pos'][1][0],self.param_1['pos'][1][1],self.param_1['pos'][1][2]))
             self.keyMap['set_camera_pos']=False
-            self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'camera position is set to center of current model.'
+            self.display_last_status('camera position is set to center of current model.')
             
         if self.keyMap['look_at']==True:
             self.camera.lookAt(self.models_all[self.current_model_index])
@@ -2254,15 +2256,15 @@ class SceneMakerMain(ShowBase):
             if indexload_flag==True:
                 fileload_flag=False
                 print('model file loading from index going to happen.')
-                self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'model file is loading... (using index)'
+                self.display_last_status('model file is loading... (using index)')
             else:
                 if fileload_flag==False:
                     indexload_flag==True
                     print('model file loading from index going to happen.')
-                    self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'model file is loading... (using index)'
+                    self.display_last_status('model file is loading... (using index)')
                 else:
                     print('model file loading from disk going to happen.')
-                    self.dlabel_status2['text']=datetime.datetime.now().strftime('%d-%m-%y %H:%M:%S ')+'model file is loading... (from drive)'
+                    self.display_last_status('model file is loading... (from drive)')
             
         if self.param_1['enable']==True:
             if fileload_flag==True:
@@ -2501,7 +2503,7 @@ class SceneMakerMain(ShowBase):
         light_list=[]
         light_node_list=[]
         if len(point_lights)>0:
-            print("Found Point Lights: ",data['filename'])
+            logger.info("Found Point Lights: ",data['filename'])
             #self.param_2={}
             self.param_2['enable']=True
             self.param_2['show']=True
@@ -2852,28 +2854,28 @@ class SceneMakerMain(ShowBase):
                 self.data_all[index]['parent'][1]='render'
                 self.model_parent_names_all[index]='render'
                 self.model_parent_indices_all[index]=0
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model reparented.'
+                self.display_last_status('model reparented.')
             elif textEntered=='none':
                 self.models_all[index].detachNode()
                 self.Tentry_MIndices[index].enterText(str(-1))
                 self.data_all[index]['parent'][1]='none'
                 self.model_parent_names_all[index]='none'
                 self.model_parent_indices_all[index]=-1
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model detached.'
+                self.display_last_status('model detached.')
             elif textEntered in self.models_names_all:
                 idx=self.models_names_all.index(textEntered)
                 self.models_all[index].reparentTo(self.models_all[idx])
                 self.Tentry_MIndices[index].enterText(str(idx+1))
                 self.data_all[index]['parent'][1]=self.models_names_all[idx]
-                print(idx+1)
                 self.model_parent_names_all[index]=self.models_names_all[idx]
                 self.model_parent_indices_all[index]=idx+1
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model reparented.'
+                self.display_last_status('model reparented.')
             else:
                 print('model name not present.')
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model name not present.'
-        except:
-            print('model is not reparented. there is an error occurs.')
+                self.display_last_status('model name not present.')
+        except Exception as e:
+            logger.error('model is not reparented. there is an error occurs:')
+            logger.error(e)
 
     def update_model_parent_2(self,textEntered,index):
         now = datetime.datetime.now()
@@ -2881,12 +2883,9 @@ class SceneMakerMain(ShowBase):
             idx=int(textEntered)
             self.Tentry_MIndices[index].enterText(str(idx))
         except:
-            print('not a number')
+            logger.error('entry in parenting gui is not a number')
             return
-        print(idx)
-        #print(self.Tentry_MIndices[index].get())
 
-        #if type(self.models_all[index])==type(NodePath()):
         try:
             if idx==-1:
                 self.models_all[index].detachNode()
@@ -2894,24 +2893,24 @@ class SceneMakerMain(ShowBase):
                 self.data_all[index]['parent'][1]='none'
                 self.model_parent_names_all[index]='none'
                 self.model_parent_indices_all[index]=-1
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model detached.'
+                self.display_last_status('model detached.')
             elif idx==0:
                 self.models_all[index].reparentTo(self.render)
                 self.Tentry_MNames[index].enterText('render')
                 self.data_all[index]['parent'][1]='render'
                 self.model_parent_names_all[index]='render'
                 self.model_parent_indices_all[index]=0
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model reparented.'
+                self.display_last_status('model reparented.')
             elif ((idx>0) & (idx<len(self.models_names_all)+1)):
                 self.models_all[index].reparentTo(self.models_all[idx-1])
                 self.Tentry_MNames[index].enterText(self.models_names_all[idx-1])
                 self.data_all[index]['parent'][1]=self.models_names_all[idx-1]
                 self.model_parent_names_all[index]=self.models_names_all[idx-1]
                 self.model_parent_indices_all[index]=idx
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'model reparented.'
+                self.display_last_status('model reparented.')
             else:
                 print('index is not in range.')
-                self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'index is not in range.'
+                self.display_last_status('index is not in range.')
         except:
             print('model is not reparented. there is an error occurs.')
 
