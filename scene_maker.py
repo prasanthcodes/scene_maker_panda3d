@@ -166,7 +166,7 @@ class SceneMakerMain(ShowBase):
         sphere.reparentTo(self.skybox)
 
         # Load the equirectangular texture
-        tex = self.loader.loadTexture("Screenshot.jpg")
+        tex = self.loader.loadTexture("HdrOutdoorFieldBaseballDayClear001_JPG_4K.JPG")
         
         self.skybox.setTexture(tex)
         # reverse normals
@@ -186,7 +186,7 @@ class SceneMakerMain(ShowBase):
 
         # Make the skybox follow the camera
         self.taskMgr.add(self.update_skybox, "update_skybox")
-        
+        #taskMgr.remove("update_skybox")
         
         #base.saveSphereMap('streetscene_env.jpg', size = 256)
 
@@ -396,7 +396,7 @@ class SceneMakerMain(ShowBase):
             frameSize=(0, 1, -1.5, 0),
             pos=(-1,0,0.9),
             #pos=(-0.35, 1,0.95)
-            frameColor=(0.3, 0.3, 0.3, 0.3)
+            frameColor=(0, 0, 0, 0.4)
         )
         
         self.CheckButton_1 = DirectCheckButton(
@@ -864,17 +864,58 @@ class SceneMakerMain(ShowBase):
         )
         canvas_5=self.ScrolledFrame_i1.getCanvas()
         
-        self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "enable skybox" ,scale=.06,command=self.cbuttondef_i1,pos=(-1.15, 1,0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.dlabel_i0=DirectLabel(parent=canvas_5,text="SKYBOX SETTINGS",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.7),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "enable skybox" ,scale=.06,command=self.cbuttondef_i1_1,pos=(-1.15, 1,0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
         self.CheckButton_i2 = DirectCheckButton(parent=canvas_5,text = "show skybox" ,scale=.06,command=self.cbuttondef_i1,pos=(-1.15, 1,0.5),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
         self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
         self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.4, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
         self.dbutton_i5 = DirectButton(parent=canvas_5,text='Select Image',pos=(-1.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.cbuttondef_i1)
+        self.dlabel_i5_2=DirectLabel(parent=canvas_5,text=" *should be Equirectangular image",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, 0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
         self.dlabel_i6=DirectLabel(parent=canvas_5,text="Skybox Ambient Light:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dlabel_i7=DirectLabel(parent=canvas_5,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.7),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dentry_i8 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=3,pos=(0.95, 1,-0.3), command=self.cbuttondef_i1,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-
+        self.dlabel_i7=DirectLabel(parent=canvas_5,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dentry_i8 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.3, 1,0.2), command=self.cbuttondef_i1,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i9=DirectLabel(parent=canvas_5,text="G:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.1, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dentry_i10 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(0.2, 1,0.2), command=self.cbuttondef_i1,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i11=DirectLabel(parent=canvas_5,text="B:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.6, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dentry_i12 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(0.7, 1,0.2), command=self.cbuttondef_i1,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        
+        self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.CheckButton_i14 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.cbuttondef_i1,pos=(-1.15, 1,-0.1),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.1),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i14_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.2),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dbutton_i15 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.4),scale=0.07,text_align=TextNode.ALeft,command=self.cbuttondef_i1)
+        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.4),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        
+        
     def cbuttondef_i1():
         print('')
+
+    def cbuttondef_i1_1():
+        # Create a skybox node
+        self.skybox = self.render.attachNewNode("skybox")
+        self.skybox.setScale(2000)  # Scale to surround scene
+
+        # Create a sphere programmatically
+        sphere = self.create_sphere(radius=1.0, segments=32)
+        sphere.reparentTo(self.skybox)
+
+        # Load the equirectangular texture
+        tex = self.loader.loadTexture("HdrOutdoorFieldBaseballDayClear001_JPG_4K.JPG")
+        self.skybox.setTexture(tex)
+        # reverse normals
+        #self.skybox.node().setAttrib(CullFaceAttrib.make(CullFaceAttrib.MCullCounterClockwise))
+        # Flip texture horizontally
+        self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)  # Negative x-scale for horizontal flip
+        self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)  # Adjust offset to align (U=1 to shift origin)
+
+        # Configure skybox rendering
+        self.skybox.setTwoSided(True)  # Render both sides to see inside
+        self.skybox.setBin("background", 0)  # Render first
+        self.skybox.setDepthWrite(False)  # Disable depth writing
+        self.skybox.setDepthTest(False)  # Disable depth testing
+        #self.skybox.setLightOff()  # Ignore lighting
+        #self.skybox.setShaderOff()
+        #self.skybox.setShaderAuto()
 
     def cbuttondef_tst(self,status):
         if status:
