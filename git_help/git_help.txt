@@ -86,9 +86,22 @@ git reset --hard main
 git pull
 
 
+to set remote url
+git remote set-url origin https://github.com/prasanthcodes/scene_maker_panda3d.git
 
 
+git commit -m "update"
+Author identity unknown
 
+*** Please tell me who you are.
+
+Run
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+to set your account's default identity.
+Omit --global to set the identity only in this repository.
 
 
 
