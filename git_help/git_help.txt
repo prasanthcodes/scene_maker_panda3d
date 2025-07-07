@@ -7,6 +7,18 @@ git pull origin <branch-name>
 git push origin <branch-name>
 
 
+to push local to remote
+git branch
+git add .
+git commit
+git push
+
+to pull remote to local
+git pull origin skybox_terrain
+git checkout --theirs .
+git add .
+git commit
+git pull origin skybox_terrain
 
 
 full help:
@@ -104,6 +116,44 @@ to set your account's default identity.
 Omit --global to set the identity only in this repository.
 
 
+
+to remove the last commit
+git reset 
+
+
+
+fetch the branch locally:
+
+git fetch origin <branchName>
+
+move to that branch:
+
+git checkout <branchName>
+
+git pull is the combination of git fetch and git merge
+
+
+
+to pull remote to local
+
+git pull origin <branch-name>
+
+to keep all files from remote
+
+git checkout --theirs .
+git add .
+git commit
+
+Note: Be cautious with this approach, as it discards your local changes in favor of the remote ones.
+
+
+Verify and continue: If the pull was interrupted, you can retry the pull to ensure everything is up-to-date:
+git pull origin <branch-name>
+
+
+If you decide not to resolve conflicts and want to cancel the merge entirely:
+git merge --abort
+This will reset your working directory to the state before the pull attempt, discarding any merge attempts.
 
 
 
