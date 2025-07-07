@@ -43,6 +43,7 @@ from math import sin, cos, pi
 
 import logging
 
+# logging to text file and cmd output
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
