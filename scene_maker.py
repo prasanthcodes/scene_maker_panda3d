@@ -41,6 +41,26 @@ import datetime
 import time
 from math import sin, cos, pi
 
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setLevel(logging.DEBUG)
+stdout_handler.setFormatter(formatter)
+
+file_handler = logging.FileHandler('logs.log')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+
+
+logger.addHandler(file_handler)
+logger.addHandler(stdout_handler)
+
+logger.info('program started')
+
 panda3d.core.load_prc_file_data("", """
     textures-power-2 none
     gl-coordinate-system default
@@ -78,6 +98,10 @@ class SceneMakerMain(ShowBase):
         
         self.FilterManager_1 = FilterManager(base.win, base.cam)
         self.Filters=CommonFilters(base.win, base.cam)
+        
+        #env_map = simplepbr.EnvPool.ptr().load('#cc.jpg')
+        #tex = loader.loadCubeMap("#.jpg")
+        #env_map = simplepbr.EnvPool.load_env_map('#.jpg')
         
         self.pipeline = simplepbr.init(
         #env_map=env_map,
@@ -153,6 +177,106 @@ class SceneMakerMain(ShowBase):
         self.temp_count=1
         self.create_top_level_main_gui()
 
+        
+        #base.saveSphereMap('streetscene_env.jpg', size = 256)
+
+        #base.saveCubeMap('#_envmap.jpg', size = 512)
+        
+        """
+        myFog = Fog("Fog Name")
+        myFog.setColor(1, 1, 1)
+        myFog.setExpDensity(0.1)
+        #self.render.setFog(myFog)
+        self.models_all[0].setFog(myFog)
+        """
+        
+        """
+        terrain = GeoMipTerrain("myTerrain")
+        terrain.setHeightfield("heightfield.png")
+
+        # Set terrain properties
+        terrain.setBlockSize(32)
+        terrain.setNear(40)
+        terrain.setFar(100)
+        terrain.setFocalPoint(base.camera)
+
+        # Store the root NodePath for convenience
+        terrainTexture = self.loader.loadTexture("grass.png")
+        root = terrain.getRoot()
+        root.setTexture(TextureStage.getDefault(), terrainTexture)
+        root.setTexScale(TextureStage.getDefault(), 500)
+        root.reparentTo(self.render)
+        root.setSz(50)
+        root.setPos(-50,-50,-15)
+
+        # Generate it.
+        terrain.generate()
+        """
+
+    def save_global_params(self):
+        print('')
+    
+    def display_last_status(self,msg):
+        now = datetime.datetime.now()
+        self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+msg
+
+    def exit_program(self):
+        logger.info('program exiting.')
+        sys.exit()
+        
+    def create_sphere(self, radius=1.0, segments=32):
+        # Create vertex format
+        vformat = GeomVertexFormat.getV3n3t2()
+        vdata = GeomVertexData('sphere', vformat, Geom.UHStatic)
+        
+        # Vertex writers
+        vertex = GeomVertexWriter(vdata, 'vertex')
+        normal = GeomVertexWriter(vdata, 'normal')
+        texcoord = GeomVertexWriter(vdata, 'texcoord')
+        
+        # Generate sphere vertices
+        for i in range(segments + 1):
+            phi = pi * i / segments
+            sin_phi = sin(phi)
+            cos_phi = cos(phi)
+            
+            for j in range(segments + 1):
+                theta = 2 * pi * j / segments
+                sin_theta = sin(theta)
+                cos_theta = cos(theta)
+                
+                # Calculate vertex position
+                x = radius * sin_phi * cos_theta
+                y = radius * sin_phi * sin_theta
+                z = radius * cos_phi
+                
+                # Add vertex data
+                vertex.addData3(x, y, z)
+                normal.addData3(x/radius, y/radius, z/radius)  # Normalized
+                texcoord.addData2(j/segments, 1.0-i/segments)
+        
+        # Create triangles
+        prim = GeomTriangles(Geom.UHStatic)
+        for i in range(segments):
+            for j in range(segments):
+                v0 = i * (segments + 1) + j
+                v1 = v0 + 1
+                v2 = (i + 1) * (segments + 1) + j
+                v3 = v2 + 1
+                
+                # First triangle
+                prim.addVertices(v0, v1, v2)
+                # Second triangle
+                prim.addVertices(v1, v3, v2)
+        
+        # Create geometry
+        geom = Geom(vdata)
+        geom.addPrimitive(prim)
+        
+        # Create and return GeomNode
+        node = GeomNode('sphere')
+        node.addGeom(geom)
+        return NodePath(node)
 
     def update_skybox(self, task):
         # Update skybox position to follow camera
@@ -230,6 +354,8 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_g1.hide()
         self.create_model_parent_editor_gui()
         self.ScrolledFrame_h1.hide()
+        self.create_skybox_settings_gui()
+        self.ScrolledFrame_i1.hide()
         
         self.create_dropdown_main_menu()
         self.menu_dropdown_1.hide()
@@ -267,11 +393,11 @@ class SceneMakerMain(ShowBase):
 
     def create_dropdown_main_menu(self):
         self.menu_dropdown_1=DirectScrolledFrame(
-            canvasSize=(0, 1, -0.9, 0),  # left, right, bottom, top
-            frameSize=(0, 1, -0.9, 0),
+            canvasSize=(0, 1, -1.5, 0),  # left, right, bottom, top
+            frameSize=(0, 1, -1.5, 0),
             pos=(-1,0,0.9),
             #pos=(-0.35, 1,0.95)
-            frameColor=(0.3, 0.3, 0.3, 0.3)
+            frameColor=(0, 0, 0, 0.4)
         )
         
         self.CheckButton_1 = DirectCheckButton(
@@ -358,6 +484,17 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b8,
             pos=(0.1, 1,-0.8),
+            frameColor=(0, 0, 0, 0.4),
+            text_fg=(1, 1, 1, 0.9),
+            indicatorValue=0
+            )
+        self.CheckButton_9 = DirectCheckButton(
+            parent=self.menu_dropdown_1.getCanvas(),
+            text = "Skybox Settings" ,
+            text_align=TextNode.ALeft,
+            scale=.06,
+            command=self.cbuttondef_b9,
+            pos=(0.1, 1,-0.9),
             frameColor=(0, 0, 0, 0.4),
             text_fg=(1, 1, 1, 0.9),
             indicatorValue=0
@@ -719,7 +856,73 @@ class SceneMakerMain(ShowBase):
         )
         self.add_items_to_model_parent_editor()
         
+    def create_skybox_settings_gui(self):
+        self.ScrolledFrame_i1=DirectScrolledFrame(
+            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_5=self.ScrolledFrame_i1.getCanvas()
         
+        self.dlabel_i0=DirectLabel(parent=canvas_5,text="SKYBOX SETTINGS",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.7),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "enable skybox" ,scale=.06,command=self.cbuttondef_i1_1,pos=(-1.15, 1,0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.CheckButton_i2 = DirectCheckButton(parent=canvas_5,text = "show skybox" ,scale=.06,command=self.cbuttondef_i1,pos=(-1.15, 1,0.5),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.4, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dbutton_i5 = DirectButton(parent=canvas_5,text='Select Image',pos=(-1.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.cbuttondef_i1)
+        self.dlabel_i5_2=DirectLabel(parent=canvas_5,text=" *should be Equirectangular image",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, 0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i6=DirectLabel(parent=canvas_5,text="Skybox Ambient Light:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i7=DirectLabel(parent=canvas_5,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dentry_i8 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.3, 1,0.2), command=self.cbuttondef_i1,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i9=DirectLabel(parent=canvas_5,text="G:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.1, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dentry_i10 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(0.2, 1,0.2), command=self.cbuttondef_i1,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i11=DirectLabel(parent=canvas_5,text="B:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.6, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dentry_i12 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(0.7, 1,0.2), command=self.cbuttondef_i1,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        
+        self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.CheckButton_i14 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.cbuttondef_i1,pos=(-1.15, 1,-0.1),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.1),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i14_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.2),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dbutton_i15 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.4),scale=0.07,text_align=TextNode.ALeft,command=self.cbuttondef_i1)
+        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.4),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        
+        
+    def cbuttondef_i1():
+        print('')
+
+    def cbuttondef_i1_1():
+        # Create a skybox node
+        self.skybox = self.render.attachNewNode("skybox")
+        self.skybox.setScale(2000)  # Scale to surround scene
+
+        # Create a sphere programmatically
+        sphere = self.create_sphere(radius=1.0, segments=32)
+        sphere.reparentTo(self.skybox)
+
+        # Load the equirectangular texture
+        tex = self.loader.loadTexture("HdrOutdoorFieldBaseballDayClear001_JPG_4K.JPG")
+        
+        self.skybox.setTexture(tex)
+        # reverse normals
+        #self.skybox.node().setAttrib(CullFaceAttrib.make(CullFaceAttrib.MCullCounterClockwise))
+        # Flip texture horizontally
+        self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)  # Negative x-scale for horizontal flip
+        self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)  # Adjust offset to align (U=1 to shift origin)
+
+        # Configure skybox rendering
+        self.skybox.setTwoSided(True)  # Render both sides to see inside
+        self.skybox.setBin("background", 0)  # Render first
+        self.skybox.setDepthWrite(False)  # Disable depth writing
+        self.skybox.setDepthTest(False)  # Disable depth testing
+        #self.skybox.setLightOff()  # Ignore lighting
+        #self.skybox.setShaderOff()
+        #self.skybox.setShaderAuto()
+
+        # Make the skybox follow the camera
+        self.taskMgr.add(self.update_skybox, "update_skybox")
+        #taskMgr.remove("update_skybox")
+
     def cbuttondef_tst(self,status):
         if status:
             print('clickd')
@@ -807,6 +1010,12 @@ class SceneMakerMain(ShowBase):
             self.ScrolledFrame_h1.show()
         else:
             self.ScrolledFrame_h1.hide()
+
+    def cbuttondef_b9(self,status):
+        if status:
+            self.ScrolledFrame_i1.show()
+        else:
+            self.ScrolledFrame_i1.hide()
 
     def cbuttondef_gs1(self,status):
         if status:
@@ -1180,7 +1389,7 @@ class SceneMakerMain(ShowBase):
 
     def focusInDef(self):
         self.ignoreAll()
-        self.accept('escape', sys.exit)
+        self.accept('escape', self.exit_program)
         
     def focusInDef2(self):
         print('hh')
@@ -1269,27 +1478,23 @@ class SceneMakerMain(ShowBase):
         try:
             with open(self.scene_data_filename, 'w', encoding='utf-8') as f:
                 json.dump(self.data_all, f, ensure_ascii=False, indent=4)
-            print('json saved')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'json saved.'
+            self.display_last_status('json saved')
+            logger.info('json saved')
         except:
             shutil.copyfile(self.scene_data_backup_filename, self.scene_data_filename)
-            print('json save error')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'error while saving json file.'
+            self.display_last_status('error while saving scene json file.')
+            logger.error('error while saving scene json file.')
         # saving lights json
         shutil.copyfile(self.scene_light_data_filename, self.scene_light_data_backup_filename)
         try:
             with open(self.scene_light_data_filename, 'w', encoding='utf-8') as f:
                 json.dump(self.data_all_light, f, ensure_ascii=False, indent=4)
-            print('json saved(light data)')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'json saved(light data).'
+            self.display_last_status('json saved(light data)')
+            logger.info('json saved(light data)')
         except:
             shutil.copyfile(self.scene_light_data_backup_filename, self.scene_light_data_filename)
-            print('json save error')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'error while saving json file.'
+            self.display_last_status('json(light data) save error')
+            logger.error('json(light data) save error')
 
     def menubuttonDef_1(self):
         if self.menu_dropdown_1.isHidden():
@@ -1496,7 +1701,7 @@ class SceneMakerMain(ShowBase):
         
     def set_keymap(self):
         self.keyMap = {"move_forward": 0, "move_backward": 0, "move_left": 0, "move_right": 0,"gravity_on":0,"load_model":0,"set_camera_pos":0,"x_increase":0,"x_decrease":0,"y_increase":0,"y_decrease":0,"z_increase":0,"z_decrease":0,"right_click":0,"switch_model":0,"delete_model":0,"up_arrow":0,"down_arrow":0,"right_arrow":0,"left_arrow":0,"look_at":0,"show_gui":1}
-        self.accept('escape', sys.exit)
+        self.accept('escape', self.exit_program)
         self.accept("w", self.setKey, ["move_forward", True])
         self.accept("s", self.setKey, ["move_backward", True])
         self.accept("w-up", self.setKey, ["move_forward", False])
