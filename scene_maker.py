@@ -41,6 +41,26 @@ import datetime
 import time
 from math import sin, cos, pi
 
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setLevel(logging.DEBUG)
+stdout_handler.setFormatter(formatter)
+
+file_handler = logging.FileHandler('logs.log')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+
+
+logger.addHandler(file_handler)
+logger.addHandler(stdout_handler)
+
+logger.info('program started')
+
 panda3d.core.load_prc_file_data("", """
     textures-power-2 none
     gl-coordinate-system default
@@ -157,36 +177,6 @@ class SceneMakerMain(ShowBase):
         self.temp_count=1
         self.create_top_level_main_gui()
 
-        # Create a skybox node
-        self.skybox = self.render.attachNewNode("skybox")
-        self.skybox.setScale(1000)  # Scale to surround scene
-
-        # Create a sphere programmatically
-        sphere = self.create_sphere(radius=1.0, segments=32)
-        sphere.reparentTo(self.skybox)
-
-        # Load the equirectangular texture
-        tex = self.loader.loadTexture("HdrOutdoorFieldBaseballDayClear001_JPG_4K.JPG")
-        
-        self.skybox.setTexture(tex)
-        # reverse normals
-        #self.skybox.node().setAttrib(CullFaceAttrib.make(CullFaceAttrib.MCullCounterClockwise))
-        # Flip texture horizontally
-        self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)  # Negative x-scale for horizontal flip
-        self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)  # Adjust offset to align (U=1 to shift origin)
-
-        # Configure skybox rendering
-        self.skybox.setTwoSided(True)  # Render both sides to see inside
-        self.skybox.setBin("background", 0)  # Render first
-        self.skybox.setDepthWrite(False)  # Disable depth writing
-        self.skybox.setDepthTest(False)  # Disable depth testing
-        #self.skybox.setLightOff()  # Ignore lighting
-        #self.skybox.setShaderOff()
-        #self.skybox.setShaderAuto()
-
-        # Make the skybox follow the camera
-        self.taskMgr.add(self.update_skybox, "update_skybox")
-        #taskMgr.remove("update_skybox")
         
         #base.saveSphereMap('streetscene_env.jpg', size = 256)
 
@@ -223,6 +213,17 @@ class SceneMakerMain(ShowBase):
         terrain.generate()
         """
 
+    def save_global_params(self):
+        print('')
+    
+    def display_last_status(self,msg):
+        now = datetime.datetime.now()
+        self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+msg
+
+    def exit_program(self):
+        logger.info('program exiting.')
+        sys.exit()
+        
     def create_sphere(self, radius=1.0, segments=32):
         # Create vertex format
         vformat = GeomVertexFormat.getV3n3t2()
@@ -901,6 +902,7 @@ class SceneMakerMain(ShowBase):
 
         # Load the equirectangular texture
         tex = self.loader.loadTexture("HdrOutdoorFieldBaseballDayClear001_JPG_4K.JPG")
+        
         self.skybox.setTexture(tex)
         # reverse normals
         #self.skybox.node().setAttrib(CullFaceAttrib.make(CullFaceAttrib.MCullCounterClockwise))
@@ -916,6 +918,10 @@ class SceneMakerMain(ShowBase):
         #self.skybox.setLightOff()  # Ignore lighting
         #self.skybox.setShaderOff()
         #self.skybox.setShaderAuto()
+
+        # Make the skybox follow the camera
+        self.taskMgr.add(self.update_skybox, "update_skybox")
+        #taskMgr.remove("update_skybox")
 
     def cbuttondef_tst(self,status):
         if status:
@@ -1383,7 +1389,7 @@ class SceneMakerMain(ShowBase):
 
     def focusInDef(self):
         self.ignoreAll()
-        self.accept('escape', sys.exit)
+        self.accept('escape', self.exit_program)
         
     def focusInDef2(self):
         print('hh')
@@ -1472,27 +1478,23 @@ class SceneMakerMain(ShowBase):
         try:
             with open(self.scene_data_filename, 'w', encoding='utf-8') as f:
                 json.dump(self.data_all, f, ensure_ascii=False, indent=4)
-            print('json saved')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'json saved.'
+            self.display_last_status('json saved')
+            logger.info('json saved')
         except:
             shutil.copyfile(self.scene_data_backup_filename, self.scene_data_filename)
-            print('json save error')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'error while saving json file.'
+            self.display_last_status('error while saving scene json file.')
+            logger.error('error while saving scene json file.')
         # saving lights json
         shutil.copyfile(self.scene_light_data_filename, self.scene_light_data_backup_filename)
         try:
             with open(self.scene_light_data_filename, 'w', encoding='utf-8') as f:
                 json.dump(self.data_all_light, f, ensure_ascii=False, indent=4)
-            print('json saved(light data)')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'json saved(light data).'
+            self.display_last_status('json saved(light data)')
+            logger.info('json saved(light data)')
         except:
             shutil.copyfile(self.scene_light_data_backup_filename, self.scene_light_data_filename)
-            print('json save error')
-            now = datetime.datetime.now()
-            self.dlabel_status2['text']=now.strftime('%d-%m-%y %H:%M:%S ')+'error while saving json file.'
+            self.display_last_status('json(light data) save error')
+            logger.error('json(light data) save error')
 
     def menubuttonDef_1(self):
         if self.menu_dropdown_1.isHidden():
@@ -1699,7 +1701,7 @@ class SceneMakerMain(ShowBase):
         
     def set_keymap(self):
         self.keyMap = {"move_forward": 0, "move_backward": 0, "move_left": 0, "move_right": 0,"gravity_on":0,"load_model":0,"set_camera_pos":0,"x_increase":0,"x_decrease":0,"y_increase":0,"y_decrease":0,"z_increase":0,"z_decrease":0,"right_click":0,"switch_model":0,"delete_model":0,"up_arrow":0,"down_arrow":0,"right_arrow":0,"left_arrow":0,"look_at":0,"show_gui":1}
-        self.accept('escape', sys.exit)
+        self.accept('escape', self.exit_program)
         self.accept("w", self.setKey, ["move_forward", True])
         self.accept("s", self.setKey, ["move_backward", True])
         self.accept("w-up", self.setKey, ["move_forward", False])
