@@ -2,3 +2,44 @@
 2025-07-07 19:54:47,651 | INFO | program exiting.
 2025-07-07 20:32:23,986 | INFO | program started
 2025-07-07 20:32:32,840 | INFO | program exiting.
+2025-07-08 16:35:23,308 | INFO | program started
+2025-07-08 16:36:57,678 | INFO | program exiting.
+2025-07-08 16:44:08,566 | INFO | program started
+2025-07-08 16:44:18,499 | ERROR | error in entry_c:
+2025-07-08 16:44:18,508 | ERROR | 'ambientlight_R'
+2025-07-08 16:45:39,478 | INFO | program exiting.
+2025-07-08 16:45:43,630 | INFO | program started
+2025-07-08 16:45:52,356 | ERROR | error in entry_c:
+2025-07-08 16:45:52,356 | ERROR | 'ambientlight_R'
+2025-07-08 16:46:28,513 | INFO | program exiting.
+2025-07-08 16:46:36,579 | INFO | program started
+2025-07-08 16:46:43,419 | ERROR | error in entry_c:
+2025-07-08 16:46:43,419 | ERROR | 'ambientlight_R'
+2025-07-08 16:47:07,864 | INFO | program exiting.
+2025-07-08 16:48:30,703 | INFO | program started
+2025-07-08 16:50:40,152 | INFO | program started
+2025-07-08 16:54:45,248 | INFO | program started
+2025-07-08 16:55:17,984 | INFO | program started
+2025-07-08 16:56:41,317 | INFO | program exiting.
+2025-07-08 17:16:39,136 | INFO | program started
+2025-07-08 17:17:14,842 | INFO | program started
+2025-07-08 17:19:06,384 | INFO | program started
+2025-07-08 17:19:08,041 | INFO | global json saved
+2025-07-08 17:19:08,041 | INFO | global params json created (and saved)
+2025-07-08 17:19:21,681 | INFO | program exiting.
+2025-07-08 17:19:37,592 | INFO | program started
+2025-07-08 17:19:39,155 | INFO | global json loaded
+2025-07-08 17:19:41,790 | INFO | program exiting.
+2025-07-08 17:19:55,886 | INFO | program started
+2025-07-08 17:19:57,413 | INFO | global json loaded
+2025-07-08 17:20:02,245 | ERROR | error while deleting the model:
+2025-07-08 17:20:02,245 | ERROR | list index out of range
+2025-07-08 17:20:05,036 | INFO | scene json saved
+2025-07-08 17:20:05,135 | INFO | json saved(light data)
+2025-07-08 17:20:14,430 | INFO | program exiting.
+2025-07-08 17:20:39,837 | INFO | program started
+2025-07-08 17:20:41,453 | INFO | global json loaded
+2025-07-08 17:21:28,322 | INFO | program started
+2025-07-08 17:21:29,674 | INFO | global json loaded
+2025-07-08 17:21:33,627 | INFO | model grass_ground_1.glb loaded
+2025-07-08 17:21:45,376 | INFO | program exiting.

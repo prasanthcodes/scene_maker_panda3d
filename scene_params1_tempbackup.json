@@ -1,0 +1,78 @@
+[
+    {
+        "enable": true,
+        "show": true,
+        "uniquename": "grass_ground",
+        "filename": "grass_ground_1.glb",
+        "pos": [
+            true,
+            [
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "scale": [
+            true,
+            [
+                1.0,
+                1.0,
+                1.0
+            ]
+        ],
+        "color": [
+            true,
+            [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ]
+        ],
+        "hpr": [
+            true,
+            [
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "details": "ground",
+        "notes": "",
+        "shader_name": "",
+        "pickable": [
+            true,
+            ""
+        ],
+        "plights": [
+            {
+                "name": "1",
+                "pos": [
+                    true,
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "color": [
+                    true,
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "attenuation": [
+                    true,
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ]
+            }
+        ],
+        "slights": []
+    }
+]

@@ -43,5 +43,12 @@ delete - delete the current model <br/>
 2. when clicking on 'remove animation' in GUI, animation names are not immediately removed, but it will not shown next restart.
 
 ### Disclaimer
-1. the functionalities used in this program may not represent full or true functionalities of panda3d engine. some functions may partially used. some may twisted for specific use cases. for true explanations, refer panda3d documentation
-   
+1. the functionalities used in this program may not represent full or true functionalities of panda3d engine. some functions may partially used. some may twisted for specific use cases. for true explanations, refer panda3d documentation.
+2. all assets used in this program are freely obtained from various sources. see references section.
+
+### References
+1. https://docs.panda3d.org/1.10/python/more-resources/samples/roaming-ralph#roaming-ralph
+
+2. https://www.poliigon.com/texture/flat-grass-texture/4585
+
+

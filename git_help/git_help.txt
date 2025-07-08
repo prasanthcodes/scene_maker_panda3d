@@ -20,6 +20,10 @@ git add .
 git commit
 git pull origin skybox_terrain
 
+to fetch one file from main branch from remote
+git checkout origin/main -- file.txt
+
+
 
 full help:
 -------------------------------------------
