@@ -43,3 +43,16 @@
 2025-07-08 17:21:29,674 | INFO | global json loaded
 2025-07-08 17:21:33,627 | INFO | model grass_ground_1.glb loaded
 2025-07-08 17:21:45,376 | INFO | program exiting.
+2025-07-08 20:17:18,290 | INFO | program started
+2025-07-08 20:17:19,370 | INFO | global json loaded
+2025-07-08 20:17:29,660 | INFO | model grass_ground_1.glb loaded
+2025-07-08 20:17:30,911 | INFO | scene json saved
+2025-07-08 20:17:30,913 | INFO | json saved(light data)
+2025-07-08 20:19:06,317 | INFO | program started
+2025-07-08 20:19:07,005 | INFO | global json loaded
+2025-07-08 20:38:40,210 | INFO | program started
+2025-07-08 20:38:40,927 | INFO | global json loaded
+2025-07-08 20:38:51,528 | INFO | model EmptyNode.glb loaded
+2025-07-08 20:40:01,472 | INFO | program started
+2025-07-08 20:40:02,163 | INFO | global json loaded
+2025-07-08 20:40:08,963 | INFO | model gg/EmptyNode.glb loaded
