@@ -10,7 +10,7 @@ git push origin <branch-name>
 to push local to remote
 git branch
 git add .
-git commit
+git commit -m "update"
 git push
 
 to pull remote to local
