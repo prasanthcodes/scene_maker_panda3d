@@ -174,6 +174,7 @@ class SceneMakerMain(ShowBase):
         self.apply_global_params_2()
         #self.set_skybox()
         self.apply_global_params_3()
+        self.display_last_status("")
         
         
         #---load pbr pipeline---
@@ -267,6 +268,8 @@ class SceneMakerMain(ShowBase):
     def apply_global_params_1(self): #settings params
         self.mouse_sensitivity=self.global_params['mouse_sensitivity']
         self.move_speed=self.global_params['move_speed']
+        self.CheckButton_gs1['indicatorValue']=self.global_params['crosshair']
+        self.CheckButton_gs2['indicatorValue']=self.global_params['gizmo']
         if self.global_params['crosshair']==True:
             self.crosshair.show()
         else:
@@ -1838,7 +1841,6 @@ class SceneMakerMain(ShowBase):
             if self.models_enabled_all[i]==True:
                 if self.model_parent_enabled_all[i]==True:
                     self.attach_to_parent_2(self.models_all[i],self.model_parent_indices_all[i])
-
 
     def create_model_parent_vars(self):
         self.model_parent_names_all=[]
