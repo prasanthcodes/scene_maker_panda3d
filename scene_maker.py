@@ -99,19 +99,6 @@ class SceneMakerMain(ShowBase):
         self.FilterManager_1 = FilterManager(base.win, base.cam)
         self.Filters=CommonFilters(base.win, base.cam)
         
-        #env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
-        #tex = loader.loadCubeMap("#.jpg")
-        #env_map = simplepbr.EnvPool.load_env_map('#.jpg')
-        
-        self.pipeline = simplepbr.init(
-        #env_map=env_map,
-        use_normal_maps=True,
-        #exposure=0.8,
-        #sdr_lut_factor=0,
-        max_lights=16,
-        enable_fog=True
-        )
-        
         #---adjustable parameters---
         #self.mouse_sensitivity=50
         #self.move_speed=0.1
@@ -129,8 +116,8 @@ class SceneMakerMain(ShowBase):
         self.cameraAngleH = 0     # Horizontal angle (yaw)
         self.cameraAngleP = 0   # Vertical angle (pitch)
         self.camLens.setNear(0.01)
-        self.camLens.setFar(1500)
-        self.camera.setPos(0,0,1)
+        self.camLens.setFar(2500)
+        self.camera.setPos(0,0,self.cameraHeight)
         
         #---if camera y,z axis rotated 90 deg, use below code----
         #self.cam_node=NodePath('cam_node')
@@ -148,7 +135,6 @@ class SceneMakerMain(ShowBase):
         self.anim_name_list=[]
         self.current_animation=None
         self.load_environment_models()
-        self.setupLights()
         taskMgr.add(self.camera_rotate, "camera_rotateTask")
         taskMgr.add(self.camera_move, "camera_move")
         taskMgr.add(self.general_tasks, "general_tasks")
@@ -184,10 +170,31 @@ class SceneMakerMain(ShowBase):
         self.global_params={}
         self.load_global_params()
         self.apply_global_params_1()
+        self.setupLights()
+        self.apply_global_params_2()
+        #self.set_skybox()
+        self.apply_global_params_3()
         
+        
+        #---load pbr pipeline---
+        #env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
+        #tex = loader.loadCubeMap("#.jpg")
+        #env_map = simplepbr.EnvPool.load_env_map('#.jpg')
+        if self.global_params['skybox_enable_envmap']==True:
+            env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
+        else:
+            env_map=None
+        
+        self.pipeline = simplepbr.init(
+        env_map=env_map,
+        use_normal_maps=True,
+        #exposure=0.8,
+        #sdr_lut_factor=0,
+        max_lights=16,
+        enable_fog=True
+        )
         
         #base.saveSphereMap('streetscene_env.jpg', size = 256)
-
         #base.saveCubeMap('#_envmap.jpg', size = 512)
         
         """
@@ -270,23 +277,36 @@ class SceneMakerMain(ShowBase):
             self.gizmo.hide()
     
     def apply_global_params_2(self): #daylight params
-        self.mouse_sensitivity=self.global_params['mouse_sensitivity']
-        self.move_speed=self.global_params['move_speed']
-        if self.global_params['crosshair']==True:
-            self.crosshair.show()
-        else:
-            self.crosshair.hide()
-        if self.global_params['gizmo']==True:
-            self.gizmo.show()
-        else:
-            self.gizmo.hide()
+        self.daylight_commands(self.global_params['ambientlight_intensity'],'ambientlight_intensity')
+        self.daylight_commands(self.global_params['ambientlight_R'],'ambientlight_R')
+        self.daylight_commands(self.global_params['ambientlight_G'],'ambientlight_G')
+        self.daylight_commands(self.global_params['ambientlight_B'],'ambientlight_B')
+        self.daylight_commands(self.global_params['directionallight_intensity'],'DL_intensity')
+        self.daylight_commands(self.global_params['directionallight_R'],'DL_R')
+        self.daylight_commands(self.global_params['directionallight_G'],'DL_G')
+        self.daylight_commands(self.global_params['directionallight_B'],'DL_B')
+        self.daylight_commands(self.global_params['directionallight_H'],'DL_H')
+        self.daylight_commands(self.global_params['directionallight_P'],'DL_P')
+        self.daylight_commands(self.global_params['directionallight_RO'],'DL_RO')
+        self.daylight_commands(self.global_params['directionallight_X'],'DL_X')
+        self.daylight_commands(self.global_params['directionallight_Y'],'DL_Y')
+        self.daylight_commands(self.global_params['directionallight_Z'],'DL_Z')
+            
+    def apply_global_params_3(self): #skybox params
+        self.skybox_commands(self.global_params['skybox_enable'],'enable')
+        self.skybox_commands(self.global_params['skybox_show'],'show')
+        self.skybox_commands(self.global_params['skybox_ambientlight_R'],'R')
+        self.skybox_commands(self.global_params['skybox_ambientlight_G'],'G')
+        self.skybox_commands(self.global_params['skybox_ambientlight_B'],'B')
+        self.skybox_commands(self.global_params['skybox_enable_envmap'],'enable_ibl')
+        self.dlabel_i4.setText(self.global_params['skybox_image'])
             
     def save_global_params(self):
         try:
             with open(self.scene_global_params_filename, 'w', encoding='utf-8') as f:
                 json.dump(self.global_params, f, ensure_ascii=False, indent=4)
             self.display_last_status('global params json saved')
-            logger.info('global json saved')
+            logger.info('global params json saved')
         except:
             self.display_last_status('error while saving global params json file.')
             logger.error('error while saving global params json file.')
@@ -368,6 +388,41 @@ class SceneMakerMain(ShowBase):
         node = GeomNode('sphere')
         node.addGeom(geom)
         return NodePath(node)
+
+    def set_skybox(self):
+        # Create a skybox node
+        self.skybox = self.render.attachNewNode("skybox")
+        self.skybox.setScale(2000)  # Scale to surround scene
+
+        # Create a sphere programmatically
+        sphere = self.create_sphere(radius=1.0, segments=32)
+        sphere.reparentTo(self.skybox)
+
+        if os.path.exists(self.global_params['skybox_image']):
+            # Load the equirectangular texture
+            tex = self.loader.loadTexture(self.global_params['skybox_image'])
+            
+            self.skybox.setTexture(tex)
+            # reverse normals
+            #self.skybox.node().setAttrib(CullFaceAttrib.make(CullFaceAttrib.MCullCounterClockwise))
+            # Flip texture horizontally
+            self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)  # Negative x-scale for horizontal flip
+            self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)  # Adjust offset to align (U=1 to shift origin)
+
+        # Configure skybox rendering
+        self.skybox.setTwoSided(True)  # Render both sides to see inside
+        self.skybox.setBin("background", 0)  # Render first
+        self.skybox.setDepthWrite(False)  # Disable depth writing
+        self.skybox.setDepthTest(False)  # Disable depth testing
+        self.ambientLight_skybox = AmbientLight("ambientLight")
+        self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+        self.skybox.setLightOff()  # Ignore lighting
+        self.skybox.setLight(self.render.attachNewNode(self.ambientLight_skybox))
+        #self.skybox.setShaderOff()
+        #self.skybox.setShaderAuto()
+
+        # Make the skybox follow the camera
+        self.taskMgr.add(self.update_skybox, "update_skybox")
 
     def update_skybox(self, task):
         # Update skybox position to follow camera
@@ -673,92 +728,77 @@ class SceneMakerMain(ShowBase):
         self.CheckButton_b10.hide()
         self.dentry_b11.hide()
 
-    def SetEntryText_c(self,textEntered,identifier):
+    def daylight_commands(self,textEntered,identifier):
         if 1:
         #try:
+            # textEntered value may be integer if it called from other than gui
+            textEntered_num=float(textEntered)
+            textEntered_str=str(textEntered)
             if identifier=='ambientlight_intensity':
-                self.ambientLight_Intensity=float(textEntered)
-                cur_color=self.ambientLight.getColor()
-                r=self.global_params['ambientlight_R']*self.ambientLight_Intensity
-                g=self.global_params['ambientlight_G']*self.ambientLight_Intensity
-                b=self.global_params['ambientlight_B']*self.ambientLight_Intensity
-                self.ambientLight.setColor((r,g,b, 1))
+                self.dentry_c2.enterText(textEntered_str)
+                self.global_params['ambientlight_intensity']=textEntered_num
                 #self.dentry_c6.enterText(str(self.ambientLight_Intensity))
-                self.global_params['ambientlight_intensity']=float(textEntered)
             elif identifier=='ambientlight_R':
-                self.dentry_c6.enterText(textEntered)
-                cur_color=self.ambientLight.getColor()
-                self.ambientLight.setColor((float(textEntered),cur_color[1],cur_color[2], 1))
-                self.global_params['ambientlight_R']=float(textEntered)
+                self.dentry_c6.enterText(textEntered_str)
+                self.global_params['ambientlight_R']=textEntered_num
             elif identifier=='ambientlight_G':
-                self.dentry_c7.enterText(textEntered)
-                cur_color=self.ambientLight.getColor()
-                self.ambientLight.setColor((cur_color[0],float(textEntered),cur_color[2], 1))
-                self.global_params['ambientlight_G']=float(textEntered)
+                self.dentry_c7.enterText(textEntered_str)
+                self.global_params['ambientlight_G']=textEntered_num
             elif identifier=='ambientlight_B':
-                self.dentry_c8.enterText(textEntered)
-                cur_color=self.ambientLight.getColor()
-                self.ambientLight.setColor((cur_color[0],cur_color[1],float(textEntered), 1))
-                self.global_params['ambientlight_B']=float(textEntered)
+                self.dentry_c8.enterText(textEntered_str)
+                self.global_params['ambientlight_B']=textEntered_num
             elif identifier=='DL_intensity':
-                self.directionalLight_intensity=float(textEntered)
-                cur_color=self.directionalLight.getColor()
-                r=self.global_params['directionallight_R']*self.directionalLight_intensity
-                g=self.global_params['directionallight_G']*self.directionalLight_intensity
-                b=self.global_params['directionallight_B']*self.directionalLight_intensity
-                self.directionalLight.setColor((r,g,b, 1))
-                self.global_params['directionallight_intensity']=float(textEntered)
+                self.dentry_c10.enterText(textEntered_str)
+                self.global_params['directionallight_intensity']=textEntered_num
             elif identifier=='DL_R':
-                self.dentry_c14.enterText(textEntered)
-                cur_color=self.directionalLight.getColor()
-                self.directionalLight.setColor((float(textEntered),cur_color[1],cur_color[2], 1))
-                self.global_params['directionallight_R']=float(textEntered)
+                self.dentry_c14.enterText(textEntered_str)
+                self.global_params['directionallight_R']=textEntered_num
             elif identifier=='DL_G':
-                self.dentry_c15.enterText(textEntered)
-                cur_color=self.directionalLight.getColor()
-                self.directionalLight.setColor((cur_color[0],float(textEntered),cur_color[2], 1))
-                self.global_params['directionallight_G']=float(textEntered)
+                self.dentry_c15.enterText(textEntered_str)
+                self.global_params['directionallight_G']=textEntered_num
             elif identifier=='DL_B':
-                self.dentry_c16.enterText(textEntered)
-                cur_color=self.directionalLight.getColor()
-                self.directionalLight.setColor((cur_color[0],cur_color[1],float(textEntered), 1))
-                self.global_params['directionallight_B']=float(textEntered)
+                self.dentry_c16.enterText(textEntered_str)
+                self.global_params['directionallight_B']=textEntered_num
             elif identifier=='DL_H':
-                self.dentry_c20.enterText(textEntered)
-                cur_color=self.dlight1.getHpr()
-                self.dlight1.setHpr(float(textEntered),cur_color[1],cur_color[2])
-                self.global_params['directionallight_H']=float(textEntered)
+                self.dentry_c20.enterText(textEntered_str)
+                self.global_params['directionallight_H']=textEntered_num
             elif identifier=='DL_P':
-                self.dentry_c21.enterText(textEntered)
-                cur_color=self.dlight1.getHpr()
-                self.dlight1.setHpr(cur_color[0],float(textEntered),cur_color[2])
-                self.global_params['directionallight_P']=float(textEntered)
+                self.dentry_c21.enterText(textEntered_str)
+                self.global_params['directionallight_P']=textEntered_num
             elif identifier=='DL_RO':
-                self.dentry_c22.enterText(textEntered)
-                cur_color=self.dlight1.getHpr()
-                self.dlight1.setHpr(cur_color[0],cur_color[1],float(textEntered))
-                self.global_params['directionallight_RO']=float(textEntered)
+                self.dentry_c22.enterText(textEntered_str)
+                self.global_params['directionallight_RO']=textEntered_num
             elif identifier=='DL_X':
-                self.dentry_c24.enterText(textEntered)
-                cur_pos=self.dlight1.getPos()
-                self.dlight1.setPos(float(textEntered),cur_pos[1],cur_pos[2])
-                self.global_params['directionallight_X']=float(textEntered)
+                self.dentry_c24.enterText(textEntered_str)
+                self.global_params['directionallight_X']=textEntered_num
             elif identifier=='DL_Y':
-                self.dentry_c26.enterText(textEntered)
-                cur_pos=self.dlight1.getPos()
-                self.dlight1.setPos(cur_pos[0],float(textEntered),cur_pos[2])
-                self.global_params['directionallight_Y']=float(textEntered)
+                self.dentry_c26.enterText(textEntered_str)
+                self.global_params['directionallight_Y']=textEntered_num
             elif identifier=='DL_Z':
-                self.dentry_c28.enterText(textEntered)
-                cur_pos=self.dlight1.getPos()
-                self.dlight1.setPos(cur_pos[0],cur_pos[1],float(textEntered))
-                self.global_params['directionallight_Z']=float(textEntered)
+                self.dentry_c28.enterText(textEntered_str)
+                self.global_params['directionallight_Z']=textEntered_num
 
+            r=self.global_params['ambientlight_R']*self.global_params['ambientlight_intensity']
+            g=self.global_params['ambientlight_G']*self.global_params['ambientlight_intensity']
+            b=self.global_params['ambientlight_B']*self.global_params['ambientlight_intensity']
+            self.ambientLight.setColor((r,g,b, 1))
+            r=self.global_params['directionallight_R']*self.global_params['directionallight_intensity']
+            g=self.global_params['directionallight_G']*self.global_params['directionallight_intensity']
+            b=self.global_params['directionallight_B']*self.global_params['directionallight_intensity']
+            h=self.global_params['directionallight_H']
+            p=self.global_params['directionallight_P']
+            ro=self.global_params['directionallight_RO']
+            x=self.global_params['directionallight_X']
+            y=self.global_params['directionallight_Y']
+            z=self.global_params['directionallight_Z']
+            self.directionalLight.setColor((r,g,b, 1))
+            self.dlight1.setHpr(h,p,ro)
+            self.dlight1.setPos(x,y,z)
         else:
         #except Exception as e:
-            logger.error('error in entry_c:')
-            logger.error(e)
-            self.display_last_status('error in entry_c.')
+            logger.error('error in daylight gui entry:')
+            #logger.error(e)
+            self.display_last_status('error in daylight gui entry.')
 
     def create_daylight_gui(self):
         self.ScrolledFrame_d1=DirectScrolledFrame(
@@ -772,41 +812,41 @@ class SceneMakerMain(ShowBase):
         #self.daylight_adjuster_gui=DirectFrame(pos=(-1.35, 1,1),frameSize=(0,0.8,-0.9,0),frameColor=(0, 0, 0, 0.1))
         #command=self.SetEntryText_e,extraArgs=['Intensity']
         self.dlabel_c1 = DirectLabel(parent=canvas_1,text='Ambient light: intensity',pos=(-0.8,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c2 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.3, 1,0.75), command=self.SetEntryText_c,extraArgs=['ambientlight_intensity'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c2 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.3, 1,0.75), command=self.daylight_commands,extraArgs=['ambientlight_intensity'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
         self.dlabel_c3=DirectLabel(parent=canvas_1,text='R (0 to 1): ',pos=(-0.7,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dlabel_c4=DirectLabel(parent=canvas_1,text='G (0 to 1): ',pos=(-0.7,1,0.55),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dlabel_c5=DirectLabel(parent=canvas_1,text='B (0 to 1): ',pos=(-0.7,1,0.45),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         
-        self.dentry_c6 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.65), command=self.SetEntryText_c,extraArgs=['ambientlight_R'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c7 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.55), command=self.SetEntryText_c,extraArgs=['ambientlight_G'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c8 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.45), command=self.SetEntryText_c,extraArgs=['ambientlight_B'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c6 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.65), command=self.daylight_commands,extraArgs=['ambientlight_R'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c7 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.55), command=self.daylight_commands,extraArgs=['ambientlight_G'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c8 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.45), command=self.daylight_commands,extraArgs=['ambientlight_B'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
         self.dlabel_c9 = DirectLabel(parent=canvas_1,text='Directional light(sun): intensity',pos=(-0.8,1,0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c10 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.3, 1,0.35), command=self.SetEntryText_c,extraArgs=['DL_intensity'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c10 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.3, 1,0.35), command=self.daylight_commands,extraArgs=['DL_intensity'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
         self.dlabel_c11=DirectLabel(parent=canvas_1,text='R (0 to 1): ',pos=(-0.7,1,0.25),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dlabel_c12=DirectLabel(parent=canvas_1,text='G (0 to 1): ',pos=(-0.7,1,0.15),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dlabel_c13=DirectLabel(parent=canvas_1,text='B (0 to 1): ',pos=(-0.7,1,0.05),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         
-        self.dentry_c14 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.25), command=self.SetEntryText_c,extraArgs=['DL_R'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c15 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.15), command=self.SetEntryText_c,extraArgs=['DL_G'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c16 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.05), command=self.SetEntryText_c,extraArgs=['DL_B'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c14 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.25), command=self.daylight_commands,extraArgs=['DL_R'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c15 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.15), command=self.daylight_commands,extraArgs=['DL_G'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c16 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.05), command=self.daylight_commands,extraArgs=['DL_B'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
         self.dlabel_c17=DirectLabel(parent=canvas_1,text='H (0 to 360): ',pos=(-0.7,1,-0.05),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dlabel_c18=DirectLabel(parent=canvas_1,text='P (0 to 360): ',pos=(-0.7,1,-0.15),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dlabel_c19=DirectLabel(parent=canvas_1,text='R (0 to 360): ',pos=(-0.7,1,-0.25),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         
-        self.dentry_c20 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.05), command=self.SetEntryText_c,extraArgs=['DL_H'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c21 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.15), command=self.SetEntryText_c,extraArgs=['DL_P'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c22 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.25), command=self.SetEntryText_c,extraArgs=['DL_RO'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c20 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.05), command=self.daylight_commands,extraArgs=['DL_H'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c21 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.15), command=self.daylight_commands,extraArgs=['DL_P'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c22 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.25), command=self.daylight_commands,extraArgs=['DL_RO'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
         self.dlabel_c23=DirectLabel(parent=canvas_1,text='X: ',pos=(-1.3,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c24 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(-1.25, 1,-0.35), command=self.SetEntryText_c,extraArgs=['DL_X'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c24 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(-1.25, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_X'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_c25=DirectLabel(parent=canvas_1,text='Y: ',pos=(-0.6,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c26 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(-0.55, 1,-0.35), command=self.SetEntryText_c,extraArgs=['DL_Y'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c26 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(-0.55, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_Y'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_c27=DirectLabel(parent=canvas_1,text='Z: ',pos=(0.1,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c28 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(0.55, 1,-0.35), command=self.SetEntryText_c,extraArgs=['DL_Z'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c28 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(0.55, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_Z'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
     def create_general_settings_gui(self):
         self.ScrolledFrame_d2=DirectScrolledFrame(
@@ -1047,7 +1087,7 @@ class SceneMakerMain(ShowBase):
         self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "enable skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['enable'],pos=(-1.15, 1,0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
         self.CheckButton_i2 = DirectCheckButton(parent=canvas_5,text = "show skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['show'],pos=(-1.15, 1,0.5),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
         self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.4, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.05,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.4),text_fg=(1, 0.6, 0.6, 1),text_bg=(0,0,0,0.5),frameColor=(0,0,0,0.2))
         self.dbutton_i5 = DirectButton(parent=canvas_5,text='Select Image',pos=(-1.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
         self.dlabel_i5_2=DirectLabel(parent=canvas_5,text=" *should be Equirectangular image",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, 0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
         self.dlabel_i6=DirectLabel(parent=canvas_5,text="Skybox Ambient Light:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
@@ -1066,57 +1106,31 @@ class SceneMakerMain(ShowBase):
         self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.4),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
         
     def skybox_commands(self,InputValue,identifier):
-        if 1:
-        #try:
+        #if 1:
+        try:
             if identifier=='enable':
                 self.global_params['skybox_enable']=InputValue
+                print(InputValue)
+                self.CheckButton_i1['indicatorValue']=InputValue
                 if InputValue==True:
-                    # Create a skybox node
-                    self.skybox = self.render.attachNewNode("skybox")
-                    self.skybox.setScale(2000)  # Scale to surround scene
-
-                    # Create a sphere programmatically
-                    sphere = self.create_sphere(radius=1.0, segments=32)
-                    sphere.reparentTo(self.skybox)
-
-                    if os.path.exists(self.global_params['skybox_image']):
-                        # Load the equirectangular texture
-                        tex = self.loader.loadTexture(self.global_params['skybox_image'])
-                        
-                        self.skybox.setTexture(tex)
-                        # reverse normals
-                        #self.skybox.node().setAttrib(CullFaceAttrib.make(CullFaceAttrib.MCullCounterClockwise))
-                        # Flip texture horizontally
-                        self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)  # Negative x-scale for horizontal flip
-                        self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)  # Adjust offset to align (U=1 to shift origin)
-
-                    # Configure skybox rendering
-                    self.skybox.setTwoSided(True)  # Render both sides to see inside
-                    self.skybox.setBin("background", 0)  # Render first
-                    self.skybox.setDepthWrite(False)  # Disable depth writing
-                    self.skybox.setDepthTest(False)  # Disable depth testing
-                    self.skybox.set
-                    self.ambientLight_skybox = AmbientLight("ambientLight")
-                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
-                    self.skybox.setLight(self.render.attachNewNode(self.ambientLight_skybox))
-                    #self.skybox.setLightOff()  # Ignore lighting
-                    #self.skybox.setShaderOff()
-                    #self.skybox.setShaderAuto()
-
-                    # Make the skybox follow the camera
-                    self.taskMgr.add(self.update_skybox, "update_skybox")
-                    #taskMgr.remove("update_skybox")
+                    self.set_skybox()
+                    self.display_last_status('skybox enabled.')
                 else:
+                    print(InputValue)
                     taskMgr.remove("update_skybox")
                     self.skybox.detachNode()
                     self.skybox.removeNode()
+                    self.display_last_status('skybox removed.')
 
             elif identifier=='show':
+                self.CheckButton_i2['indicatorValue']=InputValue
                 if self.global_params['skybox_enable']==True:
                     if InputValue==True:
                         self.skybox.show()
+                        self.display_last_status('skybox showed.')
                     else:
                         self.skybox.hide()
+                        self.display_last_status('skybox hided.')
                 else:
                     self.display_last_status('skybox disabled. enable to show or hide.')
                     
@@ -1134,6 +1148,8 @@ class SceneMakerMain(ShowBase):
                         self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)
                         self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)
                         self.global_params['skybox_image']=modelfilepath
+                        self.dlabel_i4.setText(modelfilepath)
+                        self.display_last_status('skybox texture is set.')
                     except Exception as e:
                         logger.error('skybox texture file not supported:')
                         logger.error(e)
@@ -1141,26 +1157,47 @@ class SceneMakerMain(ShowBase):
                 else:
                     self.display_last_status('no file selected.')
             elif identifier=='R':
-                InputValue=float(InputValue)
-                self.global_params['skybox_ambientlight_R']=InputValue
-                self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['skybox_ambientlight_R']=InputValue
+                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                    self.dentry_i8.enterText(str(InputValue))
+                else:
+                    self.display_last_status('ambientLight_skybox not present')
             elif identifier=='G':
-                InputValue=float(InputValue)
-                self.global_params['skybox_ambientlight_G']=InputValue
-                self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['skybox_ambientlight_G']=InputValue
+                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                    self.dentry_i10.enterText(str(InputValue))
+                else:
+                    self.display_last_status('ambientLight_skybox not present')
             elif identifier=='B':
-                InputValue=float(InputValue)
-                self.global_params['skybox_ambientlight_B']=InputValue
-                self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['skybox_ambientlight_B']=InputValue
+                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                    self.dentry_i12.enterText(str(InputValue))
+                else:
+                    self.display_last_status('ambientLight_skybox not present')
             elif identifier=='enable_ibl':
+                self.CheckButton_i14['indicatorValue']=InputValue
                 if InputValue==True:
-                    
-                
-        else:
-        #except Exception as e:
-            logger.error('error in skybox_commands:')
-            #logger.error(e)
-            self.display_last_status('error in skybox_commands.')
+                    self.global_params['skybox_enable_envmap']=True
+                    self.display_last_status('envmap ibl enabled.')
+                else:
+                    self.global_params['skybox_enable_envmap']=False
+                    self.display_last_status('envmap ibl disabled.')
+            elif identifier=='save_envmap':
+                base.saveCubeMap('#_envmap.jpg', size = 512)
+                logger.info('envmap saved.')
+                self.display_last_status('envmap saved.')
+            
+        #else:
+        except Exception as e:
+            logger.error('error in skybox gui entry:')
+            logger.error(e)
+            self.display_last_status('error in skybox gui entry.')
 
     def cbuttondef_tst(self,status):
         if status:
@@ -1622,6 +1659,8 @@ class SceneMakerMain(ShowBase):
             shutil.copyfile(self.scene_light_data_backup_filename, self.scene_light_data_filename)
             self.display_last_status('json(light data) save error')
             logger.error('json(light data) save error')
+        
+        self.save_global_params()
 
     def menubuttonDef_1(self):
         if self.menu_dropdown_1.isHidden():
@@ -2029,12 +2068,12 @@ class SceneMakerMain(ShowBase):
         
     def setupLights(self):  # Sets up some default lighting
         self.ambientLight = AmbientLight("ambientLight")
-        self.ambientLight_Intensity=0.3
-        self.ambientLight.setColor((self.ambientLight_Intensity,self.ambientLight_Intensity,self.ambientLight_Intensity, 1))
+        #self.ambientLight_Intensity=0.3
+        #self.ambientLight.setColor((self.ambientLight_Intensity,self.ambientLight_Intensity,self.ambientLight_Intensity, 1))
         self.render.setLight(self.render.attachNewNode(self.ambientLight))
         self.directionalLight = DirectionalLight("directionalLight_1")
-        self.directionalLight_intensity=5
-        self.directionalLight.setColor((self.directionalLight_intensity,self.directionalLight_intensity,self.directionalLight_intensity, 1))
+        #self.directionalLight_intensity=5
+        #self.directionalLight.setColor((self.directionalLight_intensity,self.directionalLight_intensity,self.directionalLight_intensity, 1))
         #self.directionalLight.setSpecularColor((.1, .1, .1, .1))
         self.directionalLight.setShadowCaster(True, 512,512)
         self.dlight1=self.render.attachNewNode(self.directionalLight)
