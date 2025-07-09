@@ -186,6 +186,7 @@ class SceneMakerMain(ShowBase):
         else:
             env_map=None
         
+        #env_map=None
         self.pipeline = simplepbr.init(
         env_map=env_map,
         use_normal_maps=True,
@@ -1139,7 +1140,7 @@ class SceneMakerMain(ShowBase):
                     
             elif identifier=='select_image':
                 root = tk.Tk()
-                openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .hdr"),("All files", "*.*")])
+                openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .hdr .exr"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
                     modelfilepath=os.path.relpath(openedfilename, os.getcwd())

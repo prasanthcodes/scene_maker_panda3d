@@ -1,0 +1,13 @@
+
+hdri skybox
+
+https://polyhaven.com/hdris/outdoor
+
+https://ambientcg.com/list?type=hdri%2Chdri-element&sort=popular
+
+https://www.poliigon.com/hdri/baseball-field-clear-day-outdoor-sky-hdri/4141
+
+
+
+C:\Users\<pc_name>\AppData\Local\Programs\Python\Python310\Lib\site-packages\simplepbr
+

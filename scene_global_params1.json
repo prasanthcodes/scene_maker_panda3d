@@ -21,7 +21,7 @@
     "DL_AxisTripod": true,
     "skybox_enable": 1,
     "skybox_show": true,
-    "skybox_image": "HdrOutdoorFieldBaseballDayClear001_JPG_4K.JPG",
+    "skybox_image": "DaySkyHDRI059A_8K-TONEMAPPED.jpg",
     "skybox_ambientlight_R": 1.0,
     "skybox_ambientlight_G": 1.0,
     "skybox_ambientlight_B": 1.0,
