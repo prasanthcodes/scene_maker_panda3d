@@ -159,3 +159,123 @@
 2025-07-09 17:07:05,310 | INFO | program started
 2025-07-09 17:07:07,103 | INFO | global json loaded
 2025-07-09 17:09:28,939 | INFO | program exiting.
+2025-07-10 09:43:01,310 | INFO | program started
+2025-07-10 09:43:03,610 | INFO | global json loaded
+2025-07-10 09:44:46,054 | INFO | scene json saved
+2025-07-10 09:44:46,054 | INFO | json saved(light data)
+2025-07-10 09:44:46,054 | INFO | global params json saved
+2025-07-10 09:44:49,608 | INFO | program exiting.
+2025-07-10 09:45:03,397 | INFO | program started
+2025-07-10 09:45:05,210 | INFO | global json loaded
+2025-07-10 09:45:18,400 | INFO | program exiting.
+2025-07-10 09:45:28,058 | INFO | program started
+2025-07-10 09:45:29,759 | INFO | global json loaded
+2025-07-10 09:49:08,143 | INFO | scene json saved
+2025-07-10 09:49:08,143 | INFO | json saved(light data)
+2025-07-10 09:49:08,143 | INFO | global params json saved
+2025-07-10 09:49:08,833 | INFO | program exiting.
+2025-07-10 09:49:15,907 | INFO | program started
+2025-07-10 09:49:17,467 | INFO | global json loaded
+2025-07-10 09:50:19,088 | INFO | program exiting.
+2025-07-10 09:50:23,468 | INFO | program started
+2025-07-10 09:50:25,072 | INFO | global json loaded
+2025-07-10 09:55:01,151 | INFO | scene json saved
+2025-07-10 09:55:01,151 | INFO | json saved(light data)
+2025-07-10 09:55:01,151 | INFO | global params json saved
+2025-07-10 09:55:01,679 | INFO | program exiting.
+2025-07-10 10:06:07,136 | INFO | program started
+2025-07-10 10:06:09,092 | INFO | global json loaded
+2025-07-10 10:08:29,238 | INFO | scene json saved
+2025-07-10 10:08:29,241 | INFO | json saved(light data)
+2025-07-10 10:08:29,241 | INFO | global params json saved
+2025-07-10 10:08:41,193 | INFO | program exiting.
+2025-07-10 11:35:24,566 | INFO | program started
+2025-07-10 11:35:26,199 | INFO | global json loaded
+2025-07-10 11:39:56,774 | INFO | program exiting.
+2025-07-10 11:39:59,506 | INFO | program started
+2025-07-10 11:40:01,182 | INFO | global json loaded
+2025-07-10 11:40:24,832 | INFO | program exiting.
+2025-07-10 11:40:31,550 | INFO | program started
+2025-07-10 11:40:33,178 | INFO | global json loaded
+2025-07-10 11:40:40,717 | INFO | program exiting.
+2025-07-10 11:40:48,878 | INFO | program started
+2025-07-10 11:40:50,490 | INFO | global json loaded
+2025-07-10 11:40:54,055 | INFO | program exiting.
+2025-07-10 11:58:10,862 | INFO | program started
+2025-07-10 11:58:13,021 | INFO | global json loaded
+2025-07-10 11:58:16,331 | INFO | program exiting.
+2025-07-10 11:58:22,378 | INFO | program started
+2025-07-10 11:58:23,971 | INFO | global json loaded
+2025-07-10 11:58:42,276 | INFO | program exiting.
+2025-07-10 13:28:59,223 | INFO | program started
+2025-07-10 13:29:02,087 | INFO | global json loaded
+2025-07-10 13:29:27,050 | INFO | program exiting.
+2025-07-10 16:34:41,596 | INFO | program started
+2025-07-10 16:34:43,667 | INFO | global json loaded
+2025-07-10 16:36:03,537 | INFO | program exiting.
+2025-07-10 16:36:07,042 | INFO | program started
+2025-07-10 16:36:53,703 | INFO | program started
+2025-07-10 16:37:21,417 | INFO | program started
+2025-07-10 16:37:23,182 | INFO | global json loaded
+2025-07-10 16:38:22,060 | INFO | program started
+2025-07-10 16:38:23,677 | INFO | global json loaded
+2025-07-10 16:39:54,538 | INFO | program started
+2025-07-10 16:39:56,361 | INFO | global json loaded
+2025-07-10 16:40:19,025 | INFO | program exiting.
+2025-07-10 16:40:23,189 | INFO | program started
+2025-07-10 16:40:24,822 | INFO | global json loaded
+2025-07-10 16:40:45,332 | INFO | program exiting.
+2025-07-10 16:40:48,622 | INFO | program started
+2025-07-10 16:40:50,249 | INFO | global json loaded
+2025-07-10 16:41:01,979 | INFO | program exiting.
+2025-07-10 16:41:16,017 | INFO | program started
+2025-07-10 16:41:17,729 | INFO | global json loaded
+2025-07-10 16:41:21,174 | INFO | program exiting.
+2025-07-10 16:41:30,085 | INFO | program started
+2025-07-10 16:41:31,691 | INFO | global json loaded
+2025-07-10 16:41:35,187 | INFO | program exiting.
+2025-07-10 16:41:43,590 | INFO | program started
+2025-07-10 16:41:45,207 | INFO | global json loaded
+2025-07-10 16:41:53,445 | INFO | program exiting.
+2025-07-10 16:42:14,824 | INFO | program started
+2025-07-10 16:42:16,583 | INFO | global json loaded
+2025-07-10 16:42:23,493 | INFO | program exiting.
+2025-07-10 16:42:40,742 | INFO | program started
+2025-07-10 16:42:42,461 | INFO | global json loaded
+2025-07-10 16:42:58,152 | INFO | program exiting.
+2025-07-10 16:44:09,459 | INFO | program started
+2025-07-10 16:44:11,284 | INFO | global json loaded
+2025-07-10 16:44:16,657 | INFO | program exiting.
+2025-07-10 16:44:28,445 | INFO | program started
+2025-07-10 16:44:30,194 | INFO | global json loaded
+2025-07-10 16:44:35,149 | INFO | program exiting.
+2025-07-10 16:44:46,910 | INFO | program started
+2025-07-10 16:44:48,625 | INFO | global json loaded
+2025-07-10 16:44:59,824 | INFO | program exiting.
+2025-07-10 16:45:06,932 | INFO | program started
+2025-07-10 16:45:08,543 | INFO | global json loaded
+2025-07-10 16:45:13,281 | INFO | program exiting.
+2025-07-10 16:46:51,977 | INFO | program started
+2025-07-10 16:46:53,790 | INFO | global json loaded
+2025-07-10 16:49:00,734 | INFO | program exiting.
+2025-07-10 16:49:08,038 | INFO | program started
+2025-07-10 16:49:09,804 | INFO | global json loaded
+2025-07-10 16:49:19,074 | INFO | program exiting.
+2025-07-10 16:49:33,794 | INFO | program started
+2025-07-10 16:49:35,585 | INFO | global json loaded
+2025-07-10 16:49:39,390 | INFO | program exiting.
+2025-07-10 16:49:49,088 | INFO | program started
+2025-07-10 16:49:50,722 | INFO | global json loaded
+2025-07-10 16:50:16,349 | INFO | program exiting.
+2025-07-10 16:52:28,024 | INFO | program started
+2025-07-10 16:52:29,890 | INFO | global json loaded
+2025-07-10 16:53:23,871 | INFO | program exiting.
+2025-07-10 16:54:45,922 | INFO | program started
+2025-07-10 16:54:47,767 | INFO | global json loaded
+2025-07-10 16:55:02,746 | INFO | program exiting.
+2025-07-10 17:00:44,205 | INFO | program started
+2025-07-10 17:00:45,820 | INFO | global json loaded
+2025-07-10 17:01:31,746 | INFO | program exiting.
+2025-07-10 17:01:34,184 | INFO | program started
+2025-07-10 17:01:35,843 | INFO | global json loaded
+2025-07-10 17:03:19,103 | INFO | program exiting.

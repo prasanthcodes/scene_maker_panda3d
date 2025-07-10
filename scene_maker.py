@@ -190,7 +190,7 @@ class SceneMakerMain(ShowBase):
         self.pipeline = simplepbr.init(
         env_map=env_map,
         use_normal_maps=True,
-        #exposure=0.8,
+        exposure=0,
         #sdr_lut_factor=0,
         max_lights=16,
         enable_fog=True
@@ -230,6 +230,99 @@ class SceneMakerMain(ShowBase):
         terrain.generate()
         """
     
+    def create_shortcut_icons_top(self):
+        self.ScrolledFrame_a0=DirectScrolledFrame(
+            canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            frameSize=(-2, 2, -2, 2),
+            pos=(0,0,0),
+            #pos=(-0.35, 1,0.95)
+            frameColor=(0, 0, 0, 0)
+        )
+        canvas_a1=self.ScrolledFrame_a0.getCanvas()
+        #self.daylight_adjuster_gui=DirectFrame(pos=(-1.35, 1,1),frameSize=(0,0.8,-0.9,0),frameColor=(0, 0, 0, 0.1))
+        
+        self.checkbutton_a1 = DirectCheckButton(parent=canvas_a1,pos=(-0.72, 1,0.97),command=self.icons_command,extraArgs=['1'],scale=0.03,indicatorValue=0,image="icons/1.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+        self.checkbutton_a2 = DirectCheckButton(parent=canvas_a1,pos=(-0.65, 1,0.97),command=self.icons_command,extraArgs=['2'],scale=0.03,indicatorValue=0,image="icons/2.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+        self.checkbutton_a3 = DirectCheckButton(parent=canvas_a1,pos=(-0.58, 1,0.97),command=self.icons_command,extraArgs=['3'],scale=0.03,indicatorValue=0,image="icons/3.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+        self.checkbutton_a4 = DirectCheckButton(parent=canvas_a1,pos=(-0.51, 1,0.97),command=self.icons_command,extraArgs=['4'],scale=0.03,indicatorValue=0,image="icons/4.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+        self.checkbutton_a5 = DirectCheckButton(parent=canvas_a1,pos=(-0.44, 1,0.97),command=self.icons_command,extraArgs=['5'],scale=0.03,indicatorValue=0,image="icons/5.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+        self.checkbutton_a6 = DirectCheckButton(parent=canvas_a1,pos=(-0.37, 1,0.97),command=self.icons_command,extraArgs=['6'],scale=0.03,indicatorValue=0,image="icons/6.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+        self.checkbutton_a7 = DirectCheckButton(parent=canvas_a1,pos=(-0.30, 1,0.97),command=self.icons_command,extraArgs=['7'],scale=0.03,indicatorValue=0,image="icons/7.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+        self.checkbutton_a8 = DirectCheckButton(parent=canvas_a1,pos=(-0.23, 1,0.97),command=self.icons_command,extraArgs=['8'],scale=0.03,indicatorValue=0,image="icons/8.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+        self.checkbutton_a9 = DirectCheckButton(parent=canvas_a1,pos=(-0.16, 1,0.97),command=self.icons_command,extraArgs=['9'],scale=0.03,indicatorValue=0,image="icons/9.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+
+    def icons_command(self,InputValue,identifier):
+        if 1:
+        #try:
+            if identifier=="1":
+                if InputValue:
+                    self.show_properties_gui()
+                    self.checkbutton_a1['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.hide_properties_gui()
+                    self.checkbutton_a1['image_color'] = (1, 1, 1, 1)
+            if identifier=="2":
+                if InputValue:
+                    self.show_properties_gui_2()
+                    self.checkbutton_a2['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.hide_properties_gui_2()
+                    self.checkbutton_a2['image_color'] = (1, 1, 1, 1)
+            if identifier=="3":
+                if InputValue:
+                    self.ScrolledFrame_d2.show()
+                    self.checkbutton_a3['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.ScrolledFrame_d2.hide()
+                    self.checkbutton_a3['image_color'] = (1, 1, 1, 1)
+            if identifier=="4":
+                if InputValue:
+                    self.ScrolledFrame_d1.show()
+                    self.checkbutton_a4['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.ScrolledFrame_d1.hide()
+                    self.checkbutton_a4['image_color'] = (1, 1, 1, 1)
+            if identifier=="5":
+                if InputValue:
+                    self.ScrolledFrame_e1.show()
+                    self.checkbutton_a5['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.ScrolledFrame_e1.hide()
+                    self.checkbutton_a5['image_color'] = (1, 1, 1, 1)
+            if identifier=="6":
+                if InputValue:
+                    self.ScrolledFrame_f1.show()
+                    self.checkbutton_a6['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.ScrolledFrame_f1.hide()
+                    self.checkbutton_a6['image_color'] = (1, 1, 1, 1)
+            if identifier=="7":
+                if InputValue:
+                    self.ScrolledFrame_g1.show()
+                    self.checkbutton_a7['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.ScrolledFrame_g1.hide()
+                    self.checkbutton_a7['image_color'] = (1, 1, 1, 1)
+            if identifier=="8":
+                if InputValue:
+                    self.ScrolledFrame_h1.show()
+                    self.checkbutton_a8['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.ScrolledFrame_h1.hide()
+                    self.checkbutton_a8['image_color'] = (1, 1, 1, 1)
+            if identifier=="9":
+                if InputValue:
+                    self.ScrolledFrame_i1.show()
+                    self.checkbutton_a9['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.ScrolledFrame_i1.hide()
+                    self.checkbutton_a9['image_color'] = (1, 1, 1, 1)
+        else:
+        #except Exception as e:
+            logger.error('error in shortcut icon click:')
+            #logger.error(e)
+            self.display_last_status('error in shortcut icon click.')
+            
     def create_global_params(self):
         self.global_params={}
         # settings params
@@ -484,10 +577,11 @@ class SceneMakerMain(ShowBase):
         
         self.menu_2 = DirectOptionMenu(text="switch_models", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_2, textMayChange=1,items=self.models_names_all,pos=(0.1, 1,0.95),frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9))
         
-        self.MenuButton_1 = DirectButton(text = "Menu",scale=.06,command=self.menubuttonDef_1,pos=(-0.75, 1,0.95))
-        self.dbutton_1 = DirectButton(text=("save"),scale=.06, pos=(0, 1,0.95),command=self.ButtonDef_1)
+        self.MenuButton_1 = DirectButton(text = "Menu",scale=.06,command=self.menubuttonDef_1,pos=(-0.85, 1,0.95))
+        self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0, 1,0.95),command=self.ButtonDef_1)
         self.dlabel_status=DirectLabel(text='Last Status: ',pos=(-1.3,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
         self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.create_shortcut_icons_top()
         self.create_properties_gui()
         self.create_properties_gui_2()
         self.hide_properties_gui_2()
@@ -523,7 +617,8 @@ class SceneMakerMain(ShowBase):
         self.dbutton_1.show()
         self.dlabel_status.show()
         self.dlabel_status2.show()
-        self.bottom_cam_label.show()        
+        self.bottom_cam_label.show()  
+        self.ScrolledFrame_a0.show()        
         
     def hide_top_level_main_gui(self):
         self.menu_1.hide()
@@ -533,6 +628,7 @@ class SceneMakerMain(ShowBase):
         self.dlabel_status.hide()
         self.dlabel_status2.hide()                                                                                         
         self.bottom_cam_label.hide()
+        self.ScrolledFrame_a0.hide() 
         panda3d.core.load_prc_file_data('', 'show-frame-rate-meter false')                                                                          
         
     def menu_hover_command(self,hover, frame):
