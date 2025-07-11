@@ -22,6 +22,7 @@
     "skybox_enable": 1,
     "skybox_show": true,
     "skybox_image": "DaySkyHDRI059A_8K-TONEMAPPED.jpg",
+    "skybox_ambientlight_intensity": 1.3,
     "skybox_ambientlight_R": 1.0,
     "skybox_ambientlight_G": 1.0,
     "skybox_ambientlight_B": 1.0,

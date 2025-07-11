@@ -1,281 +1,43 @@
-2025-07-09 10:51:31,685 | INFO | program started
-2025-07-09 10:51:33,423 | INFO | global json loaded
-2025-07-09 10:51:39,324 | INFO | program exiting.
-2025-07-09 10:51:41,710 | INFO | program started
-2025-07-09 10:51:43,545 | INFO | global json loaded
-2025-07-09 10:52:10,646 | INFO | model DamagedHelmet.glb loaded
-2025-07-09 10:52:34,049 | INFO | scene json saved
-2025-07-09 10:52:34,055 | INFO | json saved(light data)
-2025-07-09 10:52:56,672 | INFO | program exiting.
-2025-07-09 10:56:41,239 | INFO | program started
-2025-07-09 10:56:43,089 | INFO | global json loaded
-2025-07-09 10:56:57,399 | INFO | program exiting.
-2025-07-09 10:56:59,656 | INFO | program started
-2025-07-09 10:57:01,246 | INFO | global json loaded
-2025-07-09 10:57:12,815 | INFO | program exiting.
-2025-07-09 10:59:13,372 | INFO | program started
-2025-07-09 10:59:15,192 | INFO | global json loaded
-2025-07-09 11:00:13,073 | ERROR | skybox texture file not supported:
-2025-07-09 11:00:13,073 | ERROR | !is_empty() at line 2938 of panda/src/pgraph/nodePath.cxx
-2025-07-09 11:00:21,111 | ERROR | skybox texture file not supported:
-2025-07-09 11:00:21,111 | ERROR | !is_empty() at line 2938 of panda/src/pgraph/nodePath.cxx
-2025-07-09 11:07:19,492 | INFO | scene json saved
-2025-07-09 11:07:19,492 | INFO | json saved(light data)
-2025-07-09 11:08:01,587 | INFO | program exiting.
-2025-07-09 11:08:09,439 | INFO | program started
-2025-07-09 11:08:11,577 | INFO | global json loaded
-2025-07-09 11:09:13,583 | INFO | program started
-2025-07-09 11:09:16,338 | INFO | global json loaded
-2025-07-09 11:10:17,847 | INFO | scene json saved
-2025-07-09 11:10:17,847 | INFO | json saved(light data)
-2025-07-09 11:10:20,507 | INFO | program exiting.
-2025-07-09 11:10:24,681 | INFO | program started
-2025-07-09 11:10:26,272 | INFO | global json loaded
-2025-07-09 11:10:38,232 | INFO | program exiting.
-2025-07-09 11:12:23,471 | INFO | program started
-2025-07-09 11:12:25,182 | INFO | global json loaded
-2025-07-09 11:14:50,352 | INFO | scene json saved
-2025-07-09 11:14:50,352 | INFO | json saved(light data)
-2025-07-09 11:14:50,352 | INFO | global params json saved
-2025-07-09 11:14:52,166 | INFO | program exiting.
-2025-07-09 11:14:55,133 | INFO | program started
-2025-07-09 11:14:56,693 | INFO | global json loaded
-2025-07-09 11:16:06,553 | INFO | scene json saved
-2025-07-09 11:16:06,553 | INFO | json saved(light data)
-2025-07-09 11:16:06,553 | INFO | global params json saved
-2025-07-09 11:16:08,943 | INFO | program exiting.
-2025-07-09 11:16:25,880 | INFO | program started
-2025-07-09 11:16:27,602 | INFO | global json loaded
-2025-07-09 11:16:36,933 | INFO | program exiting.
-2025-07-09 11:16:55,981 | INFO | program started
-2025-07-09 11:16:57,684 | INFO | global json loaded
-2025-07-09 11:19:23,984 | INFO | scene json saved
-2025-07-09 11:19:23,984 | INFO | json saved(light data)
-2025-07-09 11:19:23,984 | INFO | global params json saved
-2025-07-09 11:19:27,564 | INFO | program exiting.
-2025-07-09 11:19:32,992 | INFO | program started
-2025-07-09 11:19:34,555 | INFO | global json loaded
-2025-07-09 11:21:25,015 | INFO | program exiting.
-2025-07-09 11:21:29,356 | INFO | program started
-2025-07-09 11:21:30,900 | INFO | global json loaded
-2025-07-09 11:22:14,444 | INFO | scene json saved
-2025-07-09 11:22:14,445 | INFO | json saved(light data)
-2025-07-09 11:22:14,445 | INFO | global params json saved
-2025-07-09 11:22:21,284 | INFO | program exiting.
-2025-07-09 11:22:24,006 | INFO | program started
-2025-07-09 11:22:25,584 | INFO | global json loaded
-2025-07-09 11:23:01,885 | INFO | scene json saved
-2025-07-09 11:23:01,885 | INFO | json saved(light data)
-2025-07-09 11:23:01,885 | INFO | global params json saved
-2025-07-09 11:23:03,435 | INFO | program exiting.
-2025-07-09 11:23:07,140 | INFO | program started
-2025-07-09 11:23:08,693 | INFO | global json loaded
-2025-07-09 11:23:24,883 | INFO | program exiting.
-2025-07-09 11:25:34,667 | INFO | program started
-2025-07-09 11:25:36,370 | INFO | global json loaded
-2025-07-09 11:26:29,635 | INFO | model GlassHurricaneCandleHolder(1).glb loaded
-2025-07-09 11:26:55,760 | INFO | scene json saved
-2025-07-09 11:26:55,760 | INFO | json saved(light data)
-2025-07-09 11:26:55,768 | INFO | global params json saved
-2025-07-09 11:27:22,900 | INFO | scene json saved
-2025-07-09 11:27:22,900 | INFO | json saved(light data)
-2025-07-09 11:27:22,900 | INFO | global params json saved
-2025-07-09 11:27:55,795 | INFO | scene json saved
-2025-07-09 11:27:55,795 | INFO | json saved(light data)
-2025-07-09 11:27:55,800 | INFO | global params json saved
-2025-07-09 11:28:17,480 | INFO | program exiting.
-2025-07-09 11:28:32,451 | INFO | program started
-2025-07-09 11:28:34,191 | INFO | global json loaded
-2025-07-09 12:10:56,433 | INFO | program exiting.
-2025-07-09 12:10:59,816 | INFO | program started
-2025-07-09 12:11:01,458 | INFO | global json loaded
-2025-07-09 12:11:15,873 | INFO | program exiting.
-2025-07-09 12:11:51,127 | INFO | program started
-2025-07-09 12:11:52,921 | INFO | global json loaded
-2025-07-09 12:13:17,661 | INFO | program exiting.
-2025-07-09 12:33:32,571 | INFO | program started
-2025-07-09 12:33:34,422 | INFO | global json loaded
-2025-07-09 12:34:59,711 | INFO | program started
-2025-07-09 12:35:01,466 | INFO | global json loaded
-2025-07-09 12:35:06,418 | ERROR | error in skybox_commands:
-2025-07-09 12:35:06,418 | ERROR | could not convert string to float: '1.0k'
-2025-07-09 12:36:50,916 | INFO | scene json saved
-2025-07-09 12:36:50,916 | INFO | json saved(light data)
-2025-07-09 12:36:50,916 | INFO | global params json saved
-2025-07-09 12:37:45,656 | INFO | program exiting.
-2025-07-09 12:37:48,735 | INFO | program started
-2025-07-09 12:37:50,392 | INFO | global json loaded
-2025-07-09 12:38:08,659 | INFO | program exiting.
-2025-07-09 12:38:16,229 | INFO | program started
-2025-07-09 12:38:17,810 | INFO | global json loaded
-2025-07-09 12:38:31,330 | INFO | scene json saved
-2025-07-09 12:38:31,330 | INFO | json saved(light data)
-2025-07-09 12:38:31,330 | INFO | global params json saved
-2025-07-09 12:39:36,581 | INFO | scene json saved
-2025-07-09 12:39:36,590 | INFO | json saved(light data)
-2025-07-09 12:39:36,590 | INFO | global params json saved
-2025-07-09 12:39:46,910 | INFO | program exiting.
-2025-07-09 13:02:34,654 | INFO | program started
-2025-07-09 13:04:02,769 | INFO | program started
-2025-07-09 13:04:04,526 | INFO | global json loaded
-2025-07-09 13:07:14,796 | INFO | program exiting.
-2025-07-09 13:07:21,216 | INFO | program started
-2025-07-09 13:07:22,681 | INFO | global json loaded
-2025-07-09 13:07:51,531 | INFO | program exiting.
-2025-07-09 13:19:57,806 | INFO | program started
-2025-07-09 13:19:59,529 | INFO | global json loaded
-2025-07-09 13:27:04,961 | INFO | envmap saved.
-2025-07-09 13:32:35,002 | INFO | program exiting.
-2025-07-09 16:21:37,103 | INFO | program started
-2025-07-09 16:21:38,638 | INFO | global json loaded
-2025-07-09 16:27:02,117 | ERROR | skybox texture file not supported:
-2025-07-09 16:27:02,117 | ERROR | Could not load texture: golden_gate_hills.webp
-2025-07-09 16:39:36,894 | INFO | program exiting.
-2025-07-09 16:48:40,616 | INFO | program started
-2025-07-09 16:48:42,284 | INFO | global json loaded
-2025-07-09 16:56:45,884 | INFO | program exiting.
-2025-07-09 16:58:02,295 | INFO | program started
-2025-07-09 16:58:04,331 | INFO | global json loaded
-2025-07-09 16:58:53,580 | INFO | program exiting.
-2025-07-09 16:59:53,348 | INFO | program started
-2025-07-09 16:59:55,103 | INFO | global json loaded
-2025-07-09 17:01:39,263 | INFO | envmap saved.
-2025-07-09 17:01:44,100 | INFO | scene json saved
-2025-07-09 17:01:44,100 | INFO | json saved(light data)
-2025-07-09 17:01:44,100 | INFO | global params json saved
-2025-07-09 17:01:45,249 | INFO | program exiting.
-2025-07-09 17:02:11,558 | INFO | program started
-2025-07-09 17:02:13,313 | INFO | global json loaded
-2025-07-09 17:02:42,044 | INFO | program exiting.
-2025-07-09 17:03:30,856 | INFO | program started
-2025-07-09 17:03:32,651 | INFO | global json loaded
-2025-07-09 17:03:42,830 | INFO | program exiting.
-2025-07-09 17:03:54,116 | INFO | program started
-2025-07-09 17:03:56,194 | INFO | global json loaded
-2025-07-09 17:04:04,694 | INFO | program exiting.
-2025-07-09 17:04:17,803 | INFO | program started
-2025-07-09 17:04:19,519 | INFO | global json loaded
-2025-07-09 17:04:30,761 | INFO | program exiting.
-2025-07-09 17:07:05,310 | INFO | program started
-2025-07-09 17:07:07,103 | INFO | global json loaded
-2025-07-09 17:09:28,939 | INFO | program exiting.
-2025-07-10 09:43:01,310 | INFO | program started
-2025-07-10 09:43:03,610 | INFO | global json loaded
-2025-07-10 09:44:46,054 | INFO | scene json saved
-2025-07-10 09:44:46,054 | INFO | json saved(light data)
-2025-07-10 09:44:46,054 | INFO | global params json saved
-2025-07-10 09:44:49,608 | INFO | program exiting.
-2025-07-10 09:45:03,397 | INFO | program started
-2025-07-10 09:45:05,210 | INFO | global json loaded
-2025-07-10 09:45:18,400 | INFO | program exiting.
-2025-07-10 09:45:28,058 | INFO | program started
-2025-07-10 09:45:29,759 | INFO | global json loaded
-2025-07-10 09:49:08,143 | INFO | scene json saved
-2025-07-10 09:49:08,143 | INFO | json saved(light data)
-2025-07-10 09:49:08,143 | INFO | global params json saved
-2025-07-10 09:49:08,833 | INFO | program exiting.
-2025-07-10 09:49:15,907 | INFO | program started
-2025-07-10 09:49:17,467 | INFO | global json loaded
-2025-07-10 09:50:19,088 | INFO | program exiting.
-2025-07-10 09:50:23,468 | INFO | program started
-2025-07-10 09:50:25,072 | INFO | global json loaded
-2025-07-10 09:55:01,151 | INFO | scene json saved
-2025-07-10 09:55:01,151 | INFO | json saved(light data)
-2025-07-10 09:55:01,151 | INFO | global params json saved
-2025-07-10 09:55:01,679 | INFO | program exiting.
-2025-07-10 10:06:07,136 | INFO | program started
-2025-07-10 10:06:09,092 | INFO | global json loaded
-2025-07-10 10:08:29,238 | INFO | scene json saved
-2025-07-10 10:08:29,241 | INFO | json saved(light data)
-2025-07-10 10:08:29,241 | INFO | global params json saved
-2025-07-10 10:08:41,193 | INFO | program exiting.
-2025-07-10 11:35:24,566 | INFO | program started
-2025-07-10 11:35:26,199 | INFO | global json loaded
-2025-07-10 11:39:56,774 | INFO | program exiting.
-2025-07-10 11:39:59,506 | INFO | program started
-2025-07-10 11:40:01,182 | INFO | global json loaded
-2025-07-10 11:40:24,832 | INFO | program exiting.
-2025-07-10 11:40:31,550 | INFO | program started
-2025-07-10 11:40:33,178 | INFO | global json loaded
-2025-07-10 11:40:40,717 | INFO | program exiting.
-2025-07-10 11:40:48,878 | INFO | program started
-2025-07-10 11:40:50,490 | INFO | global json loaded
-2025-07-10 11:40:54,055 | INFO | program exiting.
-2025-07-10 11:58:10,862 | INFO | program started
-2025-07-10 11:58:13,021 | INFO | global json loaded
-2025-07-10 11:58:16,331 | INFO | program exiting.
-2025-07-10 11:58:22,378 | INFO | program started
-2025-07-10 11:58:23,971 | INFO | global json loaded
-2025-07-10 11:58:42,276 | INFO | program exiting.
-2025-07-10 13:28:59,223 | INFO | program started
-2025-07-10 13:29:02,087 | INFO | global json loaded
-2025-07-10 13:29:27,050 | INFO | program exiting.
-2025-07-10 16:34:41,596 | INFO | program started
-2025-07-10 16:34:43,667 | INFO | global json loaded
-2025-07-10 16:36:03,537 | INFO | program exiting.
-2025-07-10 16:36:07,042 | INFO | program started
-2025-07-10 16:36:53,703 | INFO | program started
-2025-07-10 16:37:21,417 | INFO | program started
-2025-07-10 16:37:23,182 | INFO | global json loaded
-2025-07-10 16:38:22,060 | INFO | program started
-2025-07-10 16:38:23,677 | INFO | global json loaded
-2025-07-10 16:39:54,538 | INFO | program started
-2025-07-10 16:39:56,361 | INFO | global json loaded
-2025-07-10 16:40:19,025 | INFO | program exiting.
-2025-07-10 16:40:23,189 | INFO | program started
-2025-07-10 16:40:24,822 | INFO | global json loaded
-2025-07-10 16:40:45,332 | INFO | program exiting.
-2025-07-10 16:40:48,622 | INFO | program started
-2025-07-10 16:40:50,249 | INFO | global json loaded
-2025-07-10 16:41:01,979 | INFO | program exiting.
-2025-07-10 16:41:16,017 | INFO | program started
-2025-07-10 16:41:17,729 | INFO | global json loaded
-2025-07-10 16:41:21,174 | INFO | program exiting.
-2025-07-10 16:41:30,085 | INFO | program started
-2025-07-10 16:41:31,691 | INFO | global json loaded
-2025-07-10 16:41:35,187 | INFO | program exiting.
-2025-07-10 16:41:43,590 | INFO | program started
-2025-07-10 16:41:45,207 | INFO | global json loaded
-2025-07-10 16:41:53,445 | INFO | program exiting.
-2025-07-10 16:42:14,824 | INFO | program started
-2025-07-10 16:42:16,583 | INFO | global json loaded
-2025-07-10 16:42:23,493 | INFO | program exiting.
-2025-07-10 16:42:40,742 | INFO | program started
-2025-07-10 16:42:42,461 | INFO | global json loaded
-2025-07-10 16:42:58,152 | INFO | program exiting.
-2025-07-10 16:44:09,459 | INFO | program started
-2025-07-10 16:44:11,284 | INFO | global json loaded
-2025-07-10 16:44:16,657 | INFO | program exiting.
-2025-07-10 16:44:28,445 | INFO | program started
-2025-07-10 16:44:30,194 | INFO | global json loaded
-2025-07-10 16:44:35,149 | INFO | program exiting.
-2025-07-10 16:44:46,910 | INFO | program started
-2025-07-10 16:44:48,625 | INFO | global json loaded
-2025-07-10 16:44:59,824 | INFO | program exiting.
-2025-07-10 16:45:06,932 | INFO | program started
-2025-07-10 16:45:08,543 | INFO | global json loaded
-2025-07-10 16:45:13,281 | INFO | program exiting.
-2025-07-10 16:46:51,977 | INFO | program started
-2025-07-10 16:46:53,790 | INFO | global json loaded
-2025-07-10 16:49:00,734 | INFO | program exiting.
-2025-07-10 16:49:08,038 | INFO | program started
-2025-07-10 16:49:09,804 | INFO | global json loaded
-2025-07-10 16:49:19,074 | INFO | program exiting.
-2025-07-10 16:49:33,794 | INFO | program started
-2025-07-10 16:49:35,585 | INFO | global json loaded
-2025-07-10 16:49:39,390 | INFO | program exiting.
-2025-07-10 16:49:49,088 | INFO | program started
-2025-07-10 16:49:50,722 | INFO | global json loaded
-2025-07-10 16:50:16,349 | INFO | program exiting.
-2025-07-10 16:52:28,024 | INFO | program started
-2025-07-10 16:52:29,890 | INFO | global json loaded
-2025-07-10 16:53:23,871 | INFO | program exiting.
-2025-07-10 16:54:45,922 | INFO | program started
-2025-07-10 16:54:47,767 | INFO | global json loaded
-2025-07-10 16:55:02,746 | INFO | program exiting.
-2025-07-10 17:00:44,205 | INFO | program started
-2025-07-10 17:00:45,820 | INFO | global json loaded
-2025-07-10 17:01:31,746 | INFO | program exiting.
-2025-07-10 17:01:34,184 | INFO | program started
-2025-07-10 17:01:35,843 | INFO | global json loaded
-2025-07-10 17:03:19,103 | INFO | program exiting.
+2025-07-11 09:55:19,728 | INFO | program started
+2025-07-11 09:55:22,199 | INFO | global json loaded
+2025-07-11 09:56:08,907 | INFO | program started
+2025-07-11 09:56:11,239 | INFO | global json loaded
+2025-07-11 09:58:29,490 | INFO | program started
+2025-07-11 09:58:32,283 | INFO | global json loaded
+2025-07-11 09:58:43,089 | INFO | program exiting.
+2025-07-11 09:59:05,539 | INFO | program started
+2025-07-11 09:59:08,519 | INFO | global json loaded
+2025-07-11 09:59:20,539 | INFO | program exiting.
+2025-07-11 09:59:47,241 | INFO | program started
+2025-07-11 09:59:49,469 | INFO | global json loaded
+2025-07-11 09:59:58,009 | INFO | program exiting.
+2025-07-11 10:00:09,092 | INFO | program started
+2025-07-11 10:00:11,251 | INFO | global json loaded
+2025-07-11 10:00:20,777 | INFO | program exiting.
+2025-07-11 10:00:33,268 | INFO | program started
+2025-07-11 10:00:35,492 | INFO | global json loaded
+2025-07-11 10:00:41,189 | INFO | program exiting.
+2025-07-11 10:01:45,577 | INFO | program started
+2025-07-11 10:01:47,855 | INFO | global json loaded
+2025-07-11 10:01:57,675 | INFO | program exiting.
+2025-07-11 10:02:12,276 | INFO | program started
+2025-07-11 10:02:14,517 | INFO | global json loaded
+2025-07-11 10:02:24,618 | INFO | program exiting.
+2025-07-11 10:04:16,760 | INFO | program started
+2025-07-11 10:04:18,987 | INFO | global json loaded
+2025-07-11 10:09:01,614 | INFO | scene json saved
+2025-07-11 10:09:01,619 | INFO | json saved(light data)
+2025-07-11 10:09:01,619 | INFO | global params json saved
+2025-07-11 10:09:41,734 | INFO | program exiting.
+2025-07-11 10:10:15,921 | INFO | program started
+2025-07-11 10:10:18,298 | INFO | global json loaded
+2025-07-11 10:11:09,305 | INFO | program exiting.
+2025-07-11 16:27:16,302 | INFO | program started
+2025-07-11 16:27:19,182 | INFO | global json loaded
+2025-07-11 16:28:12,424 | INFO | program exiting.
+2025-07-11 16:28:35,078 | INFO | program started
+2025-07-11 16:28:37,413 | INFO | global json loaded
+2025-07-11 16:28:57,420 | INFO | program exiting.
+2025-07-11 16:29:34,003 | INFO | program started
+2025-07-11 16:29:36,389 | INFO | global json loaded
+2025-07-11 16:30:00,949 | INFO | program exiting.
