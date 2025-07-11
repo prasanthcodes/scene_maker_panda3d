@@ -100,7 +100,8 @@ class RoamingRalphDemo(ShowBase):
         texture = loader.loadTexture("grass.png")  # Replace with your texture
         terrain_root.setTexture(TextureStage.getDefault(), texture)
         terrain_root.setTexScale(TextureStage.getDefault(), 10, 10)  # Tile texture
-        self.create_collision_mesh(terrain_root,"collision_root/environ1")
+        #self.create_collision_mesh(terrain_root,"collision_root/environ1")
+        terrain_root.setCollideMask(1)
         
         # Generate it.
         self.terrain.generate()
@@ -159,8 +160,9 @@ class RoamingRalphDemo(ShowBase):
         self.ralphGroundRay.setDirection(0, 0, -1)
         self.ralphGroundCol = CollisionNode('ralphRay')
         self.ralphGroundCol.addSolid(self.ralphGroundRay)
-        self.ralphGroundCol.setFromCollideMask(CollideMask.bit(0))
-        self.ralphGroundCol.setIntoCollideMask(CollideMask.allOff())
+        #self.ralphGroundCol.setFromCollideMask(CollideMask.bit(0))
+        #self.ralphGroundCol.setIntoCollideMask(CollideMask.allOff())
+        self.ralphGroundCol.setFromCollideMask(1)
         self.ralphGroundColNp = self.ralph.attachNewNode(self.ralphGroundCol)
         self.ralphGroundHandler = CollisionHandlerQueue()
         self.cTrav.addCollider(self.ralphGroundColNp, self.ralphGroundHandler)
@@ -316,16 +318,16 @@ class RoamingRalphDemo(ShowBase):
 
         entries = list(self.ralphGroundHandler.entries)
         entries.sort(key=lambda x: x.getSurfacePoint(render).getZ())
-        #print(entries)
+        print(entries)
 
         if len(entries) > 0 and entries[0].getIntoNode().name == "terrain":
             self.ralph.setZ(entries[0].getSurfacePoint(render).getZ())
-            elev = self.terrain.getElevation(self.ralph.getX(), self.ralph.getY())
+            #elev = self.terrain.getElevation(self.ralph.getX(), self.ralph.getY())
         else:
             #self.ralph.setPos(startpos)
             elev = self.terrain.getElevation(self.ralph.getX(), self.ralph.getY())
-            self.ralph.setZ(elev*100)
-            print(elev)
+            #self.ralph.setZ(elev*100)
+            #print(elev)
 
         # Keep the camera at one foot above the terrain,
         # or two feet above ralph, whichever is greater.
