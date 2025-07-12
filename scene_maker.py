@@ -89,7 +89,9 @@ loadPrcFileData("", "basic-shaders-only #t")
 #loadPrcFileData("", "gl-version 3 2")
 #loadPrcFileData("", "notify-level-glgsg debug")                                         
 #loadPrcFileData("", "win-size 1920 1080")
-#loadPrcFileData("", "fullscreen t")                                          
+#loadPrcFileData("", "fullscreen t")
+loadPrcFileData("", "direct-gui-edit 1")
+
 class SceneMakerMain(ShowBase):
 
     def __init__(self):
@@ -189,6 +191,7 @@ class SceneMakerMain(ShowBase):
         #env_map=None
         self.pipeline = simplepbr.init(
         env_map=env_map,
+        applyToneMapping=False,
         use_normal_maps=True,
         exposure=0,
         #sdr_lut_factor=0,
@@ -228,6 +231,36 @@ class SceneMakerMain(ShowBase):
 
         # Generate it.
         terrain.generate()
+        
+        
+                # Set up the GeoMipTerrain
+        self.terrain = GeoMipTerrain("myDynamicTerrain")
+        self.terrain.setHeightfield("heightmap.png")#heightfield.png
+
+        # Set terrain properties
+        self.terrain.setBlockSize(32)
+        self.terrain.setNear(40)
+        self.terrain.setFar(100)
+        self.terrain.setFocalPoint(base.camera)
+
+        # Store the root NodePath for convenience
+        terrain_root = self.terrain.getRoot()
+        terrain_root.reparentTo(render)
+        terrain_root.setSz(100)
+        #terrain_root.setScale(100, 100, 50)
+
+        # Apply a texture to the terrain
+        texture = loader.loadTexture("grass.png")  # Replace with your texture
+        terrain_root.setTexture(TextureStage.getDefault(), texture)
+        terrain_root.setTexScale(TextureStage.getDefault(), 10, 10)  # Tile texture
+        #self.create_collision_mesh(terrain_root,"collision_root/environ1")
+        terrain_root.setCollideMask(1)
+        
+        # Generate it.
+        self.terrain.generate()
+
+
+        
         """
     
     def create_shortcut_icons_top(self):
@@ -602,6 +635,8 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_h1.hide()
         self.create_skybox_settings_gui()
         self.ScrolledFrame_i1.hide()
+        self.create_heightmap_loader_gui()
+        self.ScrolledFrame_j1.hide()
         
         self.create_dropdown_main_menu()
         self.menu_dropdown_1.hide()
@@ -743,6 +778,17 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b9,
             pos=(0.1, 1,-0.9),
+            frameColor=(0, 0, 0, 0.4),
+            text_fg=(1, 1, 1, 0.9),
+            indicatorValue=0
+            )
+        self.CheckButton_10 = DirectCheckButton(
+            parent=self.menu_dropdown_1.getCanvas(),
+            text = "HeightMap Loader" ,
+            text_align=TextNode.ALeft,
+            scale=.06,
+            command=self.cbuttondef_b10,
+            pos=(0.1, 1,-1.0),
             frameColor=(0, 0, 0, 0.4),
             text_fg=(1, 1, 1, 0.9),
             indicatorValue=0
@@ -1315,6 +1361,40 @@ class SceneMakerMain(ShowBase):
             logger.error(e)
             self.display_last_status('error in skybox gui entry.')
 
+    def create_heightmap_loader_gui(self):
+        self.ScrolledFrame_j1=DirectScrolledFrame(
+            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_5=self.ScrolledFrame_j1.getCanvas()
+        
+        self.dlabel_i0=DirectLabel(parent=canvas_5,text="GeoMipTerrain HeightMap Loader",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.7),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i1=DirectLabel(parent=canvas_5,text="Unique Name: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.6),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dentry_i2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="Terrain_1", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Heightmap Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dlabel_i4=DirectLabel(parent=canvas_5,text="Unique Name: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.6),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dbutton_i5 = DirectButton(parent=canvas_5,text='Load HeightMap Image',pos=(-1.4,0,0.4),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
+        self.dlabel_i6=DirectLabel(parent=canvas_5,text="BlockSize: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.3),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dentry_i7 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i8=DirectLabel(parent=canvas_5,text="Near: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dentry_i9 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i10=DirectLabel(parent=canvas_5,text="Far: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dentry_i11 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i12=DirectLabel(parent=canvas_5,text="FocalPoint: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dlabel_i13=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i14=DirectLabel(parent=canvas_5,text="Current Texture: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dlabel_i15=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dbutton_i16 = DirectButton(parent=canvas_5,text='Load Texture',pos=(-1.4,0,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
+        self.dlabel_i17=DirectLabel(parent=canvas_5,text="Current Texture: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dlabel_i18=DirectLabel(parent=canvas_5,text="X: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dentry_i19 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,-0.4), command=self.skybox_commands,extraArgs=['intensity'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        #self.dlabel_i20=DirectLabel(parent=canvas_5,text="Y: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        #self.dentry_i21 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,-0.4), command=self.skybox_commands,extraArgs=['intensity'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dbutton_i22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.5),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
+
+
     def cbuttondef_tst(self,status):
         if status:
             print('clickd')
@@ -1408,6 +1488,12 @@ class SceneMakerMain(ShowBase):
             self.ScrolledFrame_i1.show()
         else:
             self.ScrolledFrame_i1.hide()
+
+    def cbuttondef_b10(self,status):
+        if status:
+            self.ScrolledFrame_j1.show()
+        else:
+            self.ScrolledFrame_j1.hide()
 
     def cbuttondef_gs1(self,status):
         if status:
@@ -2671,8 +2757,8 @@ class SceneMakerMain(ShowBase):
                 if self.current_property==2:
                     cur_scale=self.models_all[self.current_model_index].getScale()
                     cur_scale[0]=value
-                    cur_scale[1]=value
-                    cur_scale[2]=value
+                    #cur_scale[1]=value
+                    #cur_scale[2]=value
                     self.models_all[self.current_model_index].setScale(cur_scale)
                     self.data_all[self.current_model_index]['scale'][1]=[cur_scale[0],cur_scale[1],cur_scale[2]]
                     self.dentry_1_value=cur_scale[0]
@@ -2711,6 +2797,22 @@ class SceneMakerMain(ShowBase):
                     self.dentry_2_value=value
                     self.dentry_2.enterText(str(self.dentry_2_value))
                     self.dslider_2['value']=self.dentry_2_value
+                if self.current_property==2:
+                    cur_scale=self.models_all[self.current_model_index].getScale()
+                    #cur_scale[0]=value
+                    cur_scale[1]=value
+                    #cur_scale[2]=value
+                    self.models_all[self.current_model_index].setScale(cur_scale)
+                    self.data_all[self.current_model_index]['scale'][1]=[cur_scale[0],cur_scale[1],cur_scale[2]]
+                    self.dentry_1_value=cur_scale[0]
+                    self.dentry_1.enterText(str(self.dentry_1_value))
+                    self.dslider_1['value']=self.dentry_1_value
+                    self.dentry_2_value=cur_scale[1]
+                    self.dentry_2.enterText(str(self.dentry_2_value))
+                    self.dslider_2['value']=self.dentry_2_value
+                    self.dentry_3_value=cur_scale[2]
+                    self.dentry_3.enterText(str(self.dentry_3_value))
+                    self.dslider_3['value']=self.dentry_3_value
                 if self.current_property==3:
                     cur_color=self.models_all[self.current_model_index].getColorScale()
                     cval=value
@@ -2736,6 +2838,22 @@ class SceneMakerMain(ShowBase):
                     self.models_all[self.current_model_index].setZ(value)
                     self.data_all[self.current_model_index]['pos'][1][2]=value
                     self.dentry_3_value=value
+                    self.dentry_3.enterText(str(self.dentry_3_value))
+                    self.dslider_3['value']=self.dentry_3_value
+                if self.current_property==2:
+                    cur_scale=self.models_all[self.current_model_index].getScale()
+                    #cur_scale[0]=value
+                    #cur_scale[1]=value
+                    cur_scale[2]=value
+                    self.models_all[self.current_model_index].setScale(cur_scale)
+                    self.data_all[self.current_model_index]['scale'][1]=[cur_scale[0],cur_scale[1],cur_scale[2]]
+                    self.dentry_1_value=cur_scale[0]
+                    self.dentry_1.enterText(str(self.dentry_1_value))
+                    self.dslider_1['value']=self.dentry_1_value
+                    self.dentry_2_value=cur_scale[1]
+                    self.dentry_2.enterText(str(self.dentry_2_value))
+                    self.dslider_2['value']=self.dentry_2_value
+                    self.dentry_3_value=cur_scale[2]
                     self.dentry_3.enterText(str(self.dentry_3_value))
                     self.dslider_3['value']=self.dentry_3_value
                 if self.current_property==3:
