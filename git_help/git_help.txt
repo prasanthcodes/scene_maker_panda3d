@@ -163,6 +163,23 @@ This will reset your working directory to the state before the pull attempt, dis
 
 
 
+to setup new repo to push to remote
+------------------------------------------
+
+git init
+git remote add origin https://github.com/prasanthcodes/panda3d-simplepbr
+git pull
+git remote -v
+git push -u origin master 
+
+git pull origin master --allow-unrelated-histories
+
+
+git add .
+git commit -a
+git pull origin master
+git push --set-upstream origin master
+
 
 
 
