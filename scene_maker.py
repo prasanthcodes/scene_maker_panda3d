@@ -608,14 +608,14 @@ class SceneMakerMain(ShowBase):
         skybox.set_light(ambient_light_node)          
         
     def create_top_level_main_gui(self):
-        self.menu_1 = DirectOptionMenu(text="switch_property", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_1, textMayChange=1,items=self.property_names,pos=(-1.3, 1,0.95),frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9))
+        self.menu_1 = DirectOptionMenu(text="switch_property", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_1, textMayChange=1,items=self.property_names,pos=(-1.3, 1,0.95),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9))
         
-        self.menu_2 = DirectOptionMenu(text="switch_models", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_2, textMayChange=1,items=self.models_names_all,pos=(0.1, 1,0.95),frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9))
+        self.menu_2 = DirectOptionMenu(text="switch_models", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_2, textMayChange=1,items=self.models_names_all,pos=(0.1, 1,0.95),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9))
         
         self.MenuButton_1 = DirectButton(text = "Menu",scale=.06,command=self.menubuttonDef_1,pos=(-0.85, 1,0.95))
         self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0, 1,0.95),command=self.ButtonDef_1)
-        self.dlabel_status=DirectLabel(text='Last Status: ',pos=(-1.3,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_status=DirectLabel(text='Last Status: ',pos=(-1.3,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         self.create_shortcut_icons_top()
         self.create_properties_gui()
         self.create_properties_gui_2()
@@ -795,20 +795,20 @@ class SceneMakerMain(ShowBase):
             )
                 
     def create_properties_gui(self):
-        self.dlabel_1=DirectLabel(text='X: ',pos=(-1.3,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_2=DirectLabel(text='Y: ',pos=(-1.3,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_3=DirectLabel(text='Z: ',pos=(-1.3,1,0.55),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_1=DirectLabel(text='X: ',pos=(-1.3,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_2=DirectLabel(text='Y: ',pos=(-1.3,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_3=DirectLabel(text='Z: ',pos=(-1.3,1,0.55),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         
         self.dslider_1 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_1,pos=(-1.2, 1,0.83),frameSize=(0,0.9,-0.1,0),frameColor=(0,0,0,0.5),thumb_frameSize=(0,0.05,0.04,-0.04))
-        self.dentry_1 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.75), command=self.SetEntryText_1,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_1 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.75), command=self.SetEntryText_1,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_1_value=0
 
         self.dslider_2 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_2,pos=(-1.2, 1,0.73),frameSize=(0,0.9,-0.1,0),frameColor=(0,0,0,0.5),thumb_frameSize=(0,0.05,0.04,-0.04))
-        self.dentry_2 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.65), command=self.SetEntryText_2,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_2 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.65), command=self.SetEntryText_2,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_2_value=0
 
         self.dslider_3 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_3,pos=(-1.2, 1,0.63),frameSize=(0,0.9,-0.1,0),frameColor=(0,0,0,0.5),thumb_frameSize=(0,0.05,0.04,-0.04))
-        self.dentry_3 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.55), command=self.SetEntryText_3,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_3 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.55), command=self.SetEntryText_3,initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_3_value=0
         
     def show_properties_gui(self):
@@ -836,17 +836,17 @@ class SceneMakerMain(ShowBase):
     def create_properties_gui_2(self):
         self.CheckButton_b1 = DirectCheckButton(text = "enable model" ,scale=.06,command=self.cbuttondef_3,pos=(-1.3, 1,0.4),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
         self.CheckButton_b2 = DirectCheckButton(text = "show model" ,scale=.06,command=self.cbuttondef_4,pos=(-1.3, 1,0.3),frameColor=(0, 0, 0, 0.4), text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
-        self.dlabel_b3=DirectLabel(text='uniquename: ',pos=(-1.3,1,0.2),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_b4 = DirectEntry(text = "", scale=0.06,width=20,pos=(-0.9, 1,0.2), command=self.SetEntryText_4,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_b5=DirectLabel(text='filename: ',pos=(-1.3,1,0.1),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_b3=DirectLabel(text='uniquename: ',pos=(-1.3,1,0.2),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_b4 = DirectEntry(text = "", scale=0.06,width=20,pos=(-0.9, 1,0.2), command=self.SetEntryText_4,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_b5=DirectLabel(text='filename: ',pos=(-1.3,1,0.1),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         
-        self.dlabel_b6=DirectLabel(text='details: ',pos=(-1.3,1,0),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_b7 = DirectEntry(text = "", scale=0.06,width=30,pos=(-0.9, 1,0), command=self.SetEntryText_5,initialText="", numLines = 4, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_b8=DirectLabel(text='notes: ',pos=(-1.3,1,-0.3),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_b9 = DirectEntry(text = "", scale=0.06,width=30,pos=(-0.9, 1,-0.3), command=self.SetEntryText_6,initialText="", numLines = 4, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_b6=DirectLabel(text='details: ',pos=(-1.3,1,0),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_b7 = DirectEntry(text = "", scale=0.06,width=30,pos=(-0.9, 1,0), command=self.SetEntryText_5,initialText="", numLines = 4, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_b8=DirectLabel(text='notes: ',pos=(-1.3,1,-0.3),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_b9 = DirectEntry(text = "", scale=0.06,width=30,pos=(-0.9, 1,-0.3), command=self.SetEntryText_6,initialText="", numLines = 4, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.CheckButton_b10 = DirectCheckButton(text = "pickable" ,scale=.06,command=self.cbuttondef_5,pos=(-1.3, 1,-0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
-        self.dlabel_b9_2=DirectLabel(text='description: ',pos=(-1.3,1,-0.7),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_b11 = DirectEntry(text = "", scale=0.06,width=30,pos=(-0.9, 1,-0.7), command=self.SetEntryText_7,initialText="", numLines = 4, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_b9_2=DirectLabel(text='description: ',pos=(-1.3,1,-0.7),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_b11 = DirectEntry(text = "", scale=0.06,width=30,pos=(-0.9, 1,-0.7), command=self.SetEntryText_7,initialText="", numLines = 4, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
     def show_properties_gui_2(self):
         self.CheckButton_b1.show()
@@ -959,42 +959,42 @@ class SceneMakerMain(ShowBase):
         canvas_1=self.ScrolledFrame_d1.getCanvas()
         #self.daylight_adjuster_gui=DirectFrame(pos=(-1.35, 1,1),frameSize=(0,0.8,-0.9,0),frameColor=(0, 0, 0, 0.1))
         #command=self.SetEntryText_e,extraArgs=['Intensity']
-        self.dlabel_c1 = DirectLabel(parent=canvas_1,text='Ambient light: intensity',pos=(-0.8,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c2 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.3, 1,0.75), command=self.daylight_commands,extraArgs=['ambientlight_intensity'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_c1 = DirectLabel(parent=canvas_1,text='Ambient light: intensity',pos=(-0.8,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_c2 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.3, 1,0.75), command=self.daylight_commands,extraArgs=['ambientlight_intensity'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
-        self.dlabel_c3=DirectLabel(parent=canvas_1,text='R (0 to 1): ',pos=(-0.7,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_c4=DirectLabel(parent=canvas_1,text='G (0 to 1): ',pos=(-0.7,1,0.55),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_c5=DirectLabel(parent=canvas_1,text='B (0 to 1): ',pos=(-0.7,1,0.45),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_c3=DirectLabel(parent=canvas_1,text='R (0 to 1): ',pos=(-0.7,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_c4=DirectLabel(parent=canvas_1,text='G (0 to 1): ',pos=(-0.7,1,0.55),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_c5=DirectLabel(parent=canvas_1,text='B (0 to 1): ',pos=(-0.7,1,0.45),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         
-        self.dentry_c6 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.65), command=self.daylight_commands,extraArgs=['ambientlight_R'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c7 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.55), command=self.daylight_commands,extraArgs=['ambientlight_G'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c8 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.45), command=self.daylight_commands,extraArgs=['ambientlight_B'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c6 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.65), command=self.daylight_commands,extraArgs=['ambientlight_R'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c7 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.55), command=self.daylight_commands,extraArgs=['ambientlight_G'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c8 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.45), command=self.daylight_commands,extraArgs=['ambientlight_B'],initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
-        self.dlabel_c9 = DirectLabel(parent=canvas_1,text='Directional light(sun): intensity',pos=(-0.8,1,0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c10 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.3, 1,0.35), command=self.daylight_commands,extraArgs=['DL_intensity'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_c9 = DirectLabel(parent=canvas_1,text='Directional light(sun): intensity',pos=(-0.8,1,0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_c10 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.3, 1,0.35), command=self.daylight_commands,extraArgs=['DL_intensity'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
-        self.dlabel_c11=DirectLabel(parent=canvas_1,text='R (0 to 1): ',pos=(-0.7,1,0.25),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_c12=DirectLabel(parent=canvas_1,text='G (0 to 1): ',pos=(-0.7,1,0.15),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_c13=DirectLabel(parent=canvas_1,text='B (0 to 1): ',pos=(-0.7,1,0.05),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_c11=DirectLabel(parent=canvas_1,text='R (0 to 1): ',pos=(-0.7,1,0.25),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_c12=DirectLabel(parent=canvas_1,text='G (0 to 1): ',pos=(-0.7,1,0.15),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_c13=DirectLabel(parent=canvas_1,text='B (0 to 1): ',pos=(-0.7,1,0.05),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         
-        self.dentry_c14 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.25), command=self.daylight_commands,extraArgs=['DL_R'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c15 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.15), command=self.daylight_commands,extraArgs=['DL_G'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c16 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.05), command=self.daylight_commands,extraArgs=['DL_B'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c14 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.25), command=self.daylight_commands,extraArgs=['DL_R'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c15 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.15), command=self.daylight_commands,extraArgs=['DL_G'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c16 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,0.05), command=self.daylight_commands,extraArgs=['DL_B'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
-        self.dlabel_c17=DirectLabel(parent=canvas_1,text='H (0 to 360): ',pos=(-0.7,1,-0.05),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_c18=DirectLabel(parent=canvas_1,text='P (0 to 360): ',pos=(-0.7,1,-0.15),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_c19=DirectLabel(parent=canvas_1,text='R (0 to 360): ',pos=(-0.7,1,-0.25),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_c17=DirectLabel(parent=canvas_1,text='H (0 to 360): ',pos=(-0.7,1,-0.05),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_c18=DirectLabel(parent=canvas_1,text='P (0 to 360): ',pos=(-0.7,1,-0.15),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_c19=DirectLabel(parent=canvas_1,text='R (0 to 360): ',pos=(-0.7,1,-0.25),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         
-        self.dentry_c20 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.05), command=self.daylight_commands,extraArgs=['DL_H'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c21 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.15), command=self.daylight_commands,extraArgs=['DL_P'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dentry_c22 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.25), command=self.daylight_commands,extraArgs=['DL_RO'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c20 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.05), command=self.daylight_commands,extraArgs=['DL_H'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c21 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.15), command=self.daylight_commands,extraArgs=['DL_P'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c22 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.35, 1,-0.25), command=self.daylight_commands,extraArgs=['DL_RO'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
-        self.dlabel_c23=DirectLabel(parent=canvas_1,text='X: ',pos=(-1.3,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c24 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(-1.25, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_X'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_c25=DirectLabel(parent=canvas_1,text='Y: ',pos=(-0.6,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c26 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(-0.55, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_Y'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_c27=DirectLabel(parent=canvas_1,text='Z: ',pos=(0.1,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_c28 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(0.55, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_Z'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_c23=DirectLabel(parent=canvas_1,text='X: ',pos=(-1.3,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_c24 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(-1.25, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_X'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_c25=DirectLabel(parent=canvas_1,text='Y: ',pos=(-0.6,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_c26 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(-0.55, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_Y'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_c27=DirectLabel(parent=canvas_1,text='Z: ',pos=(0.1,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_c28 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(0.55, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_Z'],initialText="0", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
     def create_general_settings_gui(self):
         self.ScrolledFrame_d2=DirectScrolledFrame(
@@ -1007,10 +1007,10 @@ class SceneMakerMain(ShowBase):
         canvas_2=self.ScrolledFrame_d2.getCanvas()
         #self.daylight_adjuster_gui=DirectFrame(pos=(-1.35, 1,1),frameSize=(0,0.8,-0.9,0),frameColor=(0, 0, 0, 0.1))
         
-        self.dlabel_d1 = DirectLabel(parent=canvas_2,text='Mouse Sensitivity (0-100,default 50): ',pos=(-1.1,1,0.75),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_d2 = DirectEntry(parent=canvas_2,text = "", scale=0.06,width=10,pos=(0.3, 1,0.75), command=self.SetEntryText_d1,initialText="50", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_d3 = DirectLabel(parent=canvas_2,text='Move Speed (0-1,default 0.1): ',pos=(-1.1,1,0.65),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_d4 = DirectEntry(parent=canvas_2,text = "", scale=0.06,width=10,pos=(0.3, 1,0.65), command=self.SetEntryText_d4,initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_d1 = DirectLabel(parent=canvas_2,text='Mouse Sensitivity (0-100,default 50): ',pos=(-1.1,1,0.75),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_d2 = DirectEntry(parent=canvas_2,text = "", scale=0.06,width=10,pos=(0.3, 1,0.75), command=self.SetEntryText_d1,initialText="50", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_d3 = DirectLabel(parent=canvas_2,text='Move Speed (0-1,default 0.1): ',pos=(-1.1,1,0.65),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_d4 = DirectEntry(parent=canvas_2,text = "", scale=0.06,width=10,pos=(0.3, 1,0.65), command=self.SetEntryText_d4,initialText="0.1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.CheckButton_gs1 = DirectCheckButton(
             parent=canvas_2,
             text = " crosshair" ,
@@ -1054,7 +1054,7 @@ class SceneMakerMain(ShowBase):
             incButton_text_scale=0.05,
             incButton_borderWidth=(0.005, 0.005),
             frameSize=(0, 0.7, -0.95, 0.6),  # Left, Right, Bottom, Top
-            frameColor=(0, 0, 0, 0.2),
+            frameColor=(0, 0, 0, 0.4),
             pos=(-1.3, 0, 0.1),  # Position in 3D space (x, y, z)
             numItemsVisible=14,
             itemFrame_pos=(0, 0,0.4),  # Positions frame at top
@@ -1065,7 +1065,7 @@ class SceneMakerMain(ShowBase):
         label_slist_top = DirectLabel(
         parent=self.scrolled_list_e1,  # Parent to the scrolled list
         text="cursor over list and scroll",
-        frameColor=(0, 0, 0, 0.3),
+        frameColor=(0, 0, 0, 0.4),
         scale=0.06,
         pos=(0, 0, 0.53),  # Position at top of list frame
         #frameColor=(0.3, 0.3, 0.5, 1),
@@ -1082,31 +1082,31 @@ class SceneMakerMain(ShowBase):
         # Track scroll index manually
         self.current_scroll_index = 0
         
-        self.dlabel_e1=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='SelectedLight: ',pos=(0.57,0,-0.4),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_e2=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='',pos=(1,0,-0.4),scale=0.06,text_align=TextNode.ALeft,text_fg=(0.7, 0.7, 1, 1),text_bg=(0,0,0,0.5),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_e3=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Overall Intensity: ',pos=(0.5,0,-0.5),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_e4 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1, 0,-0.5), scale=0.06,width=8, command=self.SetEntryText_e,extraArgs=['Overall_Intensity'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e5=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Intensity: ',pos=(0.5,0,-0.7),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_e6 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.8, 0,-0.7), scale=0.06,width=8, command=self.SetEntryText_e,extraArgs=['Intensity'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e1=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='SelectedLight: ',pos=(0.57,0,-0.4),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_e2=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='',pos=(1,0,-0.4),scale=0.06,text_align=TextNode.ALeft,text_fg=(0.7, 0.7, 1, 1),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_e3=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Overall Intensity: ',pos=(0.5,0,-0.5),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_e4 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1, 0,-0.5), scale=0.06,width=8, command=self.SetEntryText_e,extraArgs=['Overall_Intensity'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e5=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Intensity: ',pos=(0.5,0,-0.7),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_e6 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.8, 0,-0.7), scale=0.06,width=8, command=self.SetEntryText_e,extraArgs=['Intensity'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
-        self.dlabel_e7=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Color: ',pos=(0.5,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_e8=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='R:',pos=(0.75,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_e9 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.85, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['R'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e10=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='G:',pos=(1.15,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_e11 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.25, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['G'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e12=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='B:',pos=(1.55,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_e13 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.65, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['B'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e7=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Color: ',pos=(0.5,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_e8=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='R:',pos=(0.75,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_e9 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.85, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['R'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e10=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='G:',pos=(1.15,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_e11 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.25, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['G'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e12=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='B:',pos=(1.55,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_e13 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.65, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['B'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
-        self.dlabel_e14=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Attenuation: ',pos=(0.5,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_e15=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='C:',pos=(0.9,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_e16 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['C'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e17=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='L:',pos=(1.3,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_e18 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.4, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['L'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e19=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Q:',pos=(1.7,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_e20 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.8, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['Q'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e14=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Attenuation: ',pos=(0.5,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_e15=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='C:',pos=(0.9,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_e16 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['C'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e17=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='L:',pos=(1.3,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_e18 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.4, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['L'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e19=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Q:',pos=(1.7,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_e20 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.8, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['Q'],initialText="1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
-        self.dlabel_e21=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Notes:',pos=(0.5,0,-1),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dentry_e22 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.7, 0,-1), scale=0.06,width=25, command=self.SetEntryText_e,extraArgs=['Notes'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.3),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e21=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Notes:',pos=(0.5,0,-1),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dentry_e22 = DirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.7, 0,-1), scale=0.06,width=25, command=self.SetEntryText_e,extraArgs=['Notes'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
     def create_model_nodepaths_viewer_gui(self):
         self.ScrolledFrame_f1=DirectScrolledFrame(
@@ -1148,14 +1148,14 @@ class SceneMakerMain(ShowBase):
             indicatorValue=0
             )
 
-        self.dlabel_g4 = DirectLabel(parent=canvas_3,text='Current Animation: ',pos=(-0.1,1,0.6),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
-        self.dlabel_g5 = DirectLabel(parent=canvas_3,text='None',pos=(0,1,0.5),scale=0.06,text_align=TextNode.ALeft,text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_g4 = DirectLabel(parent=canvas_3,text='Current Animation: ',pos=(-0.1,1,0.6),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
+        self.dlabel_g5 = DirectLabel(parent=canvas_3,text='None',pos=(0,1,0.5),scale=0.06,text_align=TextNode.ALeft,text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         self.dbutton_g6 = DirectButton(parent=canvas_3,text='Play',pos=(-0.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g6)
         self.dbutton_g7 = DirectButton(parent=canvas_3,text='Pause',pos=(-0.1,1,0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g7)
         self.dbutton_g8 = DirectButton(parent=canvas_3,text='Stop',pos=(-0.1,1,0.1),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g8)
         self.checkbutton_g9=DirectCheckButton(parent=canvas_3,text = " Loop" ,text_align=TextNode.ALeft,scale=0.06,command=self.cbuttondef_g9,pos=(-0.05, 1,0),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),indicatorValue=0)
         self.dbutton_g10 = DirectButton(parent=canvas_3,text='Load Egg Animation File',pos=(-0.1,1,-0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g10)
-        self.dlabel_g11 = DirectLabel(parent=canvas_3,text='Animation Index to Remove(* for all): ',pos=(-0.1,1,-0.3),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.2))
+        self.dlabel_g11 = DirectLabel(parent=canvas_3,text='Animation Index to Remove(* for all): ',pos=(-0.1,1,-0.3),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         self.dentry_g12 = DirectEntry(parent=canvas_3,text = "", scale=0.06,width=3,pos=(0.95, 1,-0.3), command=self.SetEntryText_g12,initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_g12.enterText('*')
         self.dbutton_g13 = DirectButton(parent=canvas_3,text='Remove Animation',pos=(-0.1,1,-0.4),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g13)
@@ -1231,30 +1231,30 @@ class SceneMakerMain(ShowBase):
         )
         canvas_5=self.ScrolledFrame_i1.getCanvas()
         
-        self.dlabel_i0=DirectLabel(parent=canvas_5,text="SKYBOX SETTINGS",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.7),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i0=DirectLabel(parent=canvas_5,text="SKYBOX SETTINGS",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.7),text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "enable skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['enable'],pos=(-1.15, 1,0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
         self.CheckButton_i2 = DirectCheckButton(parent=canvas_5,text = "show skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['show'],pos=(-1.15, 1,0.5),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
-        self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.05,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.4),text_fg=(1, 0.6, 0.6, 1),text_bg=(0,0,0,0.5),frameColor=(0,0,0,0.2))
+        self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.05,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.4),text_fg=(1, 0.7, 0.7, 1),text_bg=(0,0,0,0.5),frameColor=(0,0,0,0.5))
         self.dbutton_i5 = DirectButton(parent=canvas_5,text='Select Image',pos=(-1.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
-        self.dlabel_i5_2=DirectLabel(parent=canvas_5,text=" *should be Equirectangular image",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, 0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dlabel_i5_3=DirectLabel(parent=canvas_5,text="Skybox AmbientLight Intensity:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dentry_i5_4 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i5_2=DirectLabel(parent=canvas_5,text=" *should be Equirectangular image",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, 0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_i5_3=DirectLabel(parent=canvas_5,text="Skybox AmbientLight Intensity:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i5_4 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
-        self.dlabel_i6=DirectLabel(parent=canvas_5,text="Skybox AmbientLight Color:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dlabel_i7=DirectLabel(parent=canvas_5,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.3, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dentry_i8 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.1), command=self.skybox_commands,extraArgs=['R'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_i9=DirectLabel(parent=canvas_5,text="G:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.2, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dentry_i10 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(0.3, 1,0.1), command=self.skybox_commands,extraArgs=['G'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_i11=DirectLabel(parent=canvas_5,text="B:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.7, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dentry_i12 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(0.8, 1,0.1), command=self.skybox_commands,extraArgs=['B'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i6=DirectLabel(parent=canvas_5,text="Skybox AmbientLight Color:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_i7=DirectLabel(parent=canvas_5,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.3, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i8 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.1), command=self.skybox_commands,extraArgs=['R'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i9=DirectLabel(parent=canvas_5,text="G:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.2, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i10 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(0.3, 1,0.1), command=self.skybox_commands,extraArgs=['G'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i11=DirectLabel(parent=canvas_5,text="B:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.7, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i12 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(0.8, 1,0.1), command=self.skybox_commands,extraArgs=['B'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
-        self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, -0.1),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, -0.1),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.2),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'])
-        self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.2),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.2),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.3),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
-        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.4),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
+        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.4),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         
     def skybox_commands(self,InputValue,identifier):
         #if 1:
@@ -1370,30 +1370,134 @@ class SceneMakerMain(ShowBase):
         )
         canvas_5=self.ScrolledFrame_j1.getCanvas()
         
-        self.dlabel_i0=DirectLabel(parent=canvas_5,text="GeoMipTerrain HeightMap Loader",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.7),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dlabel_i1=DirectLabel(parent=canvas_5,text="Unique Name: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.6),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dentry_i2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="Terrain_1", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Heightmap Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dlabel_i4=DirectLabel(parent=canvas_5,text="Unique Name: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.6),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dbutton_i5 = DirectButton(parent=canvas_5,text='Load HeightMap Image',pos=(-1.4,0,0.4),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
-        self.dlabel_i6=DirectLabel(parent=canvas_5,text="BlockSize: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.3),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dentry_i7 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_i8=DirectLabel(parent=canvas_5,text="Near: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dentry_i9 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_i10=DirectLabel(parent=canvas_5,text="Far: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dentry_i11 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_i12=DirectLabel(parent=canvas_5,text="FocalPoint: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dlabel_i13=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dlabel_i14=DirectLabel(parent=canvas_5,text="Current Texture: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dlabel_i15=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        self.dbutton_i16 = DirectButton(parent=canvas_5,text='Load Texture',pos=(-1.4,0,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
-        self.dlabel_i17=DirectLabel(parent=canvas_5,text="Current Texture: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dlabel_i18=DirectLabel(parent=canvas_5,text="X: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dentry_i19 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,-0.4), command=self.skybox_commands,extraArgs=['intensity'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        #self.dlabel_i20=DirectLabel(parent=canvas_5,text="Y: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0,0,0,0.2))
-        #self.dentry_i21 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,-0.4), command=self.skybox_commands,extraArgs=['intensity'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dbutton_i22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.5),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
+        self.dlabel_j0=DirectLabel(parent=canvas_5,text="GeoMipTerrain HeightMap Loader",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.7),text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_j1=DirectLabel(parent=canvas_5,text="Unique Name: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.6),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_j2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=20,pos=(-0.9, 0,0.6), command=self.skybox_commands,extraArgs=['unique_name'],initialText="Terrain_1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_j3=DirectLabel(parent=canvas_5,text="Current Heightmap Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_j4=DirectLabel(parent=canvas_5,text="Name",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dbutton_j5 = DirectButton(parent=canvas_5,text='Select HeightMap Image',pos=(-1.4,0,0.4),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_heightmap'])
+        self.dlabel_j6=DirectLabel(parent=canvas_5,text="BlockSize: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.3),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_j7 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-1, 1,0.3), command=self.skybox_commands,extraArgs=['intensity'],initialText="32", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_j8=DirectLabel(parent=canvas_5,text="Near: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        #self.dentry_j9 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_j10=DirectLabel(parent=canvas_5,text="Far: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        #self.dentry_j11 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_j12=DirectLabel(parent=canvas_5,text="FocalPoint: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        #self.dlabel_j13=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_j14=DirectLabel(parent=canvas_5,text="Current Texture: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        #self.dlabel_j15=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dbutton_j16 = DirectButton(parent=canvas_5,text='Load Texture',pos=(-1.4,0,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
+        self.dlabel_j17=DirectLabel(parent=canvas_5,text="Texture Scale: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        #self.dlabel_j18=DirectLabel(parent=canvas_5,text="X: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        #self.dentry_j19 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,-0.4), command=self.skybox_commands,extraArgs=['intensity'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        #self.dlabel_j20=DirectLabel(parent=canvas_5,text="Y: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        #self.dentry_j21 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,-0.4), command=self.skybox_commands,extraArgs=['intensity'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dbutton_j22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
 
+    def heightmap_commands(self,InputValue,identifier):
+        #if 1:
+        try:
+            if identifier=='enable':
+                self.global_params['skybox_enable']=InputValue
+                print(InputValue)
+                self.CheckButton_i1['indicatorValue']=InputValue
+                if InputValue==True:
+                    self.set_skybox()
+                    self.display_last_status('skybox enabled.')
+                else:
+                    print(InputValue)
+                    taskMgr.remove("update_skybox")
+                    self.skybox.detachNode()
+                    self.skybox.removeNode()
+                    self.display_last_status('skybox removed.')
+            elif identifier=='show':
+                self.CheckButton_i2['indicatorValue']=InputValue
+                if self.global_params['skybox_enable']==True:
+                    if InputValue==True:
+                        self.skybox.show()
+                        self.display_last_status('skybox showed.')
+                    else:
+                        self.skybox.hide()
+                        self.display_last_status('skybox hided.')
+                else:
+                    self.display_last_status('skybox disabled. enable to show or hide.')
+            elif identifier=='select_image':
+                root = tk.Tk()
+                openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .hdr .exr"),("All files", "*.*")])
+                root.destroy()
+                if len(openedfilename)>0:
+                    modelfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(modelfilepath)
+                    modelfilepath=modelfilepath.replace("\\","/")
+                    try:
+                        tex = self.loader.loadTexture(modelfilepath)
+                        self.skybox.setTexture(tex)
+                        self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)
+                        self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)
+                        self.global_params['skybox_image']=modelfilepath
+                        self.dlabel_i4.setText(modelfilepath)
+                        self.display_last_status('skybox texture is set.')
+                    except Exception as e:
+                        logger.error('skybox texture file not supported:')
+                        logger.error(e)
+                        self.display_last_status('skybox texture file not supported:')
+                else:
+                    self.display_last_status('no file selected.')
+            elif identifier=='intensity':
+                InputValue=float(InputValue)
+                self.global_params['skybox_ambientlight_intensity']=InputValue
+                IN=self.global_params['skybox_ambientlight_intensity']
+                r=self.global_params['skybox_ambientlight_R']*IN
+                g=self.global_params['skybox_ambientlight_G']*IN
+                b=self.global_params['skybox_ambientlight_B']*IN
+                self.ambientLight_skybox.setColor((r,g,b, 1))
+                self.dentry_i5_4.enterText(str(InputValue))
+            elif identifier=='R':
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['skybox_ambientlight_R']=InputValue
+                    IN=self.global_params['skybox_ambientlight_intensity']
+                    r=self.global_params['skybox_ambientlight_R']*IN
+                    g=self.global_params['skybox_ambientlight_G']*IN
+                    b=self.global_params['skybox_ambientlight_B']*IN
+                    self.ambientLight_skybox.setColor((r,g,b, 1))
+                    self.dentry_i8.enterText(str(InputValue))
+                else:
+                    self.display_last_status('ambientLight_skybox not present')
+            elif identifier=='G':
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['skybox_ambientlight_G']=InputValue
+                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                    self.dentry_i10.enterText(str(InputValue))
+                else:
+                    self.display_last_status('ambientLight_skybox not present')
+            elif identifier=='B':
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['skybox_ambientlight_B']=InputValue
+                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                    self.dentry_i12.enterText(str(InputValue))
+                else:
+                    self.display_last_status('ambientLight_skybox not present')
+            elif identifier=='save_envmap':
+                base.saveCubeMap('#_envmap.jpg', size = 512)
+                logger.info('envmap saved.')
+                self.display_last_status('envmap saved.')
+            elif identifier=='enable_ibl':
+                self.CheckButton_i15['indicatorValue']=InputValue
+                if InputValue==True:
+                    self.global_params['skybox_enable_envmap']=True
+                    self.display_last_status('envmap ibl enabled.')
+                else:
+                    self.global_params['skybox_enable_envmap']=False
+                    self.display_last_status('envmap ibl disabled.')
+            
+        #else:
+        except Exception as e:
+            logger.error('error in skybox gui entry:')
+            logger.error(e)
+            self.display_last_status('error in skybox gui entry.')
 
     def cbuttondef_tst(self,status):
         if status:
@@ -2935,7 +3039,7 @@ class SceneMakerMain(ShowBase):
         # Add clickable items to the list
         for i in range(len(self.light_name_list)):
             # Create a frame to hold label and button
-            frame = DirectFrame(frameSize=(0, 0.7, -0.05, 0.05),frameColor=(0, 0, 0, 0.2))
+            frame = DirectFrame(frameSize=(0, 0.7, -0.05, 0.05),frameColor=(0, 0, 0, 0.4))
 
             # Add label
             label = DirectLabel(
@@ -2943,7 +3047,7 @@ class SceneMakerMain(ShowBase):
                 text=f"{i+1}. ",
                 scale=0.05,
                 text_fg=(1, 1, 1, 0.9),
-                frameColor=(0, 0, 0, 0.3),
+                frameColor=(0, 0, 0, 0.4),
                 pos=(0, 0, 0),
                 text_align=TextNode.ALeft
             )
@@ -2956,7 +3060,7 @@ class SceneMakerMain(ShowBase):
                 scale=0.05,
                 pos=(0.1, 0, 0),
                 command=self.on_item_click,
-                frameColor=(0, 0, 0, 0.3),
+                frameColor=(0, 0, 0, 0.4),
                 text_align=TextNode.ALeft,
                 extraArgs=[i]  # Pass item number to callback
             )
@@ -3051,7 +3155,7 @@ class SceneMakerMain(ShowBase):
                 text=f"{i+1}. ",
                 scale=0.05,
                 text_fg=(1, 1, 1, 0.9),
-                frameColor=(0, 0, 0, 0.3),
+                frameColor=(0, 0, 0, 0.4),
                 pos=(0, 0, -0.1*i),
                 text_align=TextNode.ALeft
             )
@@ -3064,7 +3168,7 @@ class SceneMakerMain(ShowBase):
                 scale=0.05,
                 pos=(0.1, 0, -0.1*i),
                 command=self.on_item_click_f1,
-                frameColor=(0, 0, 0, 0.3),
+                frameColor=(0, 0, 0, 0.4),
                 text_align=TextNode.ALeft,
                 extraArgs=[i]  # Pass item number to callback
             )
@@ -3109,7 +3213,7 @@ class SceneMakerMain(ShowBase):
                 text=f"{i+1}. ",
                 scale=0.05,
                 text_fg=(1, 1, 1, 0.9),
-                frameColor=(0, 0, 0, 0.3),
+                frameColor=(0, 0, 0, 0.4),
                 pos=(0, 0, -0.1*i),
                 text_align=TextNode.ALeft
             )
@@ -3122,7 +3226,7 @@ class SceneMakerMain(ShowBase):
                 scale=0.05,
                 pos=(0.1, 0, -0.1*i),
                 command=self.on_item_click_g1,
-                frameColor=(0, 0, 0, 0.3),
+                frameColor=(0, 0, 0, 0.4),
                 text_align=TextNode.ALeft,
                 extraArgs=[i]  # Pass item number to callback
             )
@@ -3196,7 +3300,7 @@ class SceneMakerMain(ShowBase):
                 text_scale=0.05,
                 text_align=TextNode.ALeft,
                 pos=(-1.48, 0, 0.5 - i * 0.1),
-                text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.3)
+                text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4)
             )
             # Model name
             DirectLabel(
@@ -3205,7 +3309,7 @@ class SceneMakerMain(ShowBase):
                 text_scale=0.05,
                 text_align=TextNode.ALeft,
                 pos=(-1.23, 0, 0.5 - i * 0.1),
-                text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.3),frameColor=(0, 0, 0, 0.3)
+                text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4)
             )
             # Text entry
             entry = DirectEntry(
