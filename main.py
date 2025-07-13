@@ -110,9 +110,9 @@ class RoamingRalphDemo(ShowBase):
         # Create the main character, Ralph
 
         ralphStartPos = (0,0,0)
-        self.ralph = Actor("models/ralph",
-                           {"run": "models/ralph-run",
-                            "walk": "models/ralph-walk"})
+        self.ralph = Actor("ralph",
+                           {"run": "ralph-run",
+                            "walk": "ralph-walk"})
         self.ralph.reparentTo(render)
         self.ralph.setScale(.2)
         self.ralph.setPos((10, 10, 55))
@@ -172,8 +172,9 @@ class RoamingRalphDemo(ShowBase):
         self.camGroundRay.setDirection(0, 0, -1)
         self.camGroundCol = CollisionNode('camRay')
         self.camGroundCol.addSolid(self.camGroundRay)
-        self.camGroundCol.setFromCollideMask(CollideMask.bit(0))
-        self.camGroundCol.setIntoCollideMask(CollideMask.allOff())
+        #self.camGroundCol.setFromCollideMask(CollideMask.bit(0))
+        #self.camGroundCol.setIntoCollideMask(CollideMask.allOff())
+        self.camGroundCol.setFromCollideMask(1)
         self.camGroundColNp = self.camera.attachNewNode(self.camGroundCol)
         self.camGroundHandler = CollisionHandlerQueue()
         self.cTrav.addCollider(self.camGroundColNp, self.camGroundHandler)
