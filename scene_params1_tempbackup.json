@@ -15,9 +15,9 @@
         "scale": [
             true,
             [
-                1.0,
-                1.0,
-                1.0
+                1.00006103515625,
+                1.00006103515625,
+                1.00006103515625
             ]
         ],
         "color": [
@@ -61,8 +61,15 @@
             true,
             "render"
         ],
-        "type": [
-            "3d_model"
+        "type": "3d_model",
+        "heightmap_param": [
+            "",
+            0,
+            0,
+            0,
+            "",
+            0,
+            0
         ]
     },
     {
@@ -127,8 +134,15 @@
             true,
             "render"
         ],
-        "type": [
-            "3d_model"
+        "type": "3d_model",
+        "heightmap_param": [
+            "",
+            0,
+            0,
+            0,
+            "",
+            0,
+            0
         ]
     },
     {
@@ -193,29 +207,36 @@
             true,
             "render"
         ],
-        "type": [
-            "3d_model"
+        "type": "3d_model",
+        "heightmap_param": [
+            "",
+            0,
+            0,
+            0,
+            "",
+            0,
+            0
         ]
     },
     {
-        "uniquename": "PointLight.glb",
-        "filename": "PointLight.glb",
+        "uniquename": "Terrain_1",
+        "filename": "",
         "enable": true,
         "show": true,
         "pos": [
             true,
             [
-                0.0,
-                0.0,
-                13.02935791015625
+                -32.205078125,
+                -46.98681640625,
+                -39.18804931640625
             ]
         ],
         "scale": [
             true,
             [
-                1.0,
-                1.0,
-                1.0
+                1.00006103515625,
+                1.00006103515625,
+                100.0
             ]
         ],
         "color": [
@@ -259,8 +280,15 @@
             true,
             "render"
         ],
-        "type": [
-            "3d_model"
+        "type": "terrain",
+        "heightmap_param": [
+            "heightfield.png",
+            32,
+            40,
+            100,
+            "grass.png",
+            100.0,
+            100.0
         ]
     }
 ]

@@ -390,7 +390,9 @@ class SceneMakerMain(ShowBase):
         
     def apply_global_params_1(self): #settings params
         self.mouse_sensitivity=self.global_params['mouse_sensitivity']
+        self.dentry_d2.enterText(str(self.mouse_sensitivity))
         self.move_speed=self.global_params['move_speed']
+        self.dentry_d4.enterText(str(self.move_speed))
         self.CheckButton_gs1['indicatorValue']=self.global_params['crosshair']
         self.CheckButton_gs2['indicatorValue']=self.global_params['gizmo']
         if self.global_params['crosshair']==True:
@@ -605,10 +607,10 @@ class SceneMakerMain(ShowBase):
     def create_top_level_main_gui(self):
         self.menu_1 = DirectOptionMenu(text="switch_property", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_1, textMayChange=1,items=self.property_names,pos=(-1.3, 1,0.95),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9))
         
-        self.menu_2 = DirectOptionMenu(text="switch_models", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_2, textMayChange=1,items=self.models_names_all,pos=(0.1, 1,0.95),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9))
+        self.menu_2 = DirectOptionMenu(text="switch_models", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_2, textMayChange=1,items=self.models_names_all,pos=(0.2, 1,0.95),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9))
         
         self.MenuButton_1 = DirectButton(text = "Menu",scale=.06,command=self.menubuttonDef_1,pos=(-0.85, 1,0.95))
-        self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0, 1,0.95),command=self.ButtonDef_1)
+        self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0.1, 1,0.95),command=self.ButtonDef_1)
         self.dlabel_status=DirectLabel(text='Last Status: ',pos=(-1.3,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         self.create_shortcut_icons_top()
@@ -1369,7 +1371,7 @@ class SceneMakerMain(ShowBase):
         self.dlabel_j1=DirectLabel(parent=canvas_5,text="Unique Name: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.6),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dentry_j2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=20,pos=(-0.9, 0,0.6), command=self.heightmap_commands,extraArgs=['unique_name'],initialText="Terrain_1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_j3=DirectLabel(parent=canvas_5,text="Current Heightmap Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dlabel_j4=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_j4=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.5),text_fg=(1, 0.8, 0.8, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dbutton_j5 = DirectButton(parent=canvas_5,text='Select HeightMap Image',pos=(-1.4,0,0.4),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','select_heightmap'])
         self.dlabel_j6=DirectLabel(parent=canvas_5,text="BlockSize: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.3),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dentry_j7 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-1, 1,0.3), command=self.heightmap_commands,extraArgs=['blocksize'],initialText="32", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
@@ -1380,7 +1382,7 @@ class SceneMakerMain(ShowBase):
         self.dlabel_j12=DirectLabel(parent=canvas_5,text="FocalPoint: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dlabel_j13=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1, 0, 0),text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dlabel_j14=DirectLabel(parent=canvas_5,text="Current Texture: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dlabel_j15=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.8, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_j15=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.8, 0, -0.2),text_fg=(1, 0.8, 0.8, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dbutton_j16 = DirectButton(parent=canvas_5,text='Load Texture',pos=(-1.4,0,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','select_texture'])
         self.dlabel_j17=DirectLabel(parent=canvas_5,text="Texture Scale: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dlabel_j18=DirectLabel(parent=canvas_5,text="X: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.9, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
@@ -1393,7 +1395,7 @@ class SceneMakerMain(ShowBase):
         if 1:
         #try:
             if identifier=='unique_name':
-                if (InputValue.lower()=='render') or (InputValue.lower()=='none') or (textEntered.lower()==''):
+                if (InputValue.lower()=='render') or (InputValue.lower()=='none') or (InputValue.lower()==''):
                     logger.info('heightmap unique name should not be render or none or empty')
                     self.display_last_status('heightmap unique name should not be render or none or empty.')
                 else:
@@ -1422,10 +1424,11 @@ class SceneMakerMain(ShowBase):
                     self.display_last_status('no file selected.')
             elif identifier=='blocksize':
                 try:
-                    InputValue=float(InputValue)
+                    InputValue=int(InputValue)
                     if self.param_1['type']=='terrain':
                         self.data_all[self.current_model_index]['heightmap_param'][1]=InputValue
                         self.terrain_all[self.current_model_index].setBlockSize(InputValue)
+                        self.dentry_j7.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
                 except:
@@ -1433,10 +1436,11 @@ class SceneMakerMain(ShowBase):
                     self.dentry_j7.enterText("32")
             elif identifier=='near':
                 try:
-                    InputValue=float(InputValue)
+                    InputValue=int(InputValue)
                     if self.param_1['type']=='terrain':
                         self.data_all[self.current_model_index]['heightmap_param'][2]=InputValue
                         self.terrain_all[self.current_model_index].setNear(InputValue)
+                        self.dentry_j9.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
                 except:
@@ -1444,10 +1448,11 @@ class SceneMakerMain(ShowBase):
                     self.dentry_j9.enterText("40")
             elif identifier=='far':
                 try:
-                    InputValue=float(InputValue)
+                    InputValue=int(InputValue)
                     if self.param_1['type']=='terrain':
                         self.data_all[self.current_model_index]['heightmap_param'][3]=InputValue
                         self.terrain_all[self.current_model_index].setFar(InputValue)
+                        self.dentry_j11.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
                 except:
@@ -1479,11 +1484,12 @@ class SceneMakerMain(ShowBase):
                     self.display_last_status('no file selected.')
             elif identifier=='X':
                 try:
-                    InputValue=float(InputValue)
+                    InputValue=int(InputValue)
                     if self.param_1['type']=='terrain':
                         self.data_all[self.current_model_index]['heightmap_param'][5]=InputValue
                         y_val=self.data_all[self.current_model_index]['heightmap_param'][6]
                         self.models_all[self.current_model_index].setTexScale(TextureStage.getDefault(), InputValue, y_val)
+                        self.dentry_j19.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
                 except:
@@ -1491,11 +1497,12 @@ class SceneMakerMain(ShowBase):
                     self.dentry_j19.enterText("10")
             elif identifier=='Y':
                 try:
-                    InputValue=float(InputValue)
+                    InputValue=int(InputValue)
                     if self.param_1['type']=='terrain':
                         self.data_all[self.current_model_index]['heightmap_param'][6]=InputValue
                         x_val=self.data_all[self.current_model_index]['heightmap_param'][5]
                         self.models_all[self.current_model_index].setTexScale(TextureStage.getDefault(), x_val, InputValue)
+                        self.dentry_j21.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
                 except:
@@ -1507,25 +1514,32 @@ class SceneMakerMain(ShowBase):
                     self.display_last_status('heightmap unique name should not be render or none or empty.')
                 else:
                     if InputValue not in self.models_names_all:
+                        self.initialize_model_param(InputValue,'')
+                        self.param_1['type']='terrain'
+                        self.param_1["uniquename"]=InputValue
+                        self.param_1["heightmap_param"][0]=self.dlabel_j4['text']
+                        self.param_1["heightmap_param"][1]=int(self.dentry_j7.get())
+                        self.param_1["heightmap_param"][2]=int(self.dentry_j9.get())
+                        self.param_1["heightmap_param"][3]=int(self.dentry_j11.get())
+                        self.param_1["heightmap_param"][4]=self.dlabel_j15['text']
+                        self.param_1["heightmap_param"][5]=float(self.dentry_j19.get())
+                        self.param_1["heightmap_param"][6]=float(self.dentry_j21.get())
                         self.terrain = GeoMipTerrain("myDynamicTerrain")
-                        data=self.data_all[self.current_model_index]
-                        self.terrain.setHeightfield(data['heightmap_param'][0])#heightmap.png
+                        self.terrain.setHeightfield(self.param_1['heightmap_param'][0])#heightmap.png
                         # Set terrain properties
-                        self.terrain.setBlockSize(data['heightmap_param'][1])
-                        self.terrain.setNear(data['heightmap_param'][2])
-                        self.terrain.setFar(data['heightmap_param'][3])
+                        self.terrain.setBlockSize(self.param_1['heightmap_param'][1])
+                        self.terrain.setNear(self.param_1['heightmap_param'][2])
+                        self.terrain.setFar(self.param_1['heightmap_param'][3])
                         self.terrain.setFocalPoint(self.camera)
                         # Store the root NodePath
                         terrain_root = self.terrain.getRoot()
-                        if data['heightmap_param'][4]!='':
+                        if self.param_1['heightmap_param'][4]!='':
                             # Apply a texture to the terrain
-                            texture = loader.loadTexture(data['heightmap_param'][4])  # Replace with your texture
+                            texture = loader.loadTexture(self.param_1['heightmap_param'][4])  # Replace with your texture
                             terrain_root.setTexture(TextureStage.getDefault(), texture)
-                            terrain_root.setTexScale(TextureStage.getDefault(), data['heightmap_param'][5], data['heightmap_param'][6])  # Tile texture
+                            terrain_root.setTexScale(TextureStage.getDefault(), self.param_1['heightmap_param'][5], self.param_1['heightmap_param'][6])  # Tile texture
                         #self.create_collision_mesh(terrain_root,"collision_root/environ1")
                         #terrain_root.setCollideMask(1)
-                        self.initialize_model_param(InputValue,'')
-                        self.param_1['type']='terrain'
                         self.ModelTemp=terrain_root
                         self.load_model_from_param(fileload_flag=True,indexload_flag=False)
                         # Generate it.
@@ -1545,8 +1559,15 @@ class SceneMakerMain(ShowBase):
             logger.error(e)
             self.display_last_status('error in heightmap gui entry.')
 
-    def add_heightmap_params_to_gui():
-        pass
+    def add_heightmap_params_to_gui(self):
+        self.dentry_j2.enterText(self.param_1["uniquename"])
+        self.dlabel_j4.setText(self.param_1["heightmap_param"][0])
+        self.heightmap_commands(self.param_1["heightmap_param"][1],'blocksize')
+        self.heightmap_commands(self.param_1["heightmap_param"][2],'Near')
+        self.heightmap_commands(self.param_1["heightmap_param"][3],'Far')
+        self.dlabel_j15.setText(self.param_1["heightmap_param"][4])
+        self.heightmap_commands(self.param_1["heightmap_param"][5],'X')
+        self.heightmap_commands(self.param_1["heightmap_param"][6],'Y')
     
     def cbuttondef_tst(self,status):
         if status:
@@ -2435,7 +2456,7 @@ class SceneMakerMain(ShowBase):
         self.dlabel_g5.setText(self.data_all[self.current_model_index]['actor'][1])
         self.checkbutton_g9['indicatorValue']=self.data_all[self.current_model_index]['actor'][2]
         self.add_model_animations_to_gui_g1()
-        #self.add_heightmap_params_to_gui()
+        self.add_heightmap_params_to_gui()
         
         
     def setupLights(self):  # Sets up some default lighting
