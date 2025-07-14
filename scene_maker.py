@@ -12,17 +12,12 @@ from direct.gui.DirectGui import *
 from panda3d.core import Texture, TexturePool, LoaderOptions, TextureStage, TexGenAttrib, TransformState
 from direct.filter.FilterManager import FilterManager
 
-from panda3d.core import LRotation
-from panda3d.core import Mat4
 import random
-
-
 import sys
 import os
 import shutil
 import math
 from direct.filter.CommonFilters import CommonFilters
-from panda3d.core import ClockObject
 
 from panda3d.core import *
 import panda3d.core as p3d
@@ -33,7 +28,7 @@ from tkinter import messagebox
 import tkinter as tk
 
 import simplepbr
-import complexpbr
+#import complexpbr
 import gltf
 
 import json
@@ -454,7 +449,7 @@ class SceneMakerMain(ShowBase):
                 with open(self.scene_global_params_filename) as json_data:
                     self.global_params = json.load(json_data)
                 self.display_last_status('global params json loaded')
-                logger.info('global json loaded')
+                logger.info('global params json loaded')
         except:
             self.display_last_status('error while loading global params json file.')
             logger.error('error while loading global params json file.')
@@ -1372,133 +1367,184 @@ class SceneMakerMain(ShowBase):
         
         self.dlabel_j0=DirectLabel(parent=canvas_5,text="GeoMipTerrain HeightMap Loader",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.7),text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dlabel_j1=DirectLabel(parent=canvas_5,text="Unique Name: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.6),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dentry_j2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=20,pos=(-0.9, 0,0.6), command=self.skybox_commands,extraArgs=['unique_name'],initialText="Terrain_1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_j2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=20,pos=(-0.9, 0,0.6), command=self.heightmap_commands,extraArgs=['unique_name'],initialText="Terrain_1", numLines = 1, focus=0,frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_j3=DirectLabel(parent=canvas_5,text="Current Heightmap Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dlabel_j4=DirectLabel(parent=canvas_5,text="Name",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dbutton_j5 = DirectButton(parent=canvas_5,text='Select HeightMap Image',pos=(-1.4,0,0.4),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_heightmap'])
+        self.dlabel_j4=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dbutton_j5 = DirectButton(parent=canvas_5,text='Select HeightMap Image',pos=(-1.4,0,0.4),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','select_heightmap'])
         self.dlabel_j6=DirectLabel(parent=canvas_5,text="BlockSize: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.3),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dentry_j7 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-1, 1,0.3), command=self.skybox_commands,extraArgs=['intensity'],initialText="32", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_j7 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-1, 1,0.3), command=self.heightmap_commands,extraArgs=['blocksize'],initialText="32", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_j8=DirectLabel(parent=canvas_5,text="Near: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        #self.dentry_j9 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_j9 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-1, 1,0.2), command=self.heightmap_commands,extraArgs=['near'],initialText="40", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_j10=DirectLabel(parent=canvas_5,text="Far: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        #self.dentry_j11 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_j11 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-1, 1,0.1), command=self.heightmap_commands,extraArgs=['far'],initialText="100", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_j12=DirectLabel(parent=canvas_5,text="FocalPoint: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        #self.dlabel_j13=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_j13=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1, 0, 0),text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dlabel_j14=DirectLabel(parent=canvas_5,text="Current Texture: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        #self.dlabel_j15=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dbutton_j16 = DirectButton(parent=canvas_5,text='Load Texture',pos=(-1.4,0,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
+        self.dlabel_j15=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.8, 0, -0.2),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dbutton_j16 = DirectButton(parent=canvas_5,text='Load Texture',pos=(-1.4,0,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','select_texture'])
         self.dlabel_j17=DirectLabel(parent=canvas_5,text="Texture Scale: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        #self.dlabel_j18=DirectLabel(parent=canvas_5,text="X: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        #self.dentry_j19 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,-0.4), command=self.skybox_commands,extraArgs=['intensity'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        #self.dlabel_j20=DirectLabel(parent=canvas_5,text="Y: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        #self.dentry_j21 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,-0.4), command=self.skybox_commands,extraArgs=['intensity'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dbutton_j22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
+        self.dlabel_j18=DirectLabel(parent=canvas_5,text="X: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.9, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_j19 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.8, 0,-0.4), command=self.heightmap_commands,extraArgs=['X'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_j20=DirectLabel(parent=canvas_5,text="Y: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_j21 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.3, 0,-0.4), command=self.heightmap_commands,extraArgs=['Y'],initialText="10", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dbutton_j22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','generate_terrain'])
 
     def heightmap_commands(self,InputValue,identifier):
-        #if 1:
-        try:
-            if identifier=='enable':
-                self.global_params['skybox_enable']=InputValue
-                print(InputValue)
-                self.CheckButton_i1['indicatorValue']=InputValue
-                if InputValue==True:
-                    self.set_skybox()
-                    self.display_last_status('skybox enabled.')
+        if 1:
+        #try:
+            if identifier=='unique_name':
+                if (InputValue.lower()=='render') or (InputValue.lower()=='none') or (textEntered.lower()==''):
+                    logger.info('heightmap unique name should not be render or none or empty')
+                    self.display_last_status('heightmap unique name should not be render or none or empty.')
                 else:
-                    print(InputValue)
-                    taskMgr.remove("update_skybox")
-                    self.skybox.detachNode()
-                    self.skybox.removeNode()
-                    self.display_last_status('skybox removed.')
-            elif identifier=='show':
-                self.CheckButton_i2['indicatorValue']=InputValue
-                if self.global_params['skybox_enable']==True:
-                    if InputValue==True:
-                        self.skybox.show()
-                        self.display_last_status('skybox showed.')
+                    if InputValue not in self.models_names_all:
+                        self.display_last_status('heightmap unique name is set.')
                     else:
-                        self.skybox.hide()
-                        self.display_last_status('skybox hided.')
-                else:
-                    self.display_last_status('skybox disabled. enable to show or hide.')
-            elif identifier=='select_image':
+                        self.display_last_status('heightmap unique name already exists.')
+                        self.dentry_j2.enterText("")
+            elif identifier=='select_heightmap':
                 root = tk.Tk()
-                openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .hdr .exr"),("All files", "*.*")])
+                openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
                     modelfilepath=os.path.relpath(openedfilename, os.getcwd())
                     uqname=os.path.basename(modelfilepath)
                     modelfilepath=modelfilepath.replace("\\","/")
-                    try:
-                        tex = self.loader.loadTexture(modelfilepath)
-                        self.skybox.setTexture(tex)
-                        self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)
-                        self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)
-                        self.global_params['skybox_image']=modelfilepath
-                        self.dlabel_i4.setText(modelfilepath)
-                        self.display_last_status('skybox texture is set.')
-                    except Exception as e:
-                        logger.error('skybox texture file not supported:')
-                        logger.error(e)
-                        self.display_last_status('skybox texture file not supported:')
+                    self.dlabel_j4.setText(modelfilepath)
+                    print(self.param_1)
+                    if self.param_1['type']=='terrain':
+                        self.dlabel_j4.setText(modelfilepath)
+                        self.data_all[self.current_model_index]['heightmap_param'][0]=modelfilepath
+                        self.display_last_status('heightmap is set.')
+                    else:
+                        self.display_last_status('current model is not a terrain. heightmap not applied.')
                 else:
                     self.display_last_status('no file selected.')
-            elif identifier=='intensity':
-                InputValue=float(InputValue)
-                self.global_params['skybox_ambientlight_intensity']=InputValue
-                IN=self.global_params['skybox_ambientlight_intensity']
-                r=self.global_params['skybox_ambientlight_R']*IN
-                g=self.global_params['skybox_ambientlight_G']*IN
-                b=self.global_params['skybox_ambientlight_B']*IN
-                self.ambientLight_skybox.setColor((r,g,b, 1))
-                self.dentry_i5_4.enterText(str(InputValue))
-            elif identifier=='R':
-                if 1:
+            elif identifier=='blocksize':
+                try:
                     InputValue=float(InputValue)
-                    self.global_params['skybox_ambientlight_R']=InputValue
-                    IN=self.global_params['skybox_ambientlight_intensity']
-                    r=self.global_params['skybox_ambientlight_R']*IN
-                    g=self.global_params['skybox_ambientlight_G']*IN
-                    b=self.global_params['skybox_ambientlight_B']*IN
-                    self.ambientLight_skybox.setColor((r,g,b, 1))
-                    self.dentry_i8.enterText(str(InputValue))
-                else:
-                    self.display_last_status('ambientLight_skybox not present')
-            elif identifier=='G':
-                if 1:
+                    if self.param_1['type']=='terrain':
+                        self.data_all[self.current_model_index]['heightmap_param'][1]=InputValue
+                        self.terrain_all[self.current_model_index].setBlockSize(InputValue)
+                    else:
+                        self.display_last_status('current model not a terrain.')
+                except:
+                    self.display_last_status('error when setting the entered number.')
+                    self.dentry_j7.enterText("32")
+            elif identifier=='near':
+                try:
                     InputValue=float(InputValue)
-                    self.global_params['skybox_ambientlight_G']=InputValue
-                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
-                    self.dentry_i10.enterText(str(InputValue))
-                else:
-                    self.display_last_status('ambientLight_skybox not present')
-            elif identifier=='B':
-                if 1:
+                    if self.param_1['type']=='terrain':
+                        self.data_all[self.current_model_index]['heightmap_param'][2]=InputValue
+                        self.terrain_all[self.current_model_index].setNear(InputValue)
+                    else:
+                        self.display_last_status('current model not a terrain.')
+                except:
+                    self.display_last_status('error when setting the entered number.')
+                    self.dentry_j9.enterText("40")
+            elif identifier=='far':
+                try:
                     InputValue=float(InputValue)
-                    self.global_params['skybox_ambientlight_B']=InputValue
-                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
-                    self.dentry_i12.enterText(str(InputValue))
+                    if self.param_1['type']=='terrain':
+                        self.data_all[self.current_model_index]['heightmap_param'][3]=InputValue
+                        self.terrain_all[self.current_model_index].setFar(InputValue)
+                    else:
+                        self.display_last_status('current model not a terrain.')
+                except:
+                    self.display_last_status('error when setting the entered number.')
+                    self.dentry_j11.enterText("100")
+            elif identifier=='select_texture':
+                root = tk.Tk()
+                openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
+                root.destroy()
+                if len(openedfilename)>0:
+                    modelfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(modelfilepath)
+                    modelfilepath=modelfilepath.replace("\\","/")
+                    self.dlabel_j15.setText(modelfilepath)
+                    if self.param_1['type']=='terrain':
+                        try:
+                            tex = self.loader.loadTexture(modelfilepath)
+                            self.models_all[self.current_model_index].setTexture(TextureStage.getDefault(),tex)
+                            self.dlabel_j15.setText(modelfilepath)
+                            self.data_all[self.current_model_index]['heightmap_param'][4]=modelfilepath
+                            self.display_last_status('terrain texture is set.')
+                        except Exception as e:
+                            logger.error('terrain texture file not set')
+                            logger.error(e)
+                            self.display_last_status('error when setting terrain texture.')
+                    else:
+                        self.display_last_status('current model is not a terrain. texture not applied.')
                 else:
-                    self.display_last_status('ambientLight_skybox not present')
-            elif identifier=='save_envmap':
-                base.saveCubeMap('#_envmap.jpg', size = 512)
-                logger.info('envmap saved.')
-                self.display_last_status('envmap saved.')
-            elif identifier=='enable_ibl':
-                self.CheckButton_i15['indicatorValue']=InputValue
-                if InputValue==True:
-                    self.global_params['skybox_enable_envmap']=True
-                    self.display_last_status('envmap ibl enabled.')
+                    self.display_last_status('no file selected.')
+            elif identifier=='X':
+                try:
+                    InputValue=float(InputValue)
+                    if self.param_1['type']=='terrain':
+                        self.data_all[self.current_model_index]['heightmap_param'][5]=InputValue
+                        y_val=self.data_all[self.current_model_index]['heightmap_param'][6]
+                        self.models_all[self.current_model_index].setTexScale(TextureStage.getDefault(), InputValue, y_val)
+                    else:
+                        self.display_last_status('current model not a terrain.')
+                except:
+                    self.display_last_status('error when setting the entered number.')
+                    self.dentry_j19.enterText("10")
+            elif identifier=='Y':
+                try:
+                    InputValue=float(InputValue)
+                    if self.param_1['type']=='terrain':
+                        self.data_all[self.current_model_index]['heightmap_param'][6]=InputValue
+                        x_val=self.data_all[self.current_model_index]['heightmap_param'][5]
+                        self.models_all[self.current_model_index].setTexScale(TextureStage.getDefault(), x_val, InputValue)
+                    else:
+                        self.display_last_status('current model not a terrain.')
+                except:
+                    self.display_last_status('error when setting the entered number.')
+                    self.dentry_j21.enterText("10")
+            elif identifier=='generate_terrain':
+                InputValue=self.dentry_j2.get()
+                if (InputValue.lower()=='render') or (InputValue.lower()=='none') or (textEntered.lower()==''):
+                    self.display_last_status('heightmap unique name should not be render or none or empty.')
                 else:
-                    self.global_params['skybox_enable_envmap']=False
-                    self.display_last_status('envmap ibl disabled.')
-            
-        #else:
-        except Exception as e:
-            logger.error('error in skybox gui entry:')
-            logger.error(e)
-            self.display_last_status('error in skybox gui entry.')
+                    if InputValue not in self.models_names_all:
+                        self.terrain = GeoMipTerrain("myDynamicTerrain")
+                        data=self.data_all[self.current_model_index]
+                        self.terrain.setHeightfield(data['heightmap_param'][0])#heightmap.png
+                        # Set terrain properties
+                        self.terrain.setBlockSize(data['heightmap_param'][1])
+                        self.terrain.setNear(data['heightmap_param'][2])
+                        self.terrain.setFar(data['heightmap_param'][3])
+                        self.terrain.setFocalPoint(self.camera)
+                        # Store the root NodePath
+                        terrain_root = self.terrain.getRoot()
+                        if data['heightmap_param'][4]!='':
+                            # Apply a texture to the terrain
+                            texture = loader.loadTexture(data['heightmap_param'][4])  # Replace with your texture
+                            terrain_root.setTexture(TextureStage.getDefault(), texture)
+                            terrain_root.setTexScale(TextureStage.getDefault(), data['heightmap_param'][5], data['heightmap_param'][6])  # Tile texture
+                        #self.create_collision_mesh(terrain_root,"collision_root/environ1")
+                        #terrain_root.setCollideMask(1)
+                        self.initialize_model_param(tempname,'')
+                        self.ModelTemp=terrain_root
+                        self.load_model_from_param(fileload_flag=True,indexload_flag=False)
+                        # Generate it.
+                        self.terrain.generate()
+                        self.terrain_all[self.current_model_index]=self.terrain
+                        logger.info('terrain generated.')
+                        self.display_last_status('terrain generated and added to models.')
+                    else:
+                        self.display_last_status('heightmap unique name already exists. enter new unique name.')
+                        self.dentry_j2.enterText("")
 
+        else:
+        #except Exception as e:
+            logger.error('error in heightmap gui entry:')
+            logger.error(e)
+            self.display_last_status('error in heightmap gui entry.')
+
+    def add_heightmap_params_to_gui():
+        pass
+    
     def cbuttondef_tst(self,status):
         if status:
             print('clickd')
@@ -1721,9 +1767,9 @@ class SceneMakerMain(ShowBase):
 
     def SetEntryText_4(self, textEntered):
         try:
-            if (textEntered.lower()=='render') or (textEntered.lower()=='none'):
-                logger.info('unique name should not be render or none')
-                self.display_last_status('unique name should not be render or none.')
+            if (textEntered.lower()=='render') or (textEntered.lower()=='none') or (textEntered.lower()==''):
+                logger.info('unique name should not be render or none or empty.')
+                self.display_last_status('unique name should not be render or none or empty.')
             else:
                 if textEntered not in self.models_names_all:
                     curname=self.data_all[self.current_model_index]['uniquename']
@@ -2040,6 +2086,7 @@ class SceneMakerMain(ShowBase):
             
         self.models_all=[]
         self.actors_all=[]
+        self.terrain_all=[]
         self.models_names_all=[]
         self.models_names_enabled=[]
         self.ModelTemp=""
@@ -2057,6 +2104,8 @@ class SceneMakerMain(ShowBase):
                 data['actor']=[False, "",False,[]]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
             if 'parent' not in data:
                 data['parent']=[True, "render"]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
+            if 'type' not in data:
+                data['type']="3d_model"
                 
             if data["enable"]:
                 if data['actor'][0]==True:
@@ -2065,10 +2114,35 @@ class SceneMakerMain(ShowBase):
                     self.ModelTemp=self.render.attachNewNode("actor_node")
                     self.current_actor.reparentTo(self.ModelTemp)
                     #self.ModelTemp=Actor(ModelTemp.find("**/__Actor_modelRoot"))
+                    self.terrain_all.append('')
+                elif data['type']=='terrain':
+                    self.current_actor=''
+                    self.actors_all.append(self.current_actor)
+                    self.terrain = GeoMipTerrain("myDynamicTerrain")
+                    self.terrain.setHeightfield(data['heightmap_param'][0])#heightmap.png
+                    # Set terrain properties
+                    self.terrain.setBlockSize(data['heightmap_param'][1])
+                    self.terrain.setNear(data['heightmap_param'][2])
+                    self.terrain.setFar(data['heightmap_param'][3])
+                    self.terrain.setFocalPoint(self.camera)
+                    # Store the root NodePath
+                    terrain_root = self.terrain.getRoot()
+                    if data['heightmap_param'][4]!='':
+                        # Apply a texture to the terrain
+                        texture = loader.loadTexture(data['heightmap_param'][4])  # Replace with your texture
+                        terrain_root.setTexture(TextureStage.getDefault(), texture)
+                        terrain_root.setTexScale(TextureStage.getDefault(), data['heightmap_param'][5], data['heightmap_param'][6])  # Tile texture
+                    #self.create_collision_mesh(terrain_root,"collision_root/environ1")
+                    #terrain_root.setCollideMask(1)
+                    self.ModelTemp=terrain_root
+                    # Generate it.
+                    self.terrain.generate()
+                    self.terrain_all.append(self.terrain)
                 else:
                     self.current_actor=''
                     self.actors_all.append(self.current_actor)
                     self.ModelTemp=loader.loadModel(data["filename"])
+                    self.terrain_all.append('')
                 #--- uncomment the below code to load the point lights from model and use save button to save the params
                 #(param_2,light_name_list,light_list,light_node_list)=self.get_point_light_properties_from_model(self.ModelTemp,data)
                 #if len(param_2)>0:
@@ -2078,21 +2152,7 @@ class SceneMakerMain(ShowBase):
                     (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_point_light_properties_from_model(self.ModelTemp,data)
                     if len(self.param_2)>0:
                         if self.load_lights_from_json==True:
-                            #tempidx=self.current_light_model_index
                             self.current_light_model_index=idx
-                            #print(idx)
-                            #tempidx2=self.plight_idx
-                            for j2 in range(len(self.light_name_list)):
-                                idx2=j2
-                                self.plight_idx=j2
-                                self.SetEntryText_e(self.data_all_light[idx]['plights'][idx2]['color'][1][0],'R')
-                                self.SetEntryText_e(self.data_all_light[idx]['plights'][idx2]['color'][1][1],'G')
-                                self.SetEntryText_e(self.data_all_light[idx]['plights'][idx2]['color'][1][2],'B')
-                                self.SetEntryText_e(self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0],'C')
-                                self.SetEntryText_e(self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0],'L')
-                                self.SetEntryText_e(self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0],'Q')
-                        #self.data_all_light.append(param_2.copy())
-                        #self.models_with_lights.append(data["uniquename"])
                         self.models_light_names.append(self.light_name_list)
                         self.models_light_all.append(self.light_list)
                         self.models_light_node_all.append(self.light_node_list)
@@ -2135,6 +2195,8 @@ class SceneMakerMain(ShowBase):
                     self.models_all[-1].show()
                 else:
                     self.models_all[-1].hide()
+                #---for later use---
+                self.param_1=data
             else:
                 self.models_all.append("")
         
@@ -2285,7 +2347,7 @@ class SceneMakerMain(ShowBase):
             #self.set_model_values_to_gui()
             self.menu_2.set(self.current_model_index)#it will trigger the DirectOptionMenu function
         elif key=="load_model":
-            print('opening askfilename dialog to to load a model')
+            print('opening askfilename dialog to load a model')
             self.keyMap['load_model']=False
             len_curdir=len(os.getcwd())+1
             root = tk.Tk()
@@ -2301,29 +2363,7 @@ class SceneMakerMain(ShowBase):
                         continue
                     else:
                         tempname=uqname+'.%03d'%(i)
-                
-                self.param_1={}
-                #self.param_1['uniquename']=uqname+' '+datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
-                self.param_1['uniquename']=tempname
-                self.param_1['filename']=modelfilepath
-                self.param_1['enable']=True
-                self.param_1['show']=True
-                tempos=self.get_an_point_front_of_camera(0,self.camera.getH(),self.camera.getP())
-                
-                #tempp=self.cam_node.getPos()
-                #print(tempp)
-                #tempos=[0,0,0]
-                self.param_1['pos']=[True,tempos]
-                self.param_1['scale']=[False,[0,0,0]]
-                self.param_1['color']=[False,[0,0,0,1]]
-                self.param_1['hpr']=[False,[0,0,0]]
-                self.param_1['details']=""
-                self.param_1['notes']=""
-                self.param_1['pickable']=[True, ""]
-                self.param_1['enable_lights_from_model']=[False, ""]
-                self.param_1['load_lights_from_json']=[True, ""]
-                self.param_1['actor']=[False, "",False,[]]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
-                self.param_1['parent']=[True,'render']
+                self.initialize_model_param(tempname,modelfilepath)
                 self.load_model_from_param(fileload_flag=True,indexload_flag=False)
                 #self.set_model_values_to_gui()# this function called inside menu_2 function, so here it is redundant
                 self.menu_2['items']=self.models_names_all
@@ -2340,6 +2380,27 @@ class SceneMakerMain(ShowBase):
         else:
             self.keyMap[key] = value
 
+    def initialize_model_param(self,uniquename,modelfilepath):
+        self.param_1={}
+        self.param_1['uniquename']=uniquename
+        self.param_1['filename']=modelfilepath
+        self.param_1['enable']=True
+        self.param_1['show']=True
+        tempos=self.get_an_point_front_of_camera(0,self.camera.getH(),self.camera.getP())
+        self.param_1['pos']=[True,tempos]
+        self.param_1['scale']=[False,[0,0,0]]
+        self.param_1['color']=[False,[0,0,0,1]]
+        self.param_1['hpr']=[False,[0,0,0]]
+        self.param_1['details']=""
+        self.param_1['notes']=""
+        self.param_1['pickable']=[True, ""]
+        self.param_1['enable_lights_from_model']=[False, ""]
+        self.param_1['load_lights_from_json']=[True, ""]
+        self.param_1['actor']=[False, "",False,[]]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
+        self.param_1['parent']=[True,'render']
+        self.param_1['type']='3d_model'#'terrain' for heightmaps
+        self.param_1['heightmap_param']=['',0,0,0,'',0,0]#[heightmap_img_name,blocksize,near,far,texture_name,tex_scale_x,tex_scale_y]
+    
     def set_model_values_to_gui(self):
         if self.current_property==1:
             data=self.data_all[self.current_model_index]['pos'][1]
@@ -2369,6 +2430,7 @@ class SceneMakerMain(ShowBase):
         self.dlabel_g5.setText(self.data_all[self.current_model_index]['actor'][1])
         self.checkbutton_g9['indicatorValue']=self.data_all[self.current_model_index]['actor'][2]
         self.add_model_animations_to_gui_g1()
+        #self.add_heightmap_params_to_gui()
         
         
     def setupLights(self):  # Sets up some default lighting
@@ -2716,6 +2778,7 @@ class SceneMakerMain(ShowBase):
         if self.param_1["uniquename"] not in self.models_names_all:
             self.models_names_all.append(self.param_1["uniquename"])
             self.actors_all.append('')
+            self.terrain_all.append('')
             fileload_flag=True
             indexload_flag=False
             self.current_model_index=len(self.models_names_all)-1
@@ -2735,7 +2798,8 @@ class SceneMakerMain(ShowBase):
             
         if self.param_1['enable']==True:
             if fileload_flag==True:
-                self.ModelTemp=loader.loadModel(self.param_1["filename"])
+                if self.param_1['type']=='3d_model':
+                    self.ModelTemp=loader.loadModel(self.param_1["filename"])
                 #---get and load light properties---
                 (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_point_light_properties_from_model(self.ModelTemp,self.param_1)
                 if len(self.param_2)>0:

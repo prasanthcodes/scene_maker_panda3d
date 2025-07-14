@@ -60,6 +60,9 @@
         "parent": [
             true,
             "render"
+        ],
+        "type": [
+            "3d_model"
         ]
     },
     {
@@ -123,6 +126,9 @@
         "parent": [
             true,
             "render"
+        ],
+        "type": [
+            "3d_model"
         ]
     },
     {
@@ -141,9 +147,9 @@
         "scale": [
             true,
             [
-                4.58489990234375,
-                4.58489990234375,
-                4.58489990234375
+                4.4547119140625,
+                4.4547119140625,
+                4.4547119140625
             ]
         ],
         "color": [
@@ -186,6 +192,75 @@
         "parent": [
             true,
             "render"
+        ],
+        "type": [
+            "3d_model"
+        ]
+    },
+    {
+        "uniquename": "PointLight.glb",
+        "filename": "PointLight.glb",
+        "enable": true,
+        "show": true,
+        "pos": [
+            true,
+            [
+                0.0,
+                0.0,
+                13.02935791015625
+            ]
+        ],
+        "scale": [
+            true,
+            [
+                1.0,
+                1.0,
+                1.0
+            ]
+        ],
+        "color": [
+            true,
+            [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ]
+        ],
+        "hpr": [
+            true,
+            [
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "details": "",
+        "notes": "",
+        "pickable": [
+            true,
+            ""
+        ],
+        "enable_lights_from_model": [
+            false,
+            ""
+        ],
+        "load_lights_from_json": [
+            true,
+            ""
+        ],
+        "actor": [
+            false,
+            "",
+            false,
+            []
+        ],
+        "parent": [
+            true,
+            "render"
+        ],
+        "type": [
+            "3d_model"
         ]
     }
 ]

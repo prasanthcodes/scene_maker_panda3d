@@ -148,3 +148,62 @@
 2025-07-13 17:25:07,361 | INFO | program started
 2025-07-13 17:25:08,457 | INFO | global json loaded
 2025-07-13 17:47:20,185 | INFO | program exiting.
+2025-07-14 09:36:03,762 | INFO | program started
+2025-07-14 09:36:06,330 | INFO | global params json loaded
+2025-07-14 09:59:50,264 | INFO | program exiting.
+2025-07-14 10:12:00,529 | INFO | program started
+2025-07-14 10:12:02,257 | INFO | global params json loaded
+2025-07-14 10:12:41,070 | INFO | program exiting.
+2025-07-14 10:15:40,951 | INFO | program started
+2025-07-14 10:15:42,850 | INFO | global params json loaded
+2025-07-14 10:16:28,947 | INFO | program exiting.
+2025-07-14 10:16:36,084 | INFO | program started
+2025-07-14 10:16:37,822 | INFO | global params json loaded
+2025-07-14 10:17:28,268 | INFO | program exiting.
+2025-07-14 10:17:40,642 | INFO | program started
+2025-07-14 10:17:42,540 | INFO | global params json loaded
+2025-07-14 10:18:23,195 | INFO | program exiting.
+2025-07-14 14:45:43,069 | INFO | program started
+2025-07-14 14:45:45,019 | INFO | global params json loaded
+2025-07-14 14:45:54,007 | INFO | model PointLight.glb loaded
+2025-07-14 14:49:36,917 | INFO | scene json saved
+2025-07-14 14:49:36,922 | INFO | json saved(light data)
+2025-07-14 14:49:36,922 | INFO | global params json saved
+2025-07-14 14:49:38,224 | INFO | program exiting.
+2025-07-14 14:49:42,412 | INFO | program started
+2025-07-14 14:49:44,166 | INFO | global params json loaded
+2025-07-14 14:49:50,273 | INFO | program exiting.
+2025-07-14 14:50:11,524 | INFO | program started
+2025-07-14 14:50:13,398 | INFO | global params json loaded
+2025-07-14 14:52:31,808 | INFO | scene json saved
+2025-07-14 14:52:31,808 | INFO | json saved(light data)
+2025-07-14 14:52:31,808 | INFO | global params json saved
+2025-07-14 14:52:32,708 | INFO | program exiting.
+2025-07-14 14:52:41,817 | INFO | program started
+2025-07-14 14:52:43,578 | INFO | global params json loaded
+2025-07-14 14:54:34,532 | INFO | program exiting.
+2025-07-14 16:15:25,463 | INFO | program started
+2025-07-14 16:15:27,239 | INFO | global params json loaded
+2025-07-14 16:15:37,174 | INFO | uniquename of model index 1 is DamagedHelmet.glb updated with 
+2025-07-14 16:15:45,162 | INFO | program exiting.
+2025-07-14 16:17:54,457 | INFO | program started
+2025-07-14 16:17:56,477 | INFO | global params json loaded
+2025-07-14 16:18:10,071 | INFO | unique name should not be render or none or empty.
+2025-07-14 16:18:35,518 | INFO | program exiting.
+2025-07-14 17:04:25,032 | INFO | program started
+2025-07-14 17:04:26,901 | INFO | global params json loaded
+2025-07-14 17:04:39,631 | ERROR | error in heightmap gui entry:
+2025-07-14 17:04:39,631 | ERROR | 'type'
+2025-07-14 17:06:39,282 | INFO | program exiting.
+2025-07-14 17:06:44,068 | INFO | program started
+2025-07-14 17:06:45,759 | INFO | global params json loaded
+2025-07-14 17:09:01,549 | INFO | program started
+2025-07-14 17:09:03,699 | INFO | global params json loaded
+2025-07-14 17:10:31,336 | INFO | program started
+2025-07-14 17:10:33,212 | INFO | global params json loaded
+2025-07-14 17:11:12,353 | INFO | program started
+2025-07-14 17:11:14,245 | INFO | global params json loaded
+2025-07-14 17:11:56,914 | INFO | program started
+2025-07-14 17:11:58,810 | INFO | global params json loaded
+2025-07-14 17:13:47,069 | INFO | program started
+2025-07-14 17:13:48,973 | INFO | global params json loaded
