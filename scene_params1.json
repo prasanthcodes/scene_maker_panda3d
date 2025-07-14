@@ -61,9 +61,8 @@
             true,
             "render"
         ],
-        "type": [
+        "type":
             "3d_model"
-        ]
     },
     {
         "uniquename": "DamagedHelmet.glb",
@@ -127,9 +126,8 @@
             true,
             "render"
         ],
-        "type": [
+        "type":
             "3d_model"
-        ]
     },
     {
         "uniquename": "GlassHurricaneCandleHolder.glb",
@@ -193,9 +191,9 @@
             true,
             "render"
         ],
-        "type": [
+        "type":
             "3d_model"
-        ]
+
     },
     {
         "uniquename": "PointLight.glb",
@@ -259,8 +257,8 @@
             true,
             "render"
         ],
-        "type": [
+        "type": 
             "3d_model"
-        ]
+        
     }
 ]

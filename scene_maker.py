@@ -150,9 +150,9 @@ class SceneMakerMain(ShowBase):
         base.accept('tab', base.bufferViewer.toggleEnable)
         
 
-        self.param_1={}
-        self.param_1['pos']=[True,[0,0,0]]
-        self.param_1['uniquename']=''
+        #self.param_1={}
+        #self.param_1['pos']=[True,[0,0,0]]
+        #self.param_1['uniquename']=''
         self.param_2={}               
         self.current_property=1
         self.property_names=['position','scale','color','rotation']
@@ -1503,7 +1503,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_j21.enterText("10")
             elif identifier=='generate_terrain':
                 InputValue=self.dentry_j2.get()
-                if (InputValue.lower()=='render') or (InputValue.lower()=='none') or (textEntered.lower()==''):
+                if (InputValue.lower()=='render') or (InputValue.lower()=='none') or (InputValue.lower()==''):
                     self.display_last_status('heightmap unique name should not be render or none or empty.')
                 else:
                     if InputValue not in self.models_names_all:
@@ -1524,12 +1524,15 @@ class SceneMakerMain(ShowBase):
                             terrain_root.setTexScale(TextureStage.getDefault(), data['heightmap_param'][5], data['heightmap_param'][6])  # Tile texture
                         #self.create_collision_mesh(terrain_root,"collision_root/environ1")
                         #terrain_root.setCollideMask(1)
-                        self.initialize_model_param(tempname,'')
+                        self.initialize_model_param(InputValue,'')
+                        self.param_1['type']='terrain'
                         self.ModelTemp=terrain_root
                         self.load_model_from_param(fileload_flag=True,indexload_flag=False)
                         # Generate it.
                         self.terrain.generate()
                         self.terrain_all[self.current_model_index]=self.terrain
+                        self.menu_2['items']=self.models_names_all
+                        self.menu_2.set(self.current_model_index)#the respective function is called when setting the menu item
                         logger.info('terrain generated.')
                         self.display_last_status('terrain generated and added to models.')
                     else:
@@ -2106,6 +2109,8 @@ class SceneMakerMain(ShowBase):
                 data['parent']=[True, "render"]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
             if 'type' not in data:
                 data['type']="3d_model"
+            if 'heightmap_param' not in data:
+                data['heightmap_param']=['',0,0,0,'',0,0]
                 
             if data["enable"]:
                 if data['actor'][0]==True:
