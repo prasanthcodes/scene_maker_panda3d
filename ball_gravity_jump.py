@@ -2,7 +2,9 @@ from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
 from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import Point3, VBase3
-from panda3d.bullet import BulletWorld, BulletPlaneShape, BulletRigidBodyNode, BulletSphereShape
+from panda3d.bullet import BulletWorld, BulletPlaneShape, BulletRigidBodyNode, BulletSphereShape, BulletHeightfieldShape, BulletDebugNode,ZUp
+#from panda3d.bullet import BulletWorld, BulletRigidBodyNode, BulletSphereShape, BulletHeightfieldShape
+
 from direct.gui.DirectGui import *
 from panda3d.core import *
 
@@ -10,9 +12,46 @@ class JumpingBallGame(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
+        debugNode = BulletDebugNode('Debug')
+        debugNP = render.attachNewNode(debugNode)
+        debugNP.show()
+        
         # Set up the Bullet physics world
         self.world = BulletWorld()
         self.world.setGravity(Vec3(0, 0, -9.81))
+        #self.world.setDebugNode(debugNP.node())
+
+        
+        # Set up the terrain
+        self.terrain = GeoMipTerrain("terrain")
+        self.terrain.setHeightfield("heightfield.png")  # Replace with your heightmap
+        self.terrain.setBlockSize(32)
+        self.terrain.setNear(40)
+        self.terrain.setFar(100)
+        self.terrain.setFocalPoint(base.camera)
+        self.terrain.getRoot().reparentTo(render)
+        self.terrain.getRoot().setSz(50)  # Scale the terrain height
+        self.terrain.generate()
+        texture_1 = loader.loadTexture("grass.png")
+        self.terrain.getRoot().setTexture(TextureStage.getDefault(), texture_1)
+
+        # Set collision mask for the terrain
+        self.terrain.getRoot().setCollideMask(BitMask32.bit(1))
+        #self.terrain.getRoot().setFromCollideMask(BitMask32.allOff())
+        #self.terrain.getRoot().setIntoCollideMask(BitMask32.bit(1))
+
+        texture = loader.loadTexture("heightfield.png")  # Replace with your texture
+
+        # Create physics for the terrain (BulletHeightfieldShape)
+        shape = BulletHeightfieldShape(texture, 150.0, ZUp)
+        shape.setUseDiamondSubdivision(True)  # Improve collision accuracy
+        terrain_node = BulletRigidBodyNode('Terrain')
+        terrain_node.addShape(shape)
+        terrain_node.setMass(0)  # Static body
+        terrain_physics_np = self.render.attachNewNode(terrain_node)
+        terrain_physics_np.setPos(0, 0, 0)  # Heightfield is centered at origin
+        self.world.attachRigidBody(terrain_node)
+        
 
         # Create the ground
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
@@ -25,20 +64,23 @@ class JumpingBallGame(ShowBase):
         self.ground = self.loader.loadModel("models/box")
         self.ground.setScale(100, 100, 0.1)
         self.ground.setPos(0, 0, -0.05)
+        texture_2 = loader.loadTexture("grass.png")
+        self.ground.setTexture(TextureStage.getDefault(), texture_2)
         self.ground.reparentTo(ground_np)
 
         # Create the ball
         shape = BulletSphereShape(0.5)
         ball_node = BulletRigidBodyNode('Ball')
         ball_node.setMass(1.0)
+        ball_node.setFriction(0.5)
         ball_node.addShape(shape)
         self.ball_np = self.render.attachNewNode(ball_node)
-        self.ball_np.setPos(0, 0, 2)
+        self.ball_np.setPos(10, 10, 200)
         self.world.attachRigidBody(ball_node)
 
         # Load and set up the ball model
         self.ball = self.loader.loadModel("models/ball")
-        self.ball.setScale(0.5)
+        self.ball.setScale(5.5)
         self.ball.reparentTo(self.ball_np)
 
         # Set up the camera

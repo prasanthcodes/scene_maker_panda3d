@@ -21,7 +21,6 @@ from direct.filter.CommonFilters import CommonFilters
 
 from panda3d.core import *
 import panda3d.core as p3d
-from panda3d.core import SamplerState
 import tkinter
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
@@ -194,6 +193,17 @@ class SceneMakerMain(ShowBase):
         enable_fog=True
         )
         
+        #---load character for game mode---
+        self.actor1_gm = Actor('ralph',{"walk": "ralph-walk"})
+        self.animation1_gm = self.actor1_gm.getAnimControl('walk')
+        self.actorNode1_gm = self.render.attachNewNode('actor1_gm')
+        self.actor1_gm.reparent_to(self.actorNode1_gm)
+        #if self.first_person_view_flag:
+        #    self.camera.setPos(0,0.35,0.35)
+        #else:
+        #    self.camera.setPos(0,-2,0.9)
+        #self.camera.reparent_to(self.actorNode1_gm)
+        
         #base.saveSphereMap('streetscene_env.jpg', size = 256)
         #base.saveCubeMap('#_envmap.jpg', size = 512)
         
@@ -203,59 +213,6 @@ class SceneMakerMain(ShowBase):
         myFog.setExpDensity(0.1)
         #self.render.setFog(myFog)
         self.models_all[0].setFog(myFog)
-        """
-        
-        """
-        terrain = GeoMipTerrain("myTerrain")
-        terrain.setHeightfield("heightfield.png")
-
-        # Set terrain properties
-        terrain.setBlockSize(32)
-        terrain.setNear(40)
-        terrain.setFar(100)
-        terrain.setFocalPoint(base.camera)
-
-        # Store the root NodePath for convenience
-        terrainTexture = self.loader.loadTexture("grass.png")
-        root = terrain.getRoot()
-        root.setTexture(TextureStage.getDefault(), terrainTexture)
-        root.setTexScale(TextureStage.getDefault(), 500)
-        root.reparentTo(self.render)
-        root.setSz(50)
-        root.setPos(-50,-50,-15)
-
-        # Generate it.
-        terrain.generate()
-        
-        
-                # Set up the GeoMipTerrain
-        self.terrain = GeoMipTerrain("myDynamicTerrain")
-        self.terrain.setHeightfield("heightmap.png")#heightfield.png
-
-        # Set terrain properties
-        self.terrain.setBlockSize(32)
-        self.terrain.setNear(40)
-        self.terrain.setFar(100)
-        self.terrain.setFocalPoint(base.camera)
-
-        # Store the root NodePath for convenience
-        terrain_root = self.terrain.getRoot()
-        terrain_root.reparentTo(render)
-        terrain_root.setSz(100)
-        #terrain_root.setScale(100, 100, 50)
-
-        # Apply a texture to the terrain
-        texture = loader.loadTexture("grass.png")  # Replace with your texture
-        terrain_root.setTexture(TextureStage.getDefault(), texture)
-        terrain_root.setTexScale(TextureStage.getDefault(), 10, 10)  # Tile texture
-        #self.create_collision_mesh(terrain_root,"collision_root/environ1")
-        terrain_root.setCollideMask(1)
-        
-        # Generate it.
-        self.terrain.generate()
-
-
-        
         """
     
     def create_shortcut_icons_top(self):
@@ -278,6 +235,7 @@ class SceneMakerMain(ShowBase):
         self.checkbutton_a7 = DirectCheckButton(parent=canvas_a1,pos=(-0.30, 1,0.97),command=self.icons_command,extraArgs=['7'],scale=0.03,indicatorValue=0,image="icons/7.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
         self.checkbutton_a8 = DirectCheckButton(parent=canvas_a1,pos=(-0.23, 1,0.97),command=self.icons_command,extraArgs=['8'],scale=0.03,indicatorValue=0,image="icons/8.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
         self.checkbutton_a9 = DirectCheckButton(parent=canvas_a1,pos=(-0.16, 1,0.97),command=self.icons_command,extraArgs=['9'],scale=0.03,indicatorValue=0,image="icons/9.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+        self.checkbutton_a10 = DirectCheckButton(parent=canvas_a1,pos=(-0.09, 1,0.97),command=self.icons_command,extraArgs=['10'],scale=0.03,indicatorValue=0,image="icons/10.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
 
     def icons_command(self,InputValue,identifier):
         if 1:
@@ -345,6 +303,13 @@ class SceneMakerMain(ShowBase):
                 else:
                     self.ScrolledFrame_i1.hide()
                     self.checkbutton_a9['image_color'] = (1, 1, 1, 1)
+            if identifier=="10":
+                if InputValue:
+                    self.ScrolledFrame_j1.show()
+                    self.checkbutton_a10['image_color'] = (0.57, 0.88, 0.35, 1)
+                else:
+                    self.ScrolledFrame_j1.hide()
+                    self.checkbutton_a10['image_color'] = (1, 1, 1, 1)
         else:
         #except Exception as e:
             logger.error('error in shortcut icon click:')
@@ -558,6 +523,8 @@ class SceneMakerMain(ShowBase):
         self.skybox.setPos(self.camera.getPos())
         return task.cont
         
+    def run_game_mode():
+        pass
             
     def set_crosshair(self):
         self.crosshair = OnscreenImage(image='crosshair.png', pos=(0,0,0),scale=0.1)
@@ -2350,6 +2317,8 @@ class SceneMakerMain(ShowBase):
         
         if key=="gravity_on":
             self.keyMap[key]=not(self.keyMap[key])
+            elev = self.terrain.getElevation(self.camera.getX(), self.camera.getY())
+            print(elev)
         elif key=="show_gui":
             self.keyMap[key]=not(self.keyMap[key])
             if self.keyMap[key]==True:
