@@ -4,6 +4,7 @@ from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import Point3, VBase3
 from panda3d.bullet import BulletWorld, BulletPlaneShape, BulletRigidBodyNode, BulletSphereShape, BulletHeightfieldShape, BulletDebugNode,ZUp
 #from panda3d.bullet import BulletWorld, BulletRigidBodyNode, BulletSphereShape, BulletHeightfieldShape
+from panda3d.bullet import BulletCharacterControllerNode, BulletCapsuleShape
 
 from direct.gui.DirectGui import *
 from panda3d.core import *
@@ -68,6 +69,7 @@ class JumpingBallGame(ShowBase):
         self.ground.setTexture(TextureStage.getDefault(), texture_2)
         self.ground.reparentTo(ground_np)
 
+        """
         # Create the ball
         shape = BulletSphereShape(0.5)
         ball_node = BulletRigidBodyNode('Ball')
@@ -77,6 +79,14 @@ class JumpingBallGame(ShowBase):
         self.ball_np = self.render.attachNewNode(ball_node)
         self.ball_np.setPos(10, 10, 200)
         self.world.attachRigidBody(ball_node)
+        """
+        
+        shape = BulletCapsuleShape(0.5, 1.0, ZUp)  # Radius 0.5, height 1.0
+        controller = BulletCharacterControllerNode(shape, 0.4)  # Step height 0.4
+        self.ball_np = render.attachNewNode(controller)
+        self.ball_np.setPos(10, 10, 200)  # Initial position above terrain
+        self.world.attach(controller)
+
 
         # Load and set up the ball model
         self.ball = self.loader.loadModel("models/ball")
@@ -108,15 +118,18 @@ class JumpingBallGame(ShowBase):
 
     def jump(self):
         # Apply an upward impulse to make the ball jump
-        self.ball_np.node().applyCentralImpulse(Vec3(0, 0, 5))
+        #self.ball_np.node().applyCentralImpulse(Vec3(0, 0, 5))
+        self.ball_np.node().setLinearMovement(Vec3(0, 0, 5), True)
         
     def move_forward(self):
         # Apply a forward impulse (along positive Y-axis)
-        self.ball_np.node().applyCentralImpulse(Vec3(0, 3, 0))
+        #self.ball_np.node().applyCentralImpulse(Vec3(0, 3, 0))
+        self.ball_np.node().setLinearMovement(Vec3(0, 3, 0), True)
 
     def move_backward(self):
         # Apply a backward impulse (along negative Y-axis)
-        self.ball_np.node().applyCentralImpulse(Vec3(0, -3, 0))
+        #self.ball_np.node().applyCentralImpulse(Vec3(0, -3, 0))
+        self.ball_np.node().setLinearMovement(Vec3(0, -3, 0), True)
         
     def update(self, task):
         dt = globalClock.getDt()
