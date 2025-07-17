@@ -1897,6 +1897,7 @@ class SceneMakerMain(ShowBase):
             print('error in entry g12')
 
     def focusInDef(self):
+        self.set_keymap()
         self.ignoreAll()
         self.accept('escape', self.exit_program)
         
@@ -2425,7 +2426,8 @@ class SceneMakerMain(ShowBase):
         self.dlabel_g5.setText(self.data_all[self.current_model_index]['actor'][1])
         self.checkbutton_g9['indicatorValue']=self.data_all[self.current_model_index]['actor'][2]
         self.add_model_animations_to_gui_g1()
-        self.add_heightmap_params_to_gui()
+        if self.param_1['type']=='terrain':
+            self.add_heightmap_params_to_gui()
         
         
     def setupLights(self):  # Sets up some default lighting

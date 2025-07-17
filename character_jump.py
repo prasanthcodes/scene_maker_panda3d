@@ -1,5 +1,5 @@
 from panda3d.core import Vec3, PNMImage, NodePath
-from panda3d.bullet import BulletWorld, BulletCharacterControllerNode, BulletCapsuleShape, BulletHeightfieldShape, ZUp, BulletRigidBodyNode
+from panda3d.bullet import BulletWorld, BulletCharacterControllerNode, BulletCapsuleShape, BulletHeightfieldShape, ZUp, BulletRigidBodyNode, BulletDebugNode
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.InputStateGlobal import inputState
 
@@ -10,6 +10,14 @@ class Game(ShowBase):
         # Setup physics world
         self.world = BulletWorld()
         self.world.setGravity(Vec3(0, 0, -9.81))
+        
+        # Setup debug node for visualizing collision shapes
+        self.debug_node = BulletDebugNode('Debug')
+        self.debug_np = self.aspect2d.attachNewNode(self.debug_node)
+        self.debug_np.setColorScale(0,0,1,1)
+        self.world.setDebugNode(self.debug_node)
+        self.debug_enabled = False  # Track debug visibility state
+        self.debug_np.hide()  # Initially hidden
 
         # Setup terrain
         self.setup_terrain()
@@ -18,7 +26,7 @@ class Game(ShowBase):
         self.setup_character()
 
         # Setup camera
-        self.setup_camera()
+        #self.setup_camera()
 
         # Setup input
         self.setup_input()
@@ -28,14 +36,14 @@ class Game(ShowBase):
 
     def setup_terrain(self):
         # Create a simple heightfield (flat for simplicity, or use a grayscale image)
-        img = PNMImage(128, 128)
+        img = PNMImage(36, 36)
         img.fill(0.5)  # Flat terrain (height = 0.5 * max_height)
         shape = BulletHeightfieldShape(img, 10.0, ZUp)  # Max height 10 units
         shape.setUseDiamondSubdivision(True)  # Improve collision accuracy
         terrain_node = BulletRigidBodyNode('Terrain')
         terrain_node.addShape(shape)
         terrain_np = self.render.attachNewNode(terrain_node)
-        terrain_np.setPos(0, 0, 0)
+        terrain_np.setPos(0, 0, 0.25)
         self.world.attachRigidBody(terrain_node)
 
         # Optional: Add a visual terrain (e.g., a flat plane)
@@ -78,6 +86,7 @@ class Game(ShowBase):
         self.accept('d', self.set_key, ['right', True])
         self.accept('d-up', self.set_key, ['right', False])
         self.accept('space', self.jump)
+        self.accept('v', self.toggle_debug)  # Toggle debug visualization
 
         # Input state dictionary
         self.keys = {
@@ -87,6 +96,58 @@ class Game(ShowBase):
             'right': False
         }
 
+    def create_bullet_shape(self, model, shape_type='triangle'):
+        """
+        Create a Bullet collision shape from a model.
+        
+        Args:
+            model (NodePath): The model to create a collision shape for.
+            shape_type (str): Type of shape ('triangle', 'box', or 'sphere').
+        
+        Returns:
+            BulletShape: The created collision shape, or None if failed.
+        """
+        if not isinstance(model, NodePath) or not model.node().isGeomNode():
+            print(f"Warning: {model} is not a valid geom-containing NodePath")
+            return None
+
+        if shape_type == 'triangle':
+            # Create a BulletTriangleMesh
+            mesh = BulletTriangleMesh()
+            geom_node = model.node()
+            if isinstance(geom_node, GeomNode):
+                for geom in geom_node.getGeoms():
+                    mesh.addGeom(geom)
+                if mesh.getNumTriangles() == 0:
+                    print(f"Warning: No triangles found in {model}")
+                    return None
+                return BulletTriangleMeshShape(mesh, dynamic=False)
+        
+        elif shape_type == 'box':
+            # Use bounding box for a box shape
+            bounds = model.getTightBounds()
+            if not bounds:
+                print(f"Warning: Could not compute bounds for {model}")
+                return None
+            min_point, max_point = bounds
+            size = (max_point - min_point) / 2.0
+            center = (min_point + max_point) / 2.0
+            return BulletBoxShape(size)
+        
+        elif shape_type == 'sphere':
+            # Use bounding sphere for a sphere shape
+            sphere = model.getBounds()
+            if not sphere.isEmpty() and sphere.isOfType(BoundingSphere.getClassType()):
+                radius = sphere.getRadius()
+                return BulletSphereShape(radius)
+            else:
+                print(f"Warning: Could not compute bounding sphere for {model}")
+                return None
+        
+        else:
+            print(f"Error: Unsupported shape_type '{shape_type}'")
+            return None
+            
     def set_key(self, key, value):
         self.keys[key] = value
 
@@ -94,6 +155,26 @@ class Game(ShowBase):
         if self.controller.isOnGround():
             self.controller.doJump()  # Trigger jump if on ground
 
+    def respawn(self):
+        self.char_np.setPos(self.spawn_point)
+        self.controller.setLinearVelocity(Vec3(0, 0, 0))
+        self.controller.setAngularMovement(0)
+        # Optional: Play respawn sound
+        sound = self.loader.loadSfx('sounds/respawn.wav')
+        sound.play()
+    
+    def toggle_debug(self):
+        """Toggle visibility of Bullet collision shapes."""
+        self.debug_enabled = not self.debug_enabled
+        if self.debug_enabled:
+            self.debug_np.show()
+            self.render.hide()
+            print("Bullet debug visualization enabled")
+        else:
+            self.debug_np.hide()
+            self.render.show()
+            print("Bullet debug visualization disabled")
+            
     def update(self, task):
         dt = globalClock.getDt()
 
@@ -113,17 +194,23 @@ class Game(ShowBase):
         # Normalize velocity to prevent faster diagonal movement
         if velocity.length() > 0:
             velocity=velocity.normalized() * speed
+        else:
+            self.controller.setLinearMovement(Vec3(0, 0, 0), True)  # Stop movement
 
         # Apply movement
         self.controller.setLinearMovement(velocity, True)  # True for local coordinates
 
         # Update camera to follow character
-        cam_pos = self.char_np.getPos() + Vec3(0, -10, 3)
-        self.camera.setPos(cam_pos)
-        self.camera.lookAt(self.char_np)
+        #cam_pos = self.char_np.getPos() + Vec3(0, -10, 3)
+        #self.camera.setPos(cam_pos)
+        #self.camera.lookAt(self.char_np)
+        #print(self.char_np.getPos())
 
         # Update physics
-        self.world.doPhysics(dt)
+        #self.world.doPhysics(dt)
+        # Fixed physics timestep
+        fixed_dt = 1.0 / 120.0  # 60 Hz physics
+        self.world.doPhysics(fixed_dt, 1, fixed_dt)
         return task.cont
 
 game = Game()
