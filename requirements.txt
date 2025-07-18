@@ -4,3 +4,6 @@
 
 panda3d-gltf
 git+https://github.com/prasanthcodes/panda3d-simplepbr
+gltflib
+
+

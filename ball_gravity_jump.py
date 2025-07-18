@@ -13,14 +13,18 @@ class JumpingBallGame(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
+        
         debugNode = BulletDebugNode('Debug')
-        debugNP = render.attachNewNode(debugNode)
+        #debugNP = render.attachNewNode(debugNode)
+        debugNP = NodePath(debugNode)  # Attach directly to root, not render
+        debugNP.reparentTo(base.camera)
         debugNP.show()
+        #render.hide()
         
         # Set up the Bullet physics world
         self.world = BulletWorld()
         self.world.setGravity(Vec3(0, 0, -9.81))
-        #self.world.setDebugNode(debugNP.node())
+        self.world.setDebugNode(debugNP.node())
 
         
         # Set up the terrain

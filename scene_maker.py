@@ -2191,6 +2191,28 @@ class SceneMakerMain(ShowBase):
                     self.models_all[-1].hide()
                 #---for later use---
                 self.param_1=data
+                
+                if self.param_1['uniquename']=="GlassHurricaneCandleHolder.glb":
+                    self.models_all[-1].setTransparency(True)
+                    shader = Shader.load(Shader.SL_GLSL, vertex="glass.vert", fragment="glass.frag")
+                    self.models_all[-1].setShader(shader)
+                    
+                # Extract and bind textures
+                for node in self.models_all[-1].find_all_matches("**/+GeomNode"):
+                    geom_state = node.getState()
+                    texture_attrib = geom_state.getAttrib(TextureAttrib)
+                    if texture_attrib:
+                        for ts in texture_attrib.getTextureStages():
+                            texture = texture_attrib.getTexture(ts)
+                            # Map glTF textures to shader inputs
+                            if "baseColor" in ts.getName():
+                                self.models_all[-1].setShaderInput("p3d_Texture0", texture)
+                            elif "metallicRoughness" in ts.getName():
+                                self.models_all[-1].setShaderInput("p3d_Texture1", texture)
+                            elif "normal" in ts.getName():
+                                self.models_all[-1].setShaderInput("p3d_Texture2", texture)
+                    # Set IOR (retrieve from glTF material or set manually)
+                    self.models_all[-1].setShaderInput("ior", 1.5)
             else:
                 self.models_all.append("")
         
