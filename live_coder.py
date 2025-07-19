@@ -4,7 +4,7 @@ import builtins
 
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import NodePath
-
+from panda3d.core import *
 
 # Reset ShowBase so updated code has a clean slate.
 def reset():

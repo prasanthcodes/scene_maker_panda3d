@@ -27,7 +27,7 @@ from tkinter import messagebox
 import tkinter as tk
 
 import simplepbr
-import complexpbr
+#import complexpbr
 import gltf
 
 import json
@@ -172,7 +172,7 @@ class SceneMakerMain(ShowBase):
         self.apply_global_params_3()
         self.display_last_status("")
         
-        """
+        
         #---load pbr pipeline---
         #env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
         #tex = loader.loadCubeMap("#.jpg")
@@ -192,8 +192,8 @@ class SceneMakerMain(ShowBase):
         max_lights=16,
         enable_fog=True
         )
-        """
-        self.pipeline=complexpbr.apply_shader(self.render, intensity=1.0)
+        
+        #self.pipeline=complexpbr.apply_shader(self.render, intensity=1.0)
         
         #---load character for game mode---
         self.actor1_gm = Actor('ralph',{"walk": "ralph-walk"})
