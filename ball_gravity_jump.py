@@ -18,12 +18,12 @@ class JumpingBallGame(ShowBase):
         #debugNP = render.attachNewNode(debugNode)
         debugNP = NodePath(debugNode)  # Attach directly to root, not render
         debugNP.reparentTo(base.camera)
-        debugNP.show()
+        #debugNP.show()
         #render.hide()
         
         # Set up the Bullet physics world
         self.world = BulletWorld()
-        self.world.setGravity(Vec3(0, 0, -9.81))
+        self.world.setGravity(Vec3(0, 0, 0))
         self.world.setDebugNode(debugNP.node())
 
         
@@ -86,10 +86,15 @@ class JumpingBallGame(ShowBase):
         """
         
         shape = BulletCapsuleShape(0.5, 1.0, ZUp)  # Radius 0.5, height 1.0
-        controller = BulletCharacterControllerNode(shape, 0.4)  # Step height 0.4
-        self.ball_np = render.attachNewNode(controller)
+        self.PlayerController = BulletCharacterControllerNode(shape, 0.4)  # Step height 0.4
+        # Set up character properties
+        self.PlayerController.setMaxJumpHeight(7.0)
+        self.PlayerController.setJumpSpeed(12.0)
+        self.PlayerController.setMaxSlope(60.0)
+        #self.PlayerController.setFallingFriction(0.9)
+        self.ball_np = render.attachNewNode(self.PlayerController)
         self.ball_np.setPos(10, 10, 200)  # Initial position above terrain
-        self.world.attach(controller)
+        self.world.attach(self.PlayerController)
 
 
         # Load and set up the ball model
@@ -102,10 +107,27 @@ class JumpingBallGame(ShowBase):
         self.camera.lookAt(self.ball_np)
 
 
-        # Set up input
-        self.accept("space", self.jump)
-        self.accept("w", self.move_forward)
-        self.accept("s", self.move_backward)
+        # Input setup
+        self.accept('w', self.setKey, ['forward', True])
+        self.accept('w-up', self.setKey, ['forward', False])
+        self.accept('s', self.setKey, ['backward', True])
+        self.accept('s-up', self.setKey, ['backward', False])
+        self.accept('a', self.setKey, ['left', True])
+        self.accept('a-up', self.setKey, ['left', False])
+        self.accept('d', self.setKey, ['right', True])
+        self.accept('d-up', self.setKey, ['right', False])
+        self.accept('space', self.jump)
+
+        # Key map for movement
+        self.keyMap = {
+            'forward': False,
+            'backward': False,
+            'left': False,
+            'right': False
+        }
+        
+        # Movement settings
+        self.speed = 15.0  # Movement speed in units per second
 
 
         # Add physics update task
@@ -120,26 +142,57 @@ class JumpingBallGame(ShowBase):
             scale=0.05
         )
 
+    def setKey(self, key, value):
+        self.keyMap[key] = value
+        
     def jump(self):
         # Apply an upward impulse to make the ball jump
-        #self.ball_np.node().applyCentralImpulse(Vec3(0, 0, 5))
-        self.ball_np.node().setLinearMovement(Vec3(0, 0, 5), True)
+        #self.PlayerController.applyCentralImpulse(Vec3(0, 0, 5))
+        #self.PlayerController.setLinearMovement(Vec3(0, 0, 35), True)
+        #self.PlayerController.setMaxJumpHeight(1.0)
+        #self.PlayerController.setJumpSpeed(50.0)
+        if self.PlayerController.isOnGround():
+            self.PlayerController.doJump()
         
     def move_forward(self):
         # Apply a forward impulse (along positive Y-axis)
-        #self.ball_np.node().applyCentralImpulse(Vec3(0, 3, 0))
-        self.ball_np.node().setLinearMovement(Vec3(0, 3, 0), True)
+        #self.PlayerController.applyCentralImpulse(Vec3(0, 3, 0))
+        #self.PlayerController.setLinearMovement(Vec3(0, 33, 0), True)
+        pass
 
     def move_backward(self):
         # Apply a backward impulse (along negative Y-axis)
-        #self.ball_np.node().applyCentralImpulse(Vec3(0, -3, 0))
-        self.ball_np.node().setLinearMovement(Vec3(0, -3, 0), True)
+        #self.PlayerController.applyCentralImpulse(Vec3(0, -3, 0))
+        #self.PlayerController.setLinearMovement(Vec3(0, -33, 0), True)
+        pass
         
     def update(self, task):
+        # Calculate movement direction
+        move_vec = Vec3(0, 0, 0)
+        if self.keyMap['forward']:
+            move_vec.y += 1
+        if self.keyMap['backward']:
+            move_vec.y -= 1
+        if self.keyMap['left']:
+            move_vec.x -= 1
+        if self.keyMap['right']:
+            move_vec.x += 1
+
+        # Normalize and apply speed
+        if move_vec.length() > 0:
+            move_vec.normalize()
+            move_vec *= self.speed
+            self.PlayerController.setLinearMovement(move_vec, True)
+        else:
+            # Stop movement when no keys are pressed
+            self.PlayerController.setLinearMovement(Vec3(0, 0, 0), True)
+            
         dt = globalClock.getDt()
         self.world.doPhysics(dt)
+        print(self.world.getGravity())
         return Task.cont
 
 # Run the game
 game = JumpingBallGame()
 game.run()
+
