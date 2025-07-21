@@ -12,6 +12,7 @@ def reset():
     # Like aspect2d, render2d, accept, etc.
     print("Resetting showbase...")
     builtins.render = base.render = NodePath("render")
+    """
     for task in base.task_mgr.getTasks():
         if not task in base.base_tasks:
             task.remove()
@@ -20,6 +21,7 @@ def reset():
     base.cam.clear_transform()
     base.camera.clear_transform()
     base.win.set_clear_color((0.1,0.1,0.1,1))
+    """
 
 
 #

@@ -8,7 +8,9 @@ from panda3d.bullet import BulletCharacterControllerNode, BulletCapsuleShape
 
 from direct.gui.DirectGui import *
 from panda3d.core import *
+import panda3d
 
+panda3d.core.load_prc_file_data("", "textures-power-2 none")
 class JumpingBallGame(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
@@ -26,10 +28,11 @@ class JumpingBallGame(ShowBase):
         self.world.setGravity(Vec3(0, 0, 0))
         self.world.setDebugNode(debugNP.node())
 
-        
+        heightmap = PNMImage(Filename('heightfield.png'))
+        width, height = heightmap.getXSize(), heightmap.getYSize()
         # Set up the terrain
         self.terrain = GeoMipTerrain("terrain")
-        self.terrain.setHeightfield("heightfield.png")  # Replace with your heightmap
+        self.terrain.setHeightfield(heightmap)  # Replace with your heightmap
         self.terrain.setBlockSize(32)
         self.terrain.setNear(40)
         self.terrain.setFar(100)
@@ -37,24 +40,28 @@ class JumpingBallGame(ShowBase):
         self.terrain.getRoot().reparentTo(render)
         self.terrain.getRoot().setSz(50)  # Scale the terrain height
         self.terrain.generate()
+        terrain_scale=self.terrain.getRoot().getScale()
         texture_1 = loader.loadTexture("grass.png")
         self.terrain.getRoot().setTexture(TextureStage.getDefault(), texture_1)
 
         # Set collision mask for the terrain
-        self.terrain.getRoot().setCollideMask(BitMask32.bit(1))
+        #self.terrain.getRoot().setCollideMask(BitMask32.bit(1))
         #self.terrain.getRoot().setFromCollideMask(BitMask32.allOff())
         #self.terrain.getRoot().setIntoCollideMask(BitMask32.bit(1))
 
-        texture = loader.loadTexture("heightfield.png")  # Replace with your texture
+        #texture = loader.loadTexture("heightfield.png")  # Replace with your texture
 
         # Create physics for the terrain (BulletHeightfieldShape)
-        shape = BulletHeightfieldShape(texture, 150.0, ZUp)
+        shape = BulletHeightfieldShape(heightmap, 1.0, ZUp)
         shape.setUseDiamondSubdivision(True)  # Improve collision accuracy
         terrain_node = BulletRigidBodyNode('Terrain')
         terrain_node.addShape(shape)
         terrain_node.setMass(0)  # Static body
         terrain_physics_np = self.render.attachNewNode(terrain_node)
-        terrain_physics_np.setPos(0, 0, 0)  # Heightfield is centered at origin
+        terrain_physics_np.setPos(self.terrain.getRoot().getPos())  # Heightfield is centered at origin
+        Sx=terrain_scale[0]/width
+        Sy=terrain_scale[1]/height
+        #terrain_physics_np.setScale(Sx,Sy, 1)
         self.world.attachRigidBody(terrain_node)
         
 
@@ -189,7 +196,8 @@ class JumpingBallGame(ShowBase):
             
         dt = globalClock.getDt()
         self.world.doPhysics(dt)
-        print(self.world.getGravity())
+        #print(self.world.getGravity())
+        #print(self.camera.getPos())
         return Task.cont
 
 # Run the game
