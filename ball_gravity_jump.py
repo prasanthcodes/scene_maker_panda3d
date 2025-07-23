@@ -15,6 +15,13 @@ class JumpingBallGame(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
 
+        #self.disable_mouse()
+        # Set up orthographic camera
+        lens = OrthographicLens()
+        lens.setFilmSize(100, 75)  # Adjust to terrain size
+        lens.setNearFar(-2000, 2000)
+        #self.camera.node().setLens(lens)
+        #base.cam.node().setLens(lens)
         
         debugNode = BulletDebugNode('Debug')
         #debugNP = render.attachNewNode(debugNode)
@@ -28,11 +35,12 @@ class JumpingBallGame(ShowBase):
         self.world.setGravity(Vec3(0, 0, 0))
         self.world.setDebugNode(debugNP.node())
 
-        heightmap = PNMImage(Filename('heightfield.png'))
+        heightmap_imagename='heightfield.png'
+        heightmap = PNMImage(Filename(heightmap_imagename))
         width, height = heightmap.getXSize(), heightmap.getYSize()
         # Set up the terrain
         self.terrain = GeoMipTerrain("terrain")
-        self.terrain.setHeightfield(heightmap)  # Replace with your heightmap
+        self.terrain.setHeightfield(heightmap_imagename)  # Replace with your heightmap
         self.terrain.setBlockSize(32)
         self.terrain.setNear(40)
         self.terrain.setFar(100)
@@ -58,11 +66,22 @@ class JumpingBallGame(ShowBase):
         terrain_node.addShape(shape)
         terrain_node.setMass(0)  # Static body
         terrain_physics_np = self.render.attachNewNode(terrain_node)
-        terrain_physics_np.setPos(self.terrain.getRoot().getPos())  # Heightfield is centered at origin
-        Sx=terrain_scale[0]/width
-        Sy=terrain_scale[1]/height
-        #terrain_physics_np.setScale(Sx,Sy, 1)
+        Pos_HF=self.terrain.getRoot().getPos()
+        Scalex=terrain_scale[0]*width
+        Scaley=terrain_scale[1]*height
+        Scalez=terrain_scale[2]
+        terrain_physics_np.setPos(Pos_HF[0]+Scalex/2.0,Pos_HF[1]+Scaley/2.0,Pos_HF[2]+Scalez/2.0)  # Heightfield is centered at origin
+        #terrain_physics_np.setSz(50)
+        Sx=terrain_scale[0]#/width
+        Sy=terrain_scale[1]#/height
+
+        #print('Sx: ',Sx,'Sy: ',Sy)
+        terrain_physics_np.setScale(Sx,Sy, 50)
+        #print(terrain_physics_np.getScale())
         self.world.attachRigidBody(terrain_node)
+        
+        #print(self.terrain.getRoot().getPos())
+        #print(terrain_physics_np.getPos())
         
 
         # Create the ground
@@ -98,7 +117,7 @@ class JumpingBallGame(ShowBase):
         self.PlayerController.setMaxJumpHeight(7.0)
         self.PlayerController.setJumpSpeed(12.0)
         self.PlayerController.setMaxSlope(60.0)
-        #self.PlayerController.setFallingFriction(0.9)
+        #self.PlayerController.setFriction(0.9)
         self.ball_np = render.attachNewNode(self.PlayerController)
         self.ball_np.setPos(10, 10, 200)  # Initial position above terrain
         self.world.attach(self.PlayerController)
@@ -110,8 +129,10 @@ class JumpingBallGame(ShowBase):
         self.ball.reparentTo(self.ball_np)
 
         # Set up the camera
-        self.camera.setPos(0, -20, 5)
-        self.camera.lookAt(self.ball_np)
+        #self.camera.setPos(0, -20, 5)
+        #self.camera.lookAt(self.ball_np)
+        self.camera.setPos(-1000, -1000, 100)
+        self.camera.lookAt(self.ground)
 
 
         # Input setup
@@ -193,6 +214,7 @@ class JumpingBallGame(ShowBase):
         else:
             # Stop movement when no keys are pressed
             self.PlayerController.setLinearMovement(Vec3(0, 0, 0), True)
+            #self.PlayerController.setLinearVelocity(Vec3(0, 0, self.PlayerController.getLinearVelocity().z))
             
         dt = globalClock.getDt()
         self.world.doPhysics(dt)
