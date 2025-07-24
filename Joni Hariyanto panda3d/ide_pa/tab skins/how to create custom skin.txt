@@ -1,0 +1,4 @@
+The behavior of the border :
+_1_ if IDEtab_Rcorner.png exists, it will be used for right edge instead of the horizontally auto-flipped IDEtab_Lcorner.png
+_2_ if IDEtab_mid.png exists, it will be used instead of U=1 (rightmost column) of IDEtab_Lcorner.png
+The label skin has only behavior _1_.
