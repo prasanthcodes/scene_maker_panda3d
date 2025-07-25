@@ -5,6 +5,7 @@ from panda3d.core import Point3, VBase3
 from panda3d.bullet import BulletWorld, BulletPlaneShape, BulletRigidBodyNode, BulletSphereShape, BulletHeightfieldShape, BulletDebugNode,ZUp
 #from panda3d.bullet import BulletWorld, BulletRigidBodyNode, BulletSphereShape, BulletHeightfieldShape
 from panda3d.bullet import BulletCharacterControllerNode, BulletCapsuleShape
+from panda3d.bullet import BulletTriangleMesh, BulletTriangleMeshShape, BulletBoxShape, BulletSphereShape
 
 from direct.gui.DirectGui import *
 from panda3d.core import *
@@ -27,7 +28,7 @@ class JumpingBallGame(ShowBase):
         #debugNP = render.attachNewNode(debugNode)
         debugNP = NodePath(debugNode)  # Attach directly to root, not render
         debugNP.reparentTo(base.camera)
-        #debugNP.show()
+        debugNP.show()
         #render.hide()
         
         # Set up the Bullet physics world
@@ -60,10 +61,10 @@ class JumpingBallGame(ShowBase):
         #texture = loader.loadTexture("heightfield.png")  # Replace with your texture
 
         # Create physics for the terrain (BulletHeightfieldShape)
-        shape = BulletHeightfieldShape(heightmap, 1.0, ZUp)
-        shape.setUseDiamondSubdivision(True)  # Improve collision accuracy
+        #shape = BulletHeightfieldShape(heightmap, 1.0, ZUp)
+        #shape.setUseDiamondSubdivision(True)  # Improve collision accuracy
         terrain_node = BulletRigidBodyNode('Terrain')
-        terrain_node.addShape(shape)
+        #terrain_node.addShape(shape)
         terrain_node.setMass(0)  # Static body
         terrain_physics_np = self.render.attachNewNode(terrain_node)
         Pos_HF=self.terrain.getRoot().getPos()
@@ -98,6 +99,28 @@ class JumpingBallGame(ShowBase):
         texture_2 = loader.loadTexture("grass.png")
         self.ground.setTexture(TextureStage.getDefault(), texture_2)
         self.ground.reparentTo(ground_np)
+        
+        
+        
+        #Transport_Shuttle
+        self.ob_1 = self.loader.loadModel("Transport_Shuttle/Transport_Shuttle.gltf")
+        shape=self.create_bullet_shape_2(self.ob_1,shape_type='box', complexity='high')
+        ob1_node = BulletRigidBodyNode('Transport_Shuttle')
+        ob1_node.addShape(shape)
+        ob1_np = self.render.attachNewNode(ob1_node)
+        self.world.attachRigidBody(ob1_node)
+        self.ob_1.reparentTo(ob1_np)
+        ob1_np.setPos(0,0,10)
+        
+        #sci_fi_blocks_3builds
+        self.ob_2 = self.loader.loadModel("sci_fi_blocks_3builds/sci_fi_blocks_3builds.gltf")
+        shape=self.create_bullet_shape_2(self.ob_2,shape_type='triangle', complexity='high')
+        ob2_node = BulletRigidBodyNode('sci_fi_blocks_3builds')
+        ob2_node.addShape(shape)
+        ob2_np = self.render.attachNewNode(ob2_node)
+        self.world.attachRigidBody(ob2_node)
+        self.ob_2.reparentTo(ob2_np)
+        ob2_np.setPos(-20,0,0)
 
         """
         # Create the ball
@@ -125,7 +148,7 @@ class JumpingBallGame(ShowBase):
 
         # Load and set up the ball model
         self.ball = self.loader.loadModel("models/ball")
-        self.ball.setScale(5.5)
+        self.ball.setScale(1)
         self.ball.reparentTo(self.ball_np)
 
         # Set up the camera
@@ -169,6 +192,169 @@ class JumpingBallGame(ShowBase):
             align=TextNode.ACenter,
             scale=0.05
         )
+
+    def create_bullet_shape(self, model, shape_type='triangle', complexity='high'):
+        """
+        Create a Bullet collision shape from a model with adjustable complexity.
+        
+        Args:
+            model (NodePath): The model to create a collision shape for.
+            shape_type (str): Type of shape ('triangle', 'box', or 'sphere').
+            complexity (str): Complexity level ('high' or 'low'). For 'triangle', 'low' uses a box shape.
+        
+        Returns:
+            BulletShape: The created collision shape, or None if failed.
+        """
+        if not isinstance(model, NodePath):
+            print(f"Warning: {model} is not a valid NodePath")
+            return None
+
+        geom_np = model.find('**/+GeomNode')
+        if geom_np.isEmpty():
+            print(f"Warning: No GeomNode found in {model}")
+            return None
+        geom_node = geom_np.node()
+
+        if shape_type == 'triangle':
+            if complexity == 'low':
+                bounds = model.getTightBounds()
+                if not bounds:
+                    print(f"Warning: Could not compute bounds for {model}")
+                    return None
+                min_point, max_point = bounds
+                size = (max_point - min_point) / 2.0
+                return BulletBoxShape(size)
+            else:
+                mesh = BulletTriangleMesh()
+                if isinstance(geom_node, GeomNode):
+                    for geom in geom_node.getGeoms():
+                        mesh.addGeom(geom)
+                    if mesh.getNumTriangles() == 0:
+                        print(f"Warning: No triangles found in {model}")
+                        return None
+                    return BulletTriangleMeshShape(mesh, dynamic=False)
+        
+        elif shape_type == 'box':
+            bounds = model.getTightBounds()
+            if not bounds:
+                print(f"Warning: Could not compute bounds for {model}")
+                return None
+            min_point, max_point = bounds
+            size = (max_point - min_point) / 2.0
+            return BulletBoxShape(size)
+        
+        elif shape_type == 'sphere':
+            sphere = model.getBounds()
+            if not sphere.isEmpty() and sphere.isOfType(BoundingSphere.getClassType()):
+                radius = sphere.getRadius()
+                return BulletSphereShape(radius)
+            else:
+                print(f"Warning: Could not compute bounding sphere for {model}")
+                return None
+        
+        else:
+            print(f"Error: Unsupported shape_type '{shape_type}'")
+            return None
+            
+    def create_bullet_shape_2(self, model, shape_type='triangle', complexity='high'):
+
+        if not isinstance(model, NodePath):
+            print(f"Warning: {model} is not a valid NodePath")
+            return None
+
+        geom_matches = model.find_all_matches("**/+GeomNode")
+        if geom_matches.isEmpty():
+            print(f"Warning: No GeomNode found in {model}")
+            return None
+        #geom_node = geom_np.node()
+
+        if shape_type == 'triangle':
+            if complexity == 'low':
+                bounds = model.getTightBounds()
+                if not bounds:
+                    print(f"Warning: Could not compute bounds for {model}")
+                    return None
+                min_point, max_point = bounds
+                size = (max_point - min_point) / 2.0
+                return BulletBoxShape(size)
+            else:
+                mesh = BulletTriangleMesh()
+                for model_now in geom_matches:
+                    geom_node = model_now.node()
+                    if isinstance(geom_node, GeomNode):
+                        for geom in geom_node.getGeoms():
+                            mesh.addGeom(geom)
+                return BulletTriangleMeshShape(mesh, dynamic=False)
+        
+        elif shape_type == 'box':
+            bounds = model.getTightBounds()
+            if not bounds:
+                print(f"Warning: Could not compute bounds for {model}")
+                return None
+            min_point, max_point = bounds
+            size = (max_point - min_point) / 2.0
+            return BulletBoxShape(size)
+        
+        elif shape_type == 'sphere':
+            sphere = model.getBounds()
+            if not sphere.isEmpty() and sphere.isOfType(BoundingSphere.getClassType()):
+                radius = sphere.getRadius()
+                return BulletSphereShape(radius)
+            else:
+                print(f"Warning: Could not compute bounding sphere for {model}")
+                return None
+        
+        else:
+            print(f"Error: Unsupported shape_type '{shape_type}'")
+            return None
+
+    def create_collision_mesh(self,model,meshname):
+        # create a temporary copy to generate the collision meshes from
+        
+        self.model_copy = model.copy_to(base.render)
+        self.model_copy.detach_node()
+        # "bake" the transformations into the vertices
+        self.model_copy.flatten_light()
+
+        # create root node to attach collision nodes to
+        collision_root = NodePath(meshname)#"collision_root"
+        collision_root.reparent_to(model)
+        # offset the collision meshes from the model so they're easier to see
+        #collision_root.set_x(3)
+
+        # Please note that the code below will not copy the hierarchy structure of the
+        # loaded `model_root` and that the resulting collision meshes will all have
+        # their origins at (0., 0., 0.), an orientation of (0., 0., 0.) and a scale of 1
+        # (as a result of the call to `flatten_light`).
+        # If a different relationship between loaded models and their corresponding
+        # collision meshes is required, feel free to alter the code as needed, but keep
+        # in mind that any (especially non-uniform) scale affecting a collision mesh
+        # (whether set on the mesh itself or inherited from a node at a higher level)
+        # can cause problems for the built-in collision system.
+
+        #"""
+        # create a collision mesh for each of the loaded models
+        for model in self.model_copy.find_all_matches("**/+GeomNode"):
+
+            model_node = model.node()
+            collision_node = CollisionNode(model_node.name)
+            collision_mesh = collision_root.attach_new_node(collision_node)
+            # collision nodes are hidden by default
+            #collision_mesh.show()
+
+            for geom in model_node.modify_geoms():
+
+                geom.decompose_in_place()
+                vertex_data = geom.modify_vertex_data()
+                vertex_data.format = GeomVertexFormat.get_v3()
+                view = memoryview(vertex_data.arrays[0]).cast("B").cast("f")
+                index_list = geom.primitives[0].get_vertex_list()
+                index_count = len(index_list)
+
+                for indices in (index_list[i:i+3] for i in range(0, index_count, 3)):
+                    points = [Point3(*view[index*3:index*3+3]) for index in indices]
+                    coll_poly = CollisionPolygon(*points)
+                    collision_node.add_solid(coll_poly)
 
     def setKey(self, key, value):
         self.keyMap[key] = value
