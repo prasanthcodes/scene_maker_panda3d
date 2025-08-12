@@ -185,7 +185,7 @@ class SceneMakerMain(ShowBase):
         #env_map=None
         self.pipeline = simplepbr.init(
         env_map=env_map,
-        applyToneMapping=False,
+        #applyToneMapping=False,
         use_normal_maps=True,
         exposure=0,
         #sdr_lut_factor=0,
@@ -352,6 +352,7 @@ class SceneMakerMain(ShowBase):
         self.global_params['skybox_ambientlight_R']=1
         self.global_params['skybox_ambientlight_G']=1
         self.global_params['skybox_ambientlight_B']=1
+        self.global_params['skybox_background_color']=[0.6,0.6,0.6,1]
         self.global_params['skybox_enable_envmap']=True
         
         
@@ -394,6 +395,10 @@ class SceneMakerMain(ShowBase):
         self.skybox_commands(self.global_params['skybox_ambientlight_R'],'R')
         self.skybox_commands(self.global_params['skybox_ambientlight_G'],'G')
         self.skybox_commands(self.global_params['skybox_ambientlight_B'],'B')
+        self.skybox_commands(self.global_params['sky_background_color'][0],'R0')
+        self.skybox_commands(self.global_params['sky_background_color'][1],'G0')
+        self.skybox_commands(self.global_params['sky_background_color'][2],'B0')
+        self.skybox_commands(self.global_params['sky_background_color'][3],'A0')
         self.skybox_commands(self.global_params['skybox_enable_envmap'],'enable_ibl')
         self.dlabel_i4.setText(self.global_params['skybox_image'])
             
@@ -1215,16 +1220,26 @@ class SceneMakerMain(ShowBase):
         self.dlabel_i11=DirectLabel(parent=canvas_5,text="B:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.7, 0, 0.1),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dentry_i12 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(0.8, 1,0.1), command=self.skybox_commands,extraArgs=['B'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
-        self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, -0.1),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.2),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'])
-        self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.2),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.3),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
-        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.4),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_i6_2=DirectLabel(parent=canvas_5,text="Sky Background Color:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_i7_2=DirectLabel(parent=canvas_5,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i8_2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=4,pos=(-0.3, 1,0), command=self.skybox_commands,extraArgs=['R0'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i9_2=DirectLabel(parent=canvas_5,text="G:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i10_2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=4,pos=(0.1, 1,0), command=self.skybox_commands,extraArgs=['G0'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i11_2=DirectLabel(parent=canvas_5,text="B:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.4, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i12_2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=4,pos=(0.5, 1,0), command=self.skybox_commands,extraArgs=['B0'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_i13_2=DirectLabel(parent=canvas_5,text="A:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.8, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i14_2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=4,pos=(0.9, 1,0), command=self.skybox_commands,extraArgs=['A0'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        
+        self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, -0.2),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'])
+        self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.4),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.4),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.5),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         
     def skybox_commands(self,InputValue,identifier):
-        #if 1:
-        try:
+        if 1:
+        #try:
             if identifier=='enable':
                 self.global_params['skybox_enable']=InputValue
                 print(InputValue)
@@ -1272,16 +1287,19 @@ class SceneMakerMain(ShowBase):
                 else:
                     self.display_last_status('no file selected.')
             elif identifier=='intensity':
-                InputValue=float(InputValue)
-                self.global_params['skybox_ambientlight_intensity']=InputValue
-                IN=self.global_params['skybox_ambientlight_intensity']
-                r=self.global_params['skybox_ambientlight_R']*IN
-                g=self.global_params['skybox_ambientlight_G']*IN
-                b=self.global_params['skybox_ambientlight_B']*IN
-                self.ambientLight_skybox.setColor((r,g,b, 1))
-                self.dentry_i5_4.enterText(str(InputValue))
+                try:
+                    InputValue=float(InputValue)
+                    self.global_params['skybox_ambientlight_intensity']=InputValue
+                    IN=self.global_params['skybox_ambientlight_intensity']
+                    r=self.global_params['skybox_ambientlight_R']*IN
+                    g=self.global_params['skybox_ambientlight_G']*IN
+                    b=self.global_params['skybox_ambientlight_B']*IN
+                    self.ambientLight_skybox.setColor((r,g,b, 1))
+                    self.dentry_i5_4.enterText(str(InputValue))
+                except:
+                    self.display_last_status('error when setting skybox intensity')
             elif identifier=='R':
-                if 1:
+                try:
                     InputValue=float(InputValue)
                     self.global_params['skybox_ambientlight_R']=InputValue
                     IN=self.global_params['skybox_ambientlight_intensity']
@@ -1290,24 +1308,64 @@ class SceneMakerMain(ShowBase):
                     b=self.global_params['skybox_ambientlight_B']*IN
                     self.ambientLight_skybox.setColor((r,g,b, 1))
                     self.dentry_i8.enterText(str(InputValue))
-                else:
-                    self.display_last_status('ambientLight_skybox not present')
+                except:
+                    self.display_last_status('error when setting skybox color')
             elif identifier=='G':
-                if 1:
+                try:
                     InputValue=float(InputValue)
                     self.global_params['skybox_ambientlight_G']=InputValue
-                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                    IN=self.global_params['skybox_ambientlight_intensity']
+                    r=self.global_params['skybox_ambientlight_R']*IN
+                    g=self.global_params['skybox_ambientlight_G']*IN
+                    b=self.global_params['skybox_ambientlight_B']*IN
+                    self.ambientLight_skybox.setColor((r,g,b, 1))
                     self.dentry_i10.enterText(str(InputValue))
-                else:
-                    self.display_last_status('ambientLight_skybox not present')
+                except:
+                    self.display_last_status('error when setting skybox color')
             elif identifier=='B':
-                if 1:
+                try:
                     InputValue=float(InputValue)
                     self.global_params['skybox_ambientlight_B']=InputValue
-                    self.ambientLight_skybox.setColor((self.global_params['skybox_ambientlight_R'],self.global_params['skybox_ambientlight_G'],self.global_params['skybox_ambientlight_B'], 1))
+                    IN=self.global_params['skybox_ambientlight_intensity']
+                    r=self.global_params['skybox_ambientlight_R']*IN
+                    g=self.global_params['skybox_ambientlight_G']*IN
+                    b=self.global_params['skybox_ambientlight_B']*IN
+                    self.ambientLight_skybox.setColor((r,g,b, 1))
                     self.dentry_i12.enterText(str(InputValue))
+                except:
+                    self.display_last_status('error when setting skybox color')
+            elif identifier=='R0':
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['sky_background_color'][0]=InputValue
+                    self.setBackgroundColor(self.global_params['sky_background_color'])
+                    self.dentry_i8_2.enterText(str(InputValue))
                 else:
-                    self.display_last_status('ambientLight_skybox not present')
+                    self.display_last_status('error when setting background color')
+            elif identifier=='G0':
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['sky_background_color'][1]=InputValue
+                    self.setBackgroundColor(self.global_params['sky_background_color'])
+                    self.dentry_i10_2.enterText(str(InputValue))
+                else:
+                    self.display_last_status('error when setting background color')
+            elif identifier=='B0':
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['sky_background_color'][2]=InputValue
+                    self.setBackgroundColor(self.global_params['sky_background_color'])
+                    self.dentry_i12_2.enterText(str(InputValue))
+                else:
+                    self.display_last_status('error when setting background color')
+            elif identifier=='A0':
+                if 1:
+                    InputValue=float(InputValue)
+                    self.global_params['sky_background_color'][3]=InputValue
+                    self.setBackgroundColor(self.global_params['sky_background_color'])
+                    self.dentry_i14_2.enterText(str(InputValue))
+                else:
+                    self.display_last_status('error when setting background color')
             elif identifier=='save_envmap':
                 base.saveCubeMap('#_envmap.jpg', size = 512)
                 logger.info('envmap saved.')
@@ -1321,8 +1379,8 @@ class SceneMakerMain(ShowBase):
                     self.global_params['skybox_enable_envmap']=False
                     self.display_last_status('envmap ibl disabled.')
             
-        #else:
-        except Exception as e:
+        else:
+        #except Exception as e:
             logger.error('error in skybox gui entry:')
             logger.error(e)
             self.display_last_status('error in skybox gui entry.')
