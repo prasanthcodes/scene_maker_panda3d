@@ -1,0 +1,27 @@
+
+hdri skybox
+
+https://polyhaven.com/hdris/outdoor
+
+https://ambientcg.com/list?type=hdri%2Chdri-element&sort=popular
+
+https://www.poliigon.com/hdri/baseball-field-clear-day-outdoor-sky-hdri/4141
+
+
+
+C:\Users\<pc_name>\AppData\Local\Programs\Python\Python310\Lib\site-packages\simplepbr
+
+icons
+---------------------
+https://huggingface.co/spaces/black-forest-labs/FLUX.1-dev
+https://grok.com/
+https://sepehram.github.io/pubs/securware21.pdf
+https://thenounproject.com/icon/animation-512149/
+https://st4.depositphotos.com/5266903/30840/i/600/depositphotos_308408078-stock-photo-raster-flat-binary-tree-v7.jpg
+
+https://lawsonhung.medium.com/implementing-a-tree-in-javascript-262eb0819939?source=post_page-----4d04571107ec----4----------------------------
+
+https://torque3d.readthedocs.io/en/latest/world/tutorials/creatingasky.html
+
+https://depositphotos.com/photos/skybox-icon.html?qview=42991631
+

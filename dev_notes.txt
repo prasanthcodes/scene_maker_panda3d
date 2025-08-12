@@ -8,30 +8,50 @@ issues to check
 -----------------------------------
 1. model files should loaded from current relative path. when loading from outside of current folder, there is a error occurs
 2. when clicking on 'remove animation' in GUI, animation names are not immediately removed, but it will not shown next restart.
-(fixed) 3. when actor is on, the model did not change its pos,scale,..(fixed) 4. when an actor is parented to another actor and when the parent is changed to actor to non-actor to actor , childs animations duplicated and child is not displaying.
+3. (fixed). when actor is on, the model did not change its pos,scale,.. (workdone: actor is reparented to new node)
+4. (fixed). when an actor is parented to another actor and when the parent is changed to actor to non-actor to actor , childs animations duplicated and child is not displaying.
+5. (fixed). in simplepbr, ralph model colors look bleached(due to tonemapping). analyse the possibility to make ralph model colors same as autoshader. (workdone: tonemapping removed).
+6. using simplepbr, if shadow is enabled and autoshader applied to ralph model. shadow acne occurs (when autoshader not applied no acne)
 
 
-dev notes
+
+dev updates
 ------------------------------------
 1-4-2025
 gui is updated. menu button added at top.
 
 8-5-2025
 'model light settings' gui added
-pointlight.glb model is also included.
+pointlight.glb model is included.
 
+9-6-2025
+Model animation viewer, nodepath viewers are added.
 
 12-6-2025
 'model parent editor' is added.
+EmptyNode.glb model is included.
 
-update gui when
+
+
+dev works
+---------------------------
+
+12-6-2025
+in 'model parent editor', update gui when
 (done) * new model loaded
 (done) * unique name changed
 (done) * model enabled
 
 (done) when unique name of a model is changed, we need to find the parent name of all models and update its names
 
+4-6-2025
+when an model is set as actor in gui, it first reparented to a new node and then used as model
 
+5-6-2025
+new branch 'skybox_terrain' is created in GitHub
+
+7-7-2024
+simplepbr is forked and an option is created to enable or disable tonemapping.
 
 
 
@@ -39,19 +59,15 @@ to do
 ---------------------------------
 1. change the 'model nodepath viewer' gui to treeview.
 2. add buttons to create new pointlight, new empty node. (if needed)
-
+3. create gui for 'setlight' functionality of ambient,directional,point lights
 
 
 
 to do raw
 -------------------------------
-load ralph in autoshader and simplepbr separately. compare the lighting (if shadow is enabled, acne occurs)
-convert ralph to glb model suitable for simplepbr
-analyse the possibility to make ralph model lighting same as autoshader in simplepbr
+
+convert ralph model to glb format.
 skybox can be set in simplepbr. but skybox not shown.
-transparency,volume,sheen of glb models not works in simplepbr.
-
-
 
 
 

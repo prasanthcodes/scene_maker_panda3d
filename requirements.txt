@@ -2,6 +2,9 @@
 # python 3.10
 
 
-Panda3D==1.10.14
 panda3d-gltf
 panda3d-simplepbr
+#git+https://github.com/prasanthcodes/panda3d-simplepbr
+gltflib
+
+
