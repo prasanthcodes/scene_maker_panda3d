@@ -1335,36 +1335,36 @@ class SceneMakerMain(ShowBase):
                 except:
                     self.display_last_status('error when setting skybox color')
             elif identifier=='R0':
-                if 1:
+                try:
                     InputValue=float(InputValue)
                     self.global_params['sky_background_color'][0]=InputValue
                     self.setBackgroundColor(self.global_params['sky_background_color'])
                     self.dentry_i8_2.enterText(str(InputValue))
-                else:
+                except:
                     self.display_last_status('error when setting background color')
             elif identifier=='G0':
-                if 1:
+                try:
                     InputValue=float(InputValue)
                     self.global_params['sky_background_color'][1]=InputValue
                     self.setBackgroundColor(self.global_params['sky_background_color'])
                     self.dentry_i10_2.enterText(str(InputValue))
-                else:
+                except:
                     self.display_last_status('error when setting background color')
             elif identifier=='B0':
-                if 1:
+                try:
                     InputValue=float(InputValue)
                     self.global_params['sky_background_color'][2]=InputValue
                     self.setBackgroundColor(self.global_params['sky_background_color'])
                     self.dentry_i12_2.enterText(str(InputValue))
-                else:
+                except:
                     self.display_last_status('error when setting background color')
             elif identifier=='A0':
-                if 1:
+                try:
                     InputValue=float(InputValue)
                     self.global_params['sky_background_color'][3]=InputValue
                     self.setBackgroundColor(self.global_params['sky_background_color'])
                     self.dentry_i14_2.enterText(str(InputValue))
-                else:
+                except:
                     self.display_last_status('error when setting background color')
             elif identifier=='save_envmap':
                 base.saveCubeMap('#_envmap.jpg', size = 512)
