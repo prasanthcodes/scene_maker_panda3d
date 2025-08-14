@@ -3,11 +3,11 @@
     "move_speed": 0.9,
     "crosshair": false,
     "gizmo": true,
-    "ambientlight_intensity": 0.3,
+    "ambientlight_intensity": 0.2,
     "ambientlight_R": 1.0,
     "ambientlight_G": 1.0,
     "ambientlight_B": 1.0,
-    "directionallight_intensity": 1.0,
+    "directionallight_intensity": 2.0,
     "directionallight_R": 1.0,
     "directionallight_G": 1.0,
     "directionallight_B": 1.0,
@@ -22,9 +22,15 @@
     "skybox_enable": 1,
     "skybox_show": true,
     "skybox_image": "DaySkyHDRI059A_8K-TONEMAPPED.jpg",
-    "skybox_ambientlight_intensity": 1.3,
+    "skybox_ambientlight_intensity": 1.0,
     "skybox_ambientlight_R": 1.0,
     "skybox_ambientlight_G": 1.0,
     "skybox_ambientlight_B": 1.0,
+    "sky_background_color": [
+        0.6,
+        0.6,
+        0.6,
+        1.0
+    ],
     "skybox_enable_envmap": true
 }
