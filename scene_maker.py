@@ -2365,6 +2365,9 @@ class SceneMakerMain(ShowBase):
             self.dslider_3['pageSize']=1
             data=self.data_all[self.current_model_index]['pos'][1]
         if self.current_property==2:
+            self.dlabel_1.setText('X: ')
+            self.dlabel_2.setText('Y: ')
+            self.dlabel_3.setText('Z: ')
             data=self.data_all[self.current_model_index]['scale'][1]
         if self.current_property==3:
             self.dlabel_1.setText('R: ')
