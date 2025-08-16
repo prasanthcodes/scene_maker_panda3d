@@ -37,7 +37,7 @@ dev works
 ---------------------------
 
 12-6-2025
-in 'model parent editor', update gui when
+in 'model parent editor', update the gui when
 (done) * new model loaded
 (done) * unique name changed
 (done) * model enabled
@@ -45,7 +45,7 @@ in 'model parent editor', update gui when
 (done) when unique name of a model is changed, we need to find the parent name of all models and update its names
 
 4-6-2025
-when an model is set as actor in gui, it first reparented to a new node and then used as model
+(done) when an model is set as actor in gui, first reparent it to a new node and then use that node.
 
 5-6-2025
 new branch 'skybox_terrain' is created in GitHub

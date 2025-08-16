@@ -161,6 +161,11 @@ If you decide not to resolve conflicts and want to cancel the merge entirely:
 git merge --abort
 This will reset your working directory to the state before the pull attempt, discarding any merge attempts.
 
+to check the commit history of a file
+git log filename.txt
+
+to check a specific commit version of a file
+git checkout 5bfa40a9e1d961cc95fc92e032b46388277227df -- filename.txt
 
 
 to setup new repo to push to remote
