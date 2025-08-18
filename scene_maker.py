@@ -1247,7 +1247,6 @@ class SceneMakerMain(ShowBase):
                     self.set_skybox()
                     self.display_last_status('skybox enabled.')
                 else:
-                    print(InputValue)
                     taskMgr.remove("update_skybox")
                     self.skybox.detachNode()
                     self.skybox.removeNode()
@@ -1268,16 +1267,16 @@ class SceneMakerMain(ShowBase):
                 openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .hdr .exr"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
-                    modelfilepath=os.path.relpath(openedfilename, os.getcwd())
-                    uqname=os.path.basename(modelfilepath)
-                    modelfilepath=modelfilepath.replace("\\","/")
+                    Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(Loadedfilepath)
+                    Loadedfilepath=Loadedfilepath.replace("\\","/")
                     try:
-                        tex = self.loader.loadTexture(modelfilepath)
+                        tex = self.loader.loadTexture(Loadedfilepath)
                         self.skybox.setTexture(tex)
                         self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)
                         self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)
-                        self.global_params['skybox_image']=modelfilepath
-                        self.dlabel_i4.setText(modelfilepath)
+                        self.global_params['skybox_image']=Loadedfilepath
+                        self.dlabel_i4.setText(Loadedfilepath)
                         self.display_last_status('skybox texture is set.')
                     except Exception as e:
                         logger.error('skybox texture file not supported:')
@@ -1418,8 +1417,8 @@ class SceneMakerMain(ShowBase):
         self.dbutton_j22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','generate_terrain'])
 
     def heightmap_commands(self,InputValue,identifier):
-        if 1:
-        #try:
+        #if 1:
+        try:
             if identifier=='unique_name':
                 if (InputValue.lower()=='render') or (InputValue.lower()=='none') or (InputValue.lower()==''):
                     logger.info('heightmap unique name should not be render or none or empty')
@@ -1435,13 +1434,13 @@ class SceneMakerMain(ShowBase):
                 openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
-                    modelfilepath=os.path.relpath(openedfilename, os.getcwd())
-                    uqname=os.path.basename(modelfilepath)
-                    modelfilepath=modelfilepath.replace("\\","/")
-                    self.dlabel_j4.setText(modelfilepath)
+                    Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(Loadedfilepath)
+                    Loadedfilepath=Loadedfilepath.replace("\\","/")
+                    self.dlabel_j4.setText(Loadedfilepath)
                     if self.param_1['type']=='terrain':
-                        self.dlabel_j4.setText(modelfilepath)
-                        self.data_all[self.current_model_index]['heightmap_param'][0]=modelfilepath
+                        self.dlabel_j4.setText(Loadedfilepath)
+                        self.data_all[self.current_model_index]['heightmap_param'][0]=Loadedfilepath
                         self.display_last_status('heightmap is set.')
                     else:
                         self.display_last_status('current model is not a terrain. heightmap not applied.')
@@ -1488,16 +1487,16 @@ class SceneMakerMain(ShowBase):
                 openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
-                    modelfilepath=os.path.relpath(openedfilename, os.getcwd())
-                    uqname=os.path.basename(modelfilepath)
-                    modelfilepath=modelfilepath.replace("\\","/")
-                    self.dlabel_j15.setText(modelfilepath)
+                    Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(Loadedfilepath)
+                    Loadedfilepath=Loadedfilepath.replace("\\","/")
+                    self.dlabel_j15.setText(Loadedfilepath)
                     if self.param_1['type']=='terrain':
                         try:
-                            tex = self.loader.loadTexture(modelfilepath)
+                            tex = self.loader.loadTexture(Loadedfilepath)
                             self.models_all[self.current_model_index].setTexture(TextureStage.getDefault(),tex)
-                            self.dlabel_j15.setText(modelfilepath)
-                            self.data_all[self.current_model_index]['heightmap_param'][4]=modelfilepath
+                            self.dlabel_j15.setText(Loadedfilepath)
+                            self.data_all[self.current_model_index]['heightmap_param'][4]=Loadedfilepath
                             self.display_last_status('terrain texture is set.')
                         except Exception as e:
                             logger.error('terrain texture file not set')
@@ -1578,8 +1577,8 @@ class SceneMakerMain(ShowBase):
                         self.display_last_status('heightmap unique name already exists. enter new unique name.')
                         self.dentry_j2.enterText("")
 
-        else:
-        #except Exception as e:
+        #else:
+        except Exception as e:
             logger.error('error in heightmap gui entry:')
             logger.error(e)
             self.display_last_status('error in heightmap gui entry.')
