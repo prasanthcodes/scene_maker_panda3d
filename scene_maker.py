@@ -1218,13 +1218,11 @@ class SceneMakerMain(ShowBase):
         #try:
             if identifier=='enable':
                 self.global_params['skybox_enable']=InputValue
-                print(InputValue)
                 self.CheckButton_i1['indicatorValue']=InputValue
                 if InputValue==True:
                     self.set_skybox()
                     self.display_last_status('skybox enabled.')
                 else:
-                    print(InputValue)
                     taskMgr.remove("update_skybox")
                     self.skybox.detachNode()
                     self.skybox.removeNode()
@@ -1416,7 +1414,6 @@ class SceneMakerMain(ShowBase):
                     uqname=os.path.basename(modelfilepath)
                     modelfilepath=modelfilepath.replace("\\","/")
                     self.dlabel_j4.setText(modelfilepath)
-                    print(self.param_1)
                     if self.param_1['type']=='terrain':
                         self.dlabel_j4.setText(modelfilepath)
                         self.data_all[self.current_model_index]['heightmap_param'][0]=modelfilepath
@@ -2355,8 +2352,6 @@ class SceneMakerMain(ShowBase):
         
         if key=="gravity_on":
             self.keyMap[key]=not(self.keyMap[key])
-            elev = self.terrain.getElevation(self.camera.getX(), self.camera.getY())
-            print(elev)
         elif key=="show_gui":
             self.keyMap[key]=not(self.keyMap[key])
             if self.keyMap[key]==True:
@@ -3198,7 +3193,7 @@ class SceneMakerMain(ShowBase):
             if self.current_scroll_index > 0:
                 self.current_scroll_index -= 1
                 self.scrolled_list_e1.scrollTo(self.current_scroll_index)
-                print("Scroll Up Triggered | Index:", self.current_scroll_index)
+                #print("Scroll Up Triggered | Index:", self.current_scroll_index)
         else:
             pass
             #print("Scroll Up Ignored - Mouse outside list")
@@ -3209,7 +3204,7 @@ class SceneMakerMain(ShowBase):
             if self.current_scroll_index < max_index:
                 self.current_scroll_index += 1
                 self.scrolled_list_e1.scrollTo(self.current_scroll_index)
-                print("Scroll Down Triggered | Index:", self.current_scroll_index)
+                #print("Scroll Down Triggered | Index:", self.current_scroll_index)
         else:
             pass
             #print("Scroll Down Ignored - Mouse outside list")
