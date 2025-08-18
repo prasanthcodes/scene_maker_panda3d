@@ -1242,7 +1242,6 @@ class SceneMakerMain(ShowBase):
         #try:
             if identifier=='enable':
                 self.global_params['skybox_enable']=InputValue
-                print(InputValue)
                 self.CheckButton_i1['indicatorValue']=InputValue
                 if InputValue==True:
                     self.set_skybox()
@@ -1440,7 +1439,6 @@ class SceneMakerMain(ShowBase):
                     uqname=os.path.basename(modelfilepath)
                     modelfilepath=modelfilepath.replace("\\","/")
                     self.dlabel_j4.setText(modelfilepath)
-                    print(self.param_1)
                     if self.param_1['type']=='terrain':
                         self.dlabel_j4.setText(modelfilepath)
                         self.data_all[self.current_model_index]['heightmap_param'][0]=modelfilepath
@@ -2403,8 +2401,6 @@ class SceneMakerMain(ShowBase):
         
         if key=="gravity_on":
             self.keyMap[key]=not(self.keyMap[key])
-            elev = self.terrain.getElevation(self.camera.getX(), self.camera.getY())
-            print(elev)
         elif key=="show_gui":
             self.keyMap[key]=not(self.keyMap[key])
             if self.keyMap[key]==True:
