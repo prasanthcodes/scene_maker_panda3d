@@ -1,19 +1,19 @@
-# scene_maker_panda3d
+# Scene Maker Panda3D
 A simple scene maker for panda3d
 
 ## features
-1. move using wasd keys
-2. load and transform models live
-3. easy shortcut keys
+1. Move using WASD keys
+2. Load and transform models in real-time
+3. Easy-to-use shortcut keys
 
 ![Screenshot of window](Screenshot.jpg)
 
-## shortcuts
+## Shortcuts
 
-### mouse controls
-right click and drag to view 3d scene
+### Mouse controls
+Right click and drag to view the 3D scene
 
-### keyboard shortcuts
+### Keyboard shortcuts
 
 w - move forward <br/>
 s - move backward <br/>
@@ -39,12 +39,12 @@ h - z decrease <br/> <br/>
 delete - delete the current model <br/>
 
 ### Notes
-1. model files should loaded from current relative path. when loading from outside of current folder, there is a error occurs
-2. when clicking on 'remove animation' in GUI, animation names are not immediately removed, but it will not shown next restart.
+1. Model files should be loaded from the current relative path. When loading from the outside current folder, there is an error occurs.
+2. when clicking on "remove animation" in GUI, animation names are not immediately removed, but they will not appear after the next restart.
 
 ### Disclaimer
-1. the functionalities used in this program may not represent full or true functionalities of panda3d engine. some functions may partially used. some may twisted for specific use cases. for true explanations, refer panda3d documentation.
-2. all assets used in this program are freely obtained from various sources. see references section.
+1. The functionalities used in this program may not represent the full or true capabilities of Panda3D engine. Some functions may partially used. Some may twisted for specific use cases. For true details, refer Panda3D documentation.
+2. All assets used in this program are freely obtained from various sources. See the References section.
 
 ### References
 1. https://docs.panda3d.org/1.10/python/more-resources/samples/roaming-ralph#roaming-ralph
