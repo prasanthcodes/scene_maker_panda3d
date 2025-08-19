@@ -52,3 +52,8 @@ Delete - Delete the current model <br/>
 2. https://www.poliigon.com/texture/flat-grass-texture/4585
 
 3. https://ambientcg.com/view?id=DaySkyHDRI059A
+
+4. https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/Models-showcase.md
+
+5. https://github.com/panda3d/panda3d/tree/master/samples/shader-terrain
+
