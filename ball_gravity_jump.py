@@ -104,7 +104,8 @@ class JumpingBallGame(ShowBase):
         
         #Transport_Shuttle
         self.ob_1 = self.loader.loadModel("Transport_Shuttle/Transport_Shuttle.gltf")
-        shape=self.create_bullet_shape_2(self.ob_1,shape_type='box', complexity='high')
+        #shape=self.create_bullet_shape_2(self.ob_1,shape_type='box', complexity='high')
+        shape=self.create_bullet_mesh_shape_from_model(self.ob_1)
         ob1_node = BulletRigidBodyNode('Transport_Shuttle')
         ob1_node.addShape(shape)
         ob1_np = self.render.attachNewNode(ob1_node)
@@ -114,7 +115,9 @@ class JumpingBallGame(ShowBase):
         
         #sci_fi_blocks_3builds
         self.ob_2 = self.loader.loadModel("sci_fi_blocks_3builds/sci_fi_blocks_3builds.gltf")
-        shape=self.create_bullet_shape_2(self.ob_2,shape_type='triangle', complexity='high')
+        self.ob_2.ls()
+        #shape=self.create_bullet_shape_2(self.ob_2,shape_type='triangle', complexity='high')
+        shape=self.create_bullet_mesh_shape_from_model(self.ob_2)
         ob2_node = BulletRigidBodyNode('sci_fi_blocks_3builds')
         ob2_node.addShape(shape)
         ob2_np = self.render.attachNewNode(ob2_node)
@@ -355,6 +358,35 @@ class JumpingBallGame(ShowBase):
                     points = [Point3(*view[index*3:index*3+3]) for index in indices]
                     coll_poly = CollisionPolygon(*points)
                     collision_node.add_solid(coll_poly)
+
+
+    def create_bullet_mesh_shape_from_model(self,model):
+        # Create the triangle mesh
+        mesh = BulletTriangleMesh()
+        
+        def add_geoms(np: NodePath, ts: TransformState = TransformState.make_identity()):
+            """
+            Recursively traverses the node path, adding geoms to the mesh with accumulated transforms.
+            """
+            node = np.node()
+            if isinstance(node, GeomNode):
+                for geom in node.get_geoms():
+                    mesh.add_geom(geom, ts)
+            
+            # Recurse to children with composed transforms
+            for child in np.get_children():
+                #child_ts = ts.compose(child.get_transform())
+                #print(child_ts)
+                add_geoms(child, child.get_transform())
+        
+        # Start recursion from the model root
+        add_geoms(model)
+        
+        # Create the shape from the mesh (set dynamic=True if for dynamic bodies, False for static)
+        shape = BulletTriangleMeshShape(mesh, dynamic=False)
+        
+        return shape
+
 
     def setKey(self, key, value):
         self.keyMap[key] = value
