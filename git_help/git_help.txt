@@ -26,9 +26,6 @@ git checkout origin/main -- file.txt
 to discard local changes
 git reset --hard
 
-to view who and what changes made in a file
-git blame filename.txt
-
 view change status of files
 git status -s
 
@@ -36,6 +33,11 @@ view changed contents
 git diff file_2.rb
 git diff
 
+to view who and what changes made in a file
+git blame filename.txt
+
+to get one file from another branch
+git checkout otherbranch myfile.txt
 
 
 full help:

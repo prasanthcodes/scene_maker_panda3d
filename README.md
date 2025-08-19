@@ -1,50 +1,50 @@
-# scene_maker_panda3d
+# Scene Maker Panda3D
 A simple scene maker for panda3d
 
-## features
-1. move using wasd keys
-2. load and transform models live
-3. easy shortcut keys
+## Features
+1. Move using WASD keys
+2. Load and transform models in real-time
+3. Easy-to-use shortcut keys
 
 ![Screenshot of window](Screenshot.jpg)
 
-## shortcuts
+## Shortcuts
 
-### mouse controls
-right click and drag to view 3d scene
+### Mouse Controls
+Right click and drag to view the 3D scene
 
-### keyboard shortcuts
+### Keyboard Shortcuts
 
-w - move forward <br/>
-s - move backward <br/>
-a - move left <br/>
-d - move right <br/> <br/>
+W - Move Forward <br/>
+S - Move Backward <br/>
+A - Move Left <br/>
+D - Move Right <br/> <br/>
 
-q - change property <br/>
-z - switch models <br/> <br/>
+Q - Change property <br/>
+Z - Switch models <br/> <br/>
 
-b - gravity on <br/>
-o - load model <br/>
-c - set camera position to the center of current selected model <br/>
-v - camera look at current selected model <br/>
-m - to hide all GUI <br/> <br/>
+B - Gravity on <br/>
+O - Load model <br/>
+C - Set camera position to the center of current selected model <br/>
+V - Camera look at current selected model <br/>
+M - Hide all GUI <br/> <br/>
 
-r - x increase <br/>
-f - x decrease <br/>
-t - y increase <br/>
-g - y decrease <br/>
-y - z increase <br/>
-h - z decrease <br/> <br/>
+R - X increase <br/>
+F - X decrease <br/>
+T - Y increase <br/>
+G - Y decrease <br/>
+Y - Z increase <br/>
+H - Z decrease <br/> <br/>
 
-delete - delete the current model <br/>
+Delete - Delete the current model <br/>
 
 ### Notes
-1. model files should loaded from current relative path. when loading from outside of current folder, there is a error occurs
-2. when clicking on 'remove animation' in GUI, animation names are not immediately removed, but it will not shown next restart.
+1. Model files should be loaded from the current relative path. When loading from the outside current folder, there is an error occurs.
+2. when clicking on "Remove Animation" in GUI, animation names are not immediately removed, but they will not appear after the next restart.
 
 ### Disclaimer
-1. the functionalities used in this program may not represent full or true functionalities of panda3d engine. some functions may partially used. some may twisted for specific use cases. for true explanations, refer panda3d documentation.
-2. all assets used in this program are freely obtained from various sources. see references section.
+1. The functionalities used in this program may not represent the full or true capabilities of Panda3D engine. Some functions may partially used. Some may twisted for specific use cases. For true details, refer Panda3D documentation.
+2. All assets used in this program are freely obtained from various sources. See the References section.
 
 ### References
 1. https://docs.panda3d.org/1.10/python/more-resources/samples/roaming-ralph#roaming-ralph
@@ -52,3 +52,8 @@ delete - delete the current model <br/>
 2. https://www.poliigon.com/texture/flat-grass-texture/4585
 
 3. https://ambientcg.com/view?id=DaySkyHDRI059A
+
+4. https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/Models-showcase.md
+
+5. https://github.com/panda3d/panda3d/tree/master/samples/shader-terrain
+
