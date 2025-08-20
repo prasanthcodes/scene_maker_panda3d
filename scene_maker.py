@@ -84,7 +84,12 @@ loadPrcFileData("", "basic-shaders-only #t")
 #loadPrcFileData("", "notify-level-glgsg debug")                                         
 #loadPrcFileData("", "win-size 1920 1080")
 #loadPrcFileData("", "fullscreen t")
-loadPrcFileData("", "direct-gui-edit 1")
+#loadPrcFileData("", "direct-gui-edit 1")
+loadPrcFileData("", "want-pstats 1")
+loadPrcFileData("", "pstats-tasks 1")
+#loadPrcFileData("", "pstats-python-profiler 1")
+#loadPrcFileData("", "pstats-gpu-timing 1")
+#loadPrcFileData("", "gl-finish 1")
 
 class SceneMakerMain(ShowBase):
 
@@ -94,6 +99,7 @@ class SceneMakerMain(ShowBase):
         self.disable_mouse()
         self.FilterManager_1 = FilterManager(base.win, base.cam)
         self.Filters=CommonFilters(base.win, base.cam)
+        self.pstats = True
         
         #---adjustable parameters---
         #self.mouse_sensitivity=50

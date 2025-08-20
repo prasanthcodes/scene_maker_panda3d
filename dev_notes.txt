@@ -10,7 +10,7 @@ issues to check
 2. when clicking on 'remove animation' in GUI, animation names are not immediately removed, but it will not shown next restart.
 3. (fixed). when actor is on, the model did not change its pos,scale,.. (workdone: actor is reparented to new node)
 4. (fixed). when an actor is parented to another actor and when the parent is changed to actor to non-actor to actor , childs animations duplicated and child is not displaying.
-5. (fixed). in simplepbr, ralph model colors look bleached(due to tonemapping). analyse the possibility to make ralph model colors same as autoshader. (workdone: tonemapping removed).
+5. (fixed). in simplepbr, ralph model colors look bleached(due to tonemapping). analyse the possibility to make ralph model colors same as autoshader. (workdone: tonemapping skipped).
 6. using simplepbr, if shadow is enabled and autoshader applied to ralph model. shadow acne occurs (when autoshader not applied no acne)
 
 
