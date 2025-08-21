@@ -39,6 +39,15 @@ git blame filename.txt
 to get one file from another branch
 git checkout otherbranch myfile.txt
 
+to create a branch local
+git branch <branch name>
+
+If the branch is new and doesn't exist on the remote, set the upstream branch:
+git push --set-upstream origin <remote-branch>
+
+to set new branch to remote
+git branch --set-upstream-to <remote-branch>
+
 
 full help:
 -------------------------------------------
