@@ -53,6 +53,13 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.addHandler(stdout_handler)
 
+# To handle all uncaught exceptions
+def error_handler(type, value, tb):
+    logger.exception("Uncaught exception: {0}".format(str(value)))
+
+# Install exception handler
+sys.excepthook = error_handler
+
 logger.info('program started')
 
 
@@ -90,6 +97,7 @@ loadPrcFileData("", "pstats-tasks 1")
 #loadPrcFileData("", "pstats-python-profiler 1")
 #loadPrcFileData("", "pstats-gpu-timing 1")
 #loadPrcFileData("", "gl-finish 1")
+#loadPrcFileData("", "show-scene-graph-analyzer-meter 1")
 
 class SceneMakerMain(ShowBase):
 
