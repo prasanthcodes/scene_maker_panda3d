@@ -100,10 +100,10 @@ class JumpingBallGame(ShowBase):
         self.ground.setTexture(TextureStage.getDefault(), texture_2)
         self.ground.reparentTo(ground_np)
         
-        
-        
+        """
         #Transport_Shuttle
         self.ob_1 = self.loader.loadModel("Transport_Shuttle/Transport_Shuttle.gltf")
+        #self.ob_1.ls()
         #shape=self.create_bullet_shape_2(self.ob_1,shape_type='box', complexity='high')
         shape=self.create_bullet_mesh_shape_from_model(self.ob_1)
         ob1_node = BulletRigidBodyNode('Transport_Shuttle')
@@ -112,18 +112,21 @@ class JumpingBallGame(ShowBase):
         self.world.attachRigidBody(ob1_node)
         self.ob_1.reparentTo(ob1_np)
         ob1_np.setPos(0,0,10)
+        """
         
         #sci_fi_blocks_3builds
         self.ob_2 = self.loader.loadModel("sci_fi_blocks_3builds/sci_fi_blocks_3builds.gltf")
         self.ob_2.ls()
+        ob2_new = self.render.attachNewNode('kk')
+        self.ob_2.reparentTo(ob2_new)
         #shape=self.create_bullet_shape_2(self.ob_2,shape_type='triangle', complexity='high')
-        shape=self.create_bullet_mesh_shape_from_model(self.ob_2)
+        shape=self.create_bullet_mesh_shape_from_model(ob2_new)
         ob2_node = BulletRigidBodyNode('sci_fi_blocks_3builds')
         ob2_node.addShape(shape)
         ob2_np = self.render.attachNewNode(ob2_node)
         self.world.attachRigidBody(ob2_node)
         self.ob_2.reparentTo(ob2_np)
-        ob2_np.setPos(-20,0,0)
+        ob2_np.setPos(20,0,0)
 
         """
         # Create the ball
@@ -375,11 +378,14 @@ class JumpingBallGame(ShowBase):
             
             # Recurse to children with composed transforms
             for child in np.get_children():
-                #child_ts = ts.compose(child.get_transform())
-                #print(child_ts)
-                add_geoms(child, child.get_transform())
+                child_ts = ts.compose(child.get_transform())
+                print(child.get_transform())
+                ts = TransformState.make_pos((0,0,0))
+                add_geoms(child, ts)
+                #add_geoms(child, child.get_transform())
         
         # Start recursion from the model root
+        #ts = TransformState.make_pos((50,0,0))
         add_geoms(model)
         
         # Create the shape from the mesh (set dynamic=True if for dynamic bodies, False for static)
