@@ -92,8 +92,8 @@ loadPrcFileData("", "basic-shaders-only #t")
 #loadPrcFileData("", "win-size 1920 1080")
 #loadPrcFileData("", "fullscreen t")
 #loadPrcFileData("", "direct-gui-edit 1")
-loadPrcFileData("", "want-pstats 1")
-loadPrcFileData("", "pstats-tasks 1")
+#loadPrcFileData("", "want-pstats 1")
+#loadPrcFileData("", "pstats-tasks 1")
 #loadPrcFileData("", "pstats-python-profiler 1")
 #loadPrcFileData("", "pstats-gpu-timing 1")
 #loadPrcFileData("", "gl-finish 1")
@@ -208,28 +208,7 @@ class SceneMakerMain(ShowBase):
         )
         
         #self.pipeline=complexpbr.apply_shader(self.render, intensity=1.0)
-        
-        #---load character for game mode---
-        self.actor1_gm = Actor('ralph',{"walk": "ralph-walk"})
-        self.animation1_gm = self.actor1_gm.getAnimControl('walk')
-        self.actorNode1_gm = self.render.attachNewNode('actor1_gm')
-        self.actor1_gm.reparent_to(self.actorNode1_gm)
-        #if self.first_person_view_flag:
-        #    self.camera.setPos(0,0.35,0.35)
-        #else:
-        #    self.camera.setPos(0,-2,0.9)
-        #self.camera.reparent_to(self.actorNode1_gm)
-        
-        #base.saveSphereMap('streetscene_env.jpg', size = 256)
-        #base.saveCubeMap('#_envmap.jpg', size = 512)
-        
-        """
-        myFog = Fog("Fog Name")
-        myFog.setColor(1, 1, 1)
-        myFog.setExpDensity(0.1)
-        #self.render.setFog(myFog)
-        self.models_all[0].setFog(myFog)
-        """
+
     
     def create_shortcut_icons_top(self):
         self.ScrolledFrame_a0=DirectScrolledFrame(
@@ -2263,27 +2242,6 @@ class SceneMakerMain(ShowBase):
                 #---for later use---
                 self.param_1=data
                 
-                if self.param_1['uniquename']=="GlassHurricaneCandleHolder.glb":
-                    self.models_all[-1].setTransparency(True)
-                    shader = Shader.load(Shader.SL_GLSL, vertex="glass.vert", fragment="glass.frag")
-                    self.models_all[-1].setShader(shader)
-                    
-                # Extract and bind textures
-                for node in self.models_all[-1].find_all_matches("**/+GeomNode"):
-                    geom_state = node.getState()
-                    texture_attrib = geom_state.getAttrib(TextureAttrib)
-                    if texture_attrib:
-                        for ts in texture_attrib.getTextureStages():
-                            texture = texture_attrib.getTexture(ts)
-                            # Map glTF textures to shader inputs
-                            if "baseColor" in ts.getName():
-                                self.models_all[-1].setShaderInput("p3d_Texture0", texture)
-                            elif "metallicRoughness" in ts.getName():
-                                self.models_all[-1].setShaderInput("p3d_Texture1", texture)
-                            elif "normal" in ts.getName():
-                                self.models_all[-1].setShaderInput("p3d_Texture2", texture)
-                    # Set IOR (retrieve from glTF material or set manually)
-                    self.models_all[-1].setShaderInput("ior", 1.5)
             else:
                 self.models_all.append("")
         
