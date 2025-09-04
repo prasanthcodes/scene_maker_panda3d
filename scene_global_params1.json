@@ -1,6 +1,6 @@
 {
     "mouse_sensitivity": 50,
-    "move_speed": 0.1,
+    "move_speed": 0.9,
     "crosshair": false,
     "gizmo": true,
     "ambientlight_intensity": 0.2,
@@ -32,5 +32,16 @@
         0.6,
         1.0
     ],
-    "skybox_enable_envmap": true
+    "skybox_enable_envmap": true,
+    "skybox_enable_tonemapping": 0,
+    "skybox_tonemapping_method": 1,
+    "skybox_exposure": 1.1,
+    "skybox_gamma": 1.0,
+    "fog_enable": false,
+    "fog_R": 0.5,
+    "fog_G": 0.5,
+    "fog_B": 0.5,
+    "fog_start": 150.0,
+    "fog_end": 250.0,
+    "fog_density": 0.01
 }

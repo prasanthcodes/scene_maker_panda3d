@@ -53,6 +53,13 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.addHandler(stdout_handler)
 
+# To handle all uncaught exceptions
+def error_handler(type, value, tb):
+    logger.exception("Uncaught exception: {0}".format(str(value)))
+
+# Install exception handler
+sys.excepthook = error_handler
+
 logger.info('program started')
 
 
@@ -84,7 +91,13 @@ loadPrcFileData("", "basic-shaders-only #t")
 #loadPrcFileData("", "notify-level-glgsg debug")                                         
 #loadPrcFileData("", "win-size 1920 1080")
 #loadPrcFileData("", "fullscreen t")
-loadPrcFileData("", "direct-gui-edit 1")
+#loadPrcFileData("", "direct-gui-edit 1")
+#loadPrcFileData("", "want-pstats 1")
+#loadPrcFileData("", "pstats-tasks 1")
+#loadPrcFileData("", "pstats-python-profiler 1")
+#loadPrcFileData("", "pstats-gpu-timing 1")
+#loadPrcFileData("", "gl-finish 1")
+#loadPrcFileData("", "show-scene-graph-analyzer-meter 1")
 
 class SceneMakerMain(ShowBase):
 
@@ -94,6 +107,8 @@ class SceneMakerMain(ShowBase):
         self.disable_mouse()
         self.FilterManager_1 = FilterManager(base.win, base.cam)
         self.Filters=CommonFilters(base.win, base.cam)
+        #self.Filters.setBloom()
+        self.pstats = True
         
         #---adjustable parameters---
         #self.mouse_sensitivity=50
@@ -114,6 +129,7 @@ class SceneMakerMain(ShowBase):
         self.camLens.setNear(0.01)
         self.camLens.setFar(2500)
         self.camera.setPos(0,0,self.cameraHeight)
+        self.mouse_rotate_flag=0
         
         #---if camera y,z axis rotated 90 deg, use below code----
         #self.cam_node=NodePath('cam_node')
@@ -147,6 +163,7 @@ class SceneMakerMain(ShowBase):
         self.collide_flag=False
         
         base.accept('tab', base.bufferViewer.toggleEnable)
+        self.props = WindowProperties()
         
 
         #self.param_1={}
@@ -155,12 +172,20 @@ class SceneMakerMain(ShowBase):
         self.param_2={}               
         self.current_property=1
         self.property_names=['position','scale','color','rotation']
+        self.tonemap_option_items=['Simple Reinhard','Extended Reinhard']
         #self.pos_acceleration=1
         self.pos_increment=0.001
         #self.scale_acceleration=1
         self.scale_increment=0.01
         self.temp_count=1
+        self.fog=""
         self.create_top_level_main_gui()
+        
+        self.entry_temp=""
+        self.identifier_temp=""
+        self.floating_slider= DirectSlider(pos=(-1, 0, -0.1),scale=1,value=50,range=(0, 100),command=self.on_slider_change,frameSize=(0, 2, -0.05, 0.05),frameColor=(0.2, 0.2, 0.7, 1.0),thumb_frameSize=(-0.04, 0.04, -0.08, 0.08))
+        #self.floating_slider["extraArg"]=[self.floating_slider]
+        self.floating_slider.hide()
         
         #---load global params---
         self.global_params={}
@@ -170,6 +195,7 @@ class SceneMakerMain(ShowBase):
         self.apply_global_params_2()
         #self.set_skybox()
         self.apply_global_params_3()
+        self.apply_global_params_4()
         self.display_last_status("")
         
         
@@ -331,8 +357,21 @@ class SceneMakerMain(ShowBase):
         self.global_params['skybox_ambientlight_R']=1
         self.global_params['skybox_ambientlight_G']=1
         self.global_params['skybox_ambientlight_B']=1
-        self.global_params['skybox_background_color']=[0.6,0.6,0.6,1]
+        self.global_params['sky_background_color']=[0.6,0.6,0.6,1]
         self.global_params['skybox_enable_envmap']=True
+        self.global_params['skybox_enable_tonemapping']=False
+        self.global_params['skybox_tonemapping_method']=1
+        self.global_params['skybox_exposure']=1
+        self.global_params['skybox_gamma']=1
+        
+        # fog params
+        self.global_params['fog_enable']=False
+        self.global_params['fog_R']=0.5
+        self.global_params['fog_G']=0.5
+        self.global_params['fog_B']=0.5
+        self.global_params['fog_start']=15
+        self.global_params['fog_end']=150
+        self.global_params['fog_density']=0.001
         
         
     def apply_global_params_1(self): #settings params
@@ -379,8 +418,22 @@ class SceneMakerMain(ShowBase):
         self.skybox_commands(self.global_params['sky_background_color'][2],'B0')
         self.skybox_commands(self.global_params['sky_background_color'][3],'A0')
         self.skybox_commands(self.global_params['skybox_enable_envmap'],'enable_ibl')
+        
+        self.skybox_commands(self.global_params['skybox_enable_tonemapping'],'enable_tonemapping')
+        self.optionmenu_i18.set(int(self.global_params['skybox_tonemapping_method'])-1)
+        self.skybox_commands(self.global_params['skybox_exposure'],'exposure')
+        self.skybox_commands(self.global_params['skybox_gamma'],'gamma')
+        
         self.dlabel_i4.setText(self.global_params['skybox_image'])
             
+    def apply_global_params_4(self): #fog params
+        self.fog_commands(self.global_params['fog_R'],'R')
+        self.fog_commands(self.global_params['fog_G'],'G')
+        self.fog_commands(self.global_params['fog_B'],'B')
+        self.fog_commands(self.global_params['fog_start'],'start')
+        self.fog_commands(self.global_params['fog_end'],'end')
+        self.fog_commands(self.global_params['fog_density'],'density')
+        
     def save_global_params(self):
         try:
             with open(self.scene_global_params_filename, 'w', encoding='utf-8') as f:
@@ -508,7 +561,7 @@ class SceneMakerMain(ShowBase):
         # Update skybox position to follow camera
         self.skybox.setPos(self.camera.getPos())
         return task.cont
-            
+        
     def set_crosshair(self):
         self.crosshair = OnscreenImage(image='crosshair.png', pos=(0,0,0),scale=0.1)
         self.crosshair.setTransparency(TransparencyAttrib.MAlpha)
@@ -584,6 +637,8 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_i1.hide()
         self.create_heightmap_loader_gui()
         self.ScrolledFrame_j1.hide()
+        self.create_fog_settings_gui()
+        self.ScrolledFrame_k1.hide()
         
         self.create_dropdown_main_menu()
         self.menu_dropdown_1.hide()
@@ -740,7 +795,18 @@ class SceneMakerMain(ShowBase):
             text_fg=(1, 1, 1, 0.9),
             indicatorValue=0
             )
-                
+        self.CheckButton_11 = DirectCheckButton(
+            parent=self.menu_dropdown_1.getCanvas(),
+            text = "Fog Settings" ,
+            text_align=TextNode.ALeft,
+            scale=.06,
+            command=self.cbuttondef_b11,
+            pos=(0.1, 1,-1.1),
+            frameColor=(0, 0, 0, 0.4),
+            text_fg=(1, 1, 1, 0.9),
+            indicatorValue=0
+            )
+                                
     def create_properties_gui(self):
         self.dlabel_1=DirectLabel(text='X: ',pos=(-1.3,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
         self.dlabel_2=DirectLabel(text='Y: ',pos=(-1.3,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0, 0, 0, 0.4))
@@ -1179,8 +1245,8 @@ class SceneMakerMain(ShowBase):
         canvas_5=self.ScrolledFrame_i1.getCanvas()
         
         self.dlabel_i0=DirectLabel(parent=canvas_5,text="SKYBOX SETTINGS",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.7),text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "enable skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['enable'],pos=(-1.15, 1,0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
-        self.CheckButton_i2 = DirectCheckButton(parent=canvas_5,text = "show skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['show'],pos=(-1.15, 1,0.5),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "Enable Skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['enable'],pos=(-1.15, 1,0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.CheckButton_i2 = DirectCheckButton(parent=canvas_5,text = "Show Skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['show'],pos=(-1.15, 1,0.5),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
         self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.05,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.4),text_fg=(1, 0.7, 0.7, 1),text_bg=(0,0,0,0.5),frameColor=(0,0,0,0.5))
         self.dbutton_i5 = DirectButton(parent=canvas_5,text='Select Image',pos=(-1.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
@@ -1206,12 +1272,39 @@ class SceneMakerMain(ShowBase):
         self.dlabel_i13_2=DirectLabel(parent=canvas_5,text="A:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.8, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
         self.dentry_i14_2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=4,pos=(0.9, 1,0), command=self.skybox_commands,extraArgs=['A0'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
-        self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, -0.2),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'])
-        self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.3),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.4),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
-        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.4),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
-        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.5),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.CheckButton_i16 = DirectCheckButton(parent=canvas_5,text = "Enable ToneMapping" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_tonemapping'],pos=(-1.15, 1,-0.1),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.dlabel_i16_s = DirectLabel(parent=canvas_5,text = "*tonemapping for HDR images" ,scale=.06,pos=(-0.4, 1,-0.1),frameColor=(0, 0, 0, 0.4),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),text_align=TextNode.ALeft)
+        self.dlabel_i17 = DirectLabel(parent=canvas_5,text = "ToneMapping Method:" ,scale=.06,pos=(-1.1, 1,-0.2),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),text_align=TextNode.ALeft)
+        self.optionmenu_i18 = DirectOptionMenu(parent=canvas_5,text="switch_tonemap_method", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.set_skybox_tonemapping_method, textMayChange=1,items=self.tonemap_option_items,pos=(-0.4, 1,-0.2),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+
+        self.dlabel_i19=DirectLabel(parent=canvas_5,text="Exposure:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, -0.3),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i20 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.8, 1,-0.3), command=self.skybox_commands,extraArgs=['exposure'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusOutCommand=self.focusOutDef_arg)
+        self.dentry_i20['focusInCommand'] = self.focusInDef_arg
+        self.dentry_i20['focusInExtraArgs'] = [self.dentry_i20, "exposure",(0,10.0),0.01]
+        self.dlabel_i21=DirectLabel(parent=canvas_5,text="Gamma:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.3),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_i22 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.1, 1,-0.3), command=self.skybox_commands,extraArgs=['gamma'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusOutCommand=self.focusOutDef_arg)
+        self.dentry_i22['focusInCommand'] = self.focusInDef_arg
+        self.dentry_i22['focusInExtraArgs'] = [self.dentry_i22, "gamma",(0,10.0),0.01]
+        
+        self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, -0.5),text_fg=(0.5, 0.5, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'])
+        self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.6),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.7),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.7),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.8),text_fg=(0.7, 1, 0.7, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+
+    def set_skybox_tonemapping_method(self,InputValue):
+        try:
+            if self.global_params['skybox_enable_tonemapping']==True:
+                InputValue=int(self.tonemap_option_items.index(InputValue))
+                self.global_params['skybox_tonemapping_method']=InputValue+1
+                self.skybox.setShaderInput('tonemapping_method', self.global_params['skybox_tonemapping_method'])
+                self.skybox_commands(self.global_params['skybox_exposure'],'exposure')
+                self.skybox_commands(self.global_params['skybox_gamma'],'gamma')
+            else:
+                self.display_last_status('skybox tonemapping is not enabled.')
+        except:
+            self.display_last_status('error when setting tonemapping_method')
         
     def skybox_commands(self,InputValue,identifier):
         if 1:
@@ -1243,16 +1336,16 @@ class SceneMakerMain(ShowBase):
                 openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .hdr .exr"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
-                    modelfilepath=os.path.relpath(openedfilename, os.getcwd())
-                    uqname=os.path.basename(modelfilepath)
-                    modelfilepath=modelfilepath.replace("\\","/")
+                    Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(Loadedfilepath)
+                    Loadedfilepath=Loadedfilepath.replace("\\","/")
                     try:
-                        tex = self.loader.loadTexture(modelfilepath)
+                        tex = self.loader.loadTexture(Loadedfilepath)
                         self.skybox.setTexture(tex)
                         self.skybox.setTexScale(TextureStage.getDefault(), -1, 1)
                         self.skybox.setTexOffset(TextureStage.getDefault(), 1, 0)
-                        self.global_params['skybox_image']=modelfilepath
-                        self.dlabel_i4.setText(modelfilepath)
+                        self.global_params['skybox_image']=Loadedfilepath
+                        self.dlabel_i4.setText(Loadedfilepath)
                         self.display_last_status('skybox texture is set.')
                     except Exception as e:
                         logger.error('skybox texture file not supported:')
@@ -1272,6 +1365,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_i5_4.enterText(str(InputValue))
                 except:
                     self.display_last_status('error when setting skybox intensity')
+                    logger.error('error when setting skybox intensity')
             elif identifier=='R':
                 try:
                     InputValue=float(InputValue)
@@ -1284,6 +1378,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_i8.enterText(str(InputValue))
                 except:
                     self.display_last_status('error when setting skybox color')
+                    logger.error('error when setting skybox color R')
             elif identifier=='G':
                 try:
                     InputValue=float(InputValue)
@@ -1296,6 +1391,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_i10.enterText(str(InputValue))
                 except:
                     self.display_last_status('error when setting skybox color')
+                    logger.error('error when setting skybox color G')
             elif identifier=='B':
                 try:
                     InputValue=float(InputValue)
@@ -1308,6 +1404,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_i12.enterText(str(InputValue))
                 except:
                     self.display_last_status('error when setting skybox color')
+                    logger.error('error when setting skybox color B')
             elif identifier=='R0':
                 try:
                     InputValue=float(InputValue)
@@ -1316,6 +1413,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_i8_2.enterText(str(InputValue))
                 except:
                     self.display_last_status('error when setting background color')
+                    logger.error('error when setting background color R')
             elif identifier=='G0':
                 try:
                     InputValue=float(InputValue)
@@ -1324,6 +1422,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_i10_2.enterText(str(InputValue))
                 except:
                     self.display_last_status('error when setting background color')
+                    logger.error('error when setting background color G')
             elif identifier=='B0':
                 try:
                     InputValue=float(InputValue)
@@ -1332,6 +1431,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_i12_2.enterText(str(InputValue))
                 except:
                     self.display_last_status('error when setting background color')
+                    logger.error('error when setting background color B')
             elif identifier=='A0':
                 try:
                     InputValue=float(InputValue)
@@ -1340,6 +1440,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_i14_2.enterText(str(InputValue))
                 except:
                     self.display_last_status('error when setting background color')
+                    logger.error('error when setting background color A')
             elif identifier=='save_envmap':
                 base.saveCubeMap('#_envmap.jpg', size = 512)
                 logger.info('envmap saved.')
@@ -1352,7 +1453,58 @@ class SceneMakerMain(ShowBase):
                 else:
                     self.global_params['skybox_enable_envmap']=False
                     self.display_last_status('envmap ibl disabled.')
-            
+            elif identifier=='enable_tonemapping':
+                if self.global_params['skybox_enable']==True:
+                    self.global_params['skybox_enable_tonemapping']=InputValue
+                    self.CheckButton_i16['indicatorValue']=InputValue
+                    if InputValue==True:
+                        
+                        shader = Shader.load(Shader.SL_GLSL, vertex = 'shaders/skybox_tonemapping.vert', fragment = 'shaders/skybox_tonemapping.frag')
+                        # Apply shader to skybox
+                        #self.skybox.setShaderOff()
+                        #self.skybox.setShaderAuto()
+                        self.skybox.setShader(shader)
+                        self.skybox.setShaderInput('exposure', self.global_params['skybox_exposure'])
+                        self.skybox.setShaderInput('gamma', self.global_params['skybox_gamma'])
+                        self.skybox.setShaderInput('tonemapping_method', self.global_params['skybox_tonemapping_method'])
+                        self.skybox.setShaderInput('param_a', self.global_params['skybox_exposure'])
+                        
+                        self.display_last_status('skybox tonemapping enabled.')
+                    else:
+                        #self.skybox.setLightOff()
+                        #self.skybox.setShaderAuto()
+                        self.skybox.clearShader()
+                        self.display_last_status('skybox tonemapping off.')
+                else:
+                    self.display_last_status('skybox is not enabled.')
+            elif identifier=='exposure':
+                try:
+                    InputValue=float(InputValue)
+                    self.global_params['skybox_exposure']=InputValue
+                    self.dentry_i20.enterText(str(InputValue))
+                    if self.global_params['skybox_enable_tonemapping']==True:
+                        if self.global_params['skybox_tonemapping_method']==1:
+                            self.skybox.setShaderInput('exposure', self.global_params['skybox_exposure'])
+                        if self.global_params['skybox_tonemapping_method']==2:
+                            self.skybox.setShaderInput('param_a', self.global_params['skybox_exposure'])
+                    else:
+                        self.display_last_status('skybox tonemapping is not enabled.')
+                except:
+                    self.display_last_status('error when setting skybox_exposure')
+                    logger.error('error when setting skybox_exposure')
+            elif identifier=='gamma':
+                try:
+                    InputValue=float(InputValue)
+                    self.global_params['skybox_gamma']=InputValue
+                    self.dentry_i22.enterText(str(InputValue))
+                    if self.global_params['skybox_enable_tonemapping']==True:
+                        self.skybox.setShaderInput('gamma', self.global_params['skybox_gamma'])
+                    else:
+                        self.display_last_status('skybox tonemapping is not enabled.')
+                except:
+                    self.display_last_status('error when setting skybox_gamma')
+                    logger.error('error when setting skybox_gamma')
+                
         else:
         #except Exception as e:
             logger.error('error in skybox gui entry:')
@@ -1393,8 +1545,8 @@ class SceneMakerMain(ShowBase):
         self.dbutton_j22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','generate_terrain'])
 
     def heightmap_commands(self,InputValue,identifier):
-        if 1:
-        #try:
+        #if 1:
+        try:
             if identifier=='unique_name':
                 if (InputValue.lower()=='render') or (InputValue.lower()=='none') or (InputValue.lower()==''):
                     logger.info('heightmap unique name should not be render or none or empty')
@@ -1410,13 +1562,13 @@ class SceneMakerMain(ShowBase):
                 openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
-                    modelfilepath=os.path.relpath(openedfilename, os.getcwd())
-                    uqname=os.path.basename(modelfilepath)
-                    modelfilepath=modelfilepath.replace("\\","/")
-                    self.dlabel_j4.setText(modelfilepath)
+                    Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(Loadedfilepath)
+                    Loadedfilepath=Loadedfilepath.replace("\\","/")
+                    self.dlabel_j4.setText(Loadedfilepath)
                     if self.param_1['type']=='terrain':
-                        self.dlabel_j4.setText(modelfilepath)
-                        self.data_all[self.current_model_index]['heightmap_param'][0]=modelfilepath
+                        self.dlabel_j4.setText(Loadedfilepath)
+                        self.data_all[self.current_model_index]['heightmap_param'][0]=Loadedfilepath
                         self.display_last_status('heightmap is set.')
                     else:
                         self.display_last_status('current model is not a terrain. heightmap not applied.')
@@ -1463,16 +1615,16 @@ class SceneMakerMain(ShowBase):
                 openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
-                    modelfilepath=os.path.relpath(openedfilename, os.getcwd())
-                    uqname=os.path.basename(modelfilepath)
-                    modelfilepath=modelfilepath.replace("\\","/")
-                    self.dlabel_j15.setText(modelfilepath)
+                    Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(Loadedfilepath)
+                    Loadedfilepath=Loadedfilepath.replace("\\","/")
+                    self.dlabel_j15.setText(Loadedfilepath)
                     if self.param_1['type']=='terrain':
                         try:
-                            tex = self.loader.loadTexture(modelfilepath)
+                            tex = self.loader.loadTexture(Loadedfilepath)
                             self.models_all[self.current_model_index].setTexture(TextureStage.getDefault(),tex)
-                            self.dlabel_j15.setText(modelfilepath)
-                            self.data_all[self.current_model_index]['heightmap_param'][4]=modelfilepath
+                            self.dlabel_j15.setText(Loadedfilepath)
+                            self.data_all[self.current_model_index]['heightmap_param'][4]=Loadedfilepath
                             self.display_last_status('terrain texture is set.')
                         except Exception as e:
                             logger.error('terrain texture file not set')
@@ -1553,8 +1705,8 @@ class SceneMakerMain(ShowBase):
                         self.display_last_status('heightmap unique name already exists. enter new unique name.')
                         self.dentry_j2.enterText("")
 
-        else:
-        #except Exception as e:
+        #else:
+        except Exception as e:
             logger.error('error in heightmap gui entry:')
             logger.error(e)
             self.display_last_status('error in heightmap gui entry.')
@@ -1569,6 +1721,110 @@ class SceneMakerMain(ShowBase):
         self.heightmap_commands(self.param_1["heightmap_param"][5],'X')
         self.heightmap_commands(self.param_1["heightmap_param"][6],'Y')
     
+    def create_fog_settings_gui(self):
+        self.ScrolledFrame_k1=DirectScrolledFrame(
+            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_6=self.ScrolledFrame_k1.getCanvas()
+        
+        self.dlabel_k0=DirectLabel(parent=canvas_6,text="FOG SETTINGS",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.7),text_fg=(0.7, 0.7, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.CheckButton_k1 = DirectCheckButton(parent=canvas_6,text = "Enable Fog" ,scale=.06,command=self.fog_commands,extraArgs=['enable'],pos=(-1.3, 1,0.6),frameColor=(0, 0, 0, 0.4),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.dlabel_k2=DirectLabel(parent=canvas_6,text="Color:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.3, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_k3=DirectLabel(parent=canvas_6,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_k4 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(-1, 1,0.5), command=self.fog_commands,extraArgs=['R'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_k5=DirectLabel(parent=canvas_6,text="G:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_k6 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(-0.5, 1,0.5), command=self.fog_commands,extraArgs=['G'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_k7=DirectLabel(parent=canvas_6,text="B:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.1, 0, 0.5),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_k8 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(0, 1,0.5), command=self.fog_commands,extraArgs=['B'],initialText="", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.fog_radio_val=[1]
+        self.RadioButtons_k9 = [
+            DirectRadioButton(parent=canvas_6,text='Linear Fog', variable=self.fog_radio_val, value=[0],scale=0.07, pos=(-1.3, 0, 0.4), command=self.fog_commands,extraArgs=['','radio_1'],text_align=TextNode.ALeft,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4)),
+            DirectRadioButton(parent=canvas_6,text='Exponential Fog', variable=self.fog_radio_val, value=[1],scale=0.07, pos=(-1.3, 0, 0.1), command=self.fog_commands,extraArgs=['','radio_2'],text_align=TextNode.ALeft,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4))
+        ]
+
+        for button in self.RadioButtons_k9:
+            button.setOthers(self.RadioButtons_k9)
+        
+        self.dlabel_k10=DirectLabel(parent=canvas_6,text="Linear Range:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.3, 0, 0.3),text_fg=(0.9, 0.9, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dlabel_k11=DirectLabel(parent=canvas_6,text="Start: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.9, 0, 0.3),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_k12 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(-0.7, 1,0.3), command=self.fog_commands,extraArgs=['start'],initialText="15", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_k13=DirectLabel(parent=canvas_6,text="End: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.3, 0, 0.3),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_k14 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(-0.1, 1,0.3), command=self.fog_commands,extraArgs=['end'],initialText="150", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_k15=DirectLabel(parent=canvas_6,text="Exponential Density: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.3, 0, 0),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),frameColor=(0,0,0,0.4))
+        self.dentry_k16 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=7,pos=(-0.7, 1,0), command=self.fog_commands,extraArgs=['density'],initialText="0.005", numLines = 1, focus=0,frameColor=(0,0,0,0.4),text_fg=(1, 1, 1, 0.9),text_bg=(0,0,0,0.4),focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+    def fog_commands(self,InputValue,identifier):
+        #if 1:
+        try:
+            if identifier=='enable':
+                self.CheckButton_k1['indicatorValue']=InputValue
+                self.global_params['fog_enable']=InputValue
+                if self.global_params['fog_enable']==True:
+                    self.fog = Fog("FogEffect")
+                    self.fog.setColor(Vec4(self.global_params['fog_R'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
+                    if self.fog_radio_val[0]==0:
+                        self.fog.setLinearRange(self.global_params['fog_start'], self.global_params['fog_end'])
+                    if self.fog_radio_val[0]==1:
+                        self.fog.setExpDensity(self.global_params['fog_density'])
+                    self.render.setFog(self.fog)
+                else:
+                    self.render.clearFog()
+
+            if identifier=='R':
+                self.dentry_k4.enterText(str(InputValue))
+                InputValue=float(InputValue)
+                self.global_params['fog_R']=InputValue
+                if self.global_params['fog_enable']==True:
+                    self.fog.setColor(Vec4(self.global_params['fog_R'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
+            if identifier=='G':
+                self.dentry_k6.enterText(str(InputValue))
+                InputValue=float(InputValue)
+                self.global_params['fog_G']=InputValue
+                if self.global_params['fog_enable']==True:
+                    self.fog.setColor(Vec4(self.global_params['fog_G'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
+            if identifier=='B':
+                self.dentry_k8.enterText(str(InputValue))
+                InputValue=float(InputValue)
+                self.global_params['fog_B']=InputValue
+                if self.global_params['fog_enable']==True:
+                    self.fog.setColor(Vec4(self.global_params['fog_R'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
+            if identifier=='start':
+                self.dentry_k12.enterText(str(InputValue))
+                InputValue=float(InputValue)
+                self.global_params['fog_start']=InputValue
+                if self.fog_radio_val[0]==0:
+                    if self.global_params['fog_enable']==True:
+                        self.fog.setLinearRange(self.global_params['fog_start'], self.global_params['fog_end'])
+                        self.render.clearFog()
+                        self.render.setFog(self.fog)
+            if identifier=='end':
+                self.dentry_k14.enterText(str(InputValue))
+                InputValue=float(InputValue)
+                self.global_params['fog_end']=InputValue
+                if self.fog_radio_val[0]==0:
+                    if self.global_params['fog_enable']==True:
+                        self.fog.setLinearRange(self.global_params['fog_start'], self.global_params['fog_end'])
+                        self.render.clearFog()
+                        self.render.setFog(self.fog)
+            if identifier=='density':
+                self.dentry_k16.enterText(str(InputValue))
+                InputValue=float(InputValue)
+                self.global_params['fog_density']=InputValue
+                if self.fog_radio_val[0]==1:
+                    if self.global_params['fog_enable']==True:
+                        self.fog.setExpDensity(self.global_params['fog_density'])
+                        self.render.clearFog()
+                        self.render.setFog(self.fog)
+
+        #else:
+        except Exception as e:
+            logger.error('error in fog gui entry:')
+            logger.error(e)
+            self.display_last_status('error in fog gui entry.')
+            
     def cbuttondef_tst(self,status):
         if status:
             print('clickd')
@@ -1668,6 +1924,12 @@ class SceneMakerMain(ShowBase):
             self.ScrolledFrame_j1.show()
         else:
             self.ScrolledFrame_j1.hide()
+
+    def cbuttondef_b11(self,status):
+        if status:
+            self.ScrolledFrame_k1.show()
+        else:
+            self.ScrolledFrame_k1.hide()
 
     def cbuttondef_gs1(self,status):
         if status:
@@ -1934,12 +2196,45 @@ class SceneMakerMain(ShowBase):
         self.ignoreAll()
         self.accept('escape', self.exit_program)
         
-    def focusInDef2(self):
-        print('hh')
+    def focusInDef_arg(self,entry,identifier,entry_range,scrollSize):
+        self.set_keymap()
+        self.ignoreAll()
+        self.accept('escape', self.exit_program)
+        self.entry_temp=entry
+        self.identifier_temp=identifier
+        value = entry.get()
+        try:
+            value=float(value)
+            self.floating_slider['value']=value
+        except:
+            self.display_last_status('error occurred when converting the value')
+            logger.error('error occurred when converting the value to float in focusInDef_arg')
+            return
+        pos=entry.getPos()
+        pos2=self.floating_slider.getPos()
+        pos2[2]=pos[2]-0.1
+        self.floating_slider.setPos(pos2)
+        self.floating_slider['range']=entry_range
+        self.floating_slider['scrollSize']=scrollSize
+        self.floating_slider.show()
 
     def focusOutDef(self):
         self.set_keymap()
 
+    def focusOutDef_arg(self):
+        self.set_keymap()
+        self.floating_slider.hide()
+    
+    def on_slider_change(self):
+        current_value = self.floating_slider['value']
+        if self.identifier_temp=="exposure":
+            #self.entry_temp.enterText(str(current_value))
+            current_value=float("{:.2f}".format(current_value))
+            self.skybox_commands(current_value,"exposure")
+        if self.identifier_temp=="gamma":
+            current_value=float("{:.2f}".format(current_value))
+            self.skybox_commands(current_value,"gamma")
+            
     def ButtonDef_g6(self):
         if self.current_animation is not None:
             self.current_animation.play()
@@ -2078,6 +2373,12 @@ class SceneMakerMain(ShowBase):
                     del self.models_with_lights[idx]
                     del self.models_light_all[idx]
                     del self.models_light_names[idx]
+                    for node in self.models_light_node_all[idx]:
+                        self.render.clearLight(node)
+                        # Remove all child nodes
+                        for node2 in node.getChildren():
+                            node2.removeNode()
+                        node.removeNode()
                     del self.models_light_node_all[idx]
                     del self.data_all_light[idx]
                 #---update model parent vars---
@@ -2224,10 +2525,32 @@ class SceneMakerMain(ShowBase):
                     self.models_all[-1].hide()
                 #---for later use---
                 self.param_1=data
-                
+                """
+                if self.param_1['uniquename']=="GlassHurricaneCandleHolder.glb":
+                    self.models_all[-1].setTransparency(True)
+                    shader = Shader.load(Shader.SL_GLSL, vertex="glass.vert", fragment="glass.frag")
+                    self.models_all[-1].setShader(shader)
+                    
+                # Extract and bind textures
+                for node in self.models_all[-1].find_all_matches("**/+GeomNode"):
+                    geom_state = node.getState()
+                    texture_attrib = geom_state.getAttrib(TextureAttrib)
+                    if texture_attrib:
+                        for ts in texture_attrib.getTextureStages():
+                            texture = texture_attrib.getTexture(ts)
+                            # Map glTF textures to shader inputs
+                            if "baseColor" in ts.getName():
+                                self.models_all[-1].setShaderInput("p3d_Texture0", texture)
+                            elif "metallicRoughness" in ts.getName():
+                                self.models_all[-1].setShaderInput("p3d_Texture1", texture)
+                            elif "normal" in ts.getName():
+                                self.models_all[-1].setShaderInput("p3d_Texture2", texture)
+                    # Set IOR (retrieve from glTF material or set manually)
+                    self.models_all[-1].setShaderInput("ior", 1.5)
+                """
             else:
                 self.models_all.append("")
-        
+                
         #---parenting---
         self.create_model_parent_vars()
         for i in range(len(self.data_all)):
@@ -2317,6 +2640,9 @@ class SceneMakerMain(ShowBase):
             self.dslider_3['pageSize']=1
             data=self.data_all[self.current_model_index]['pos'][1]
         if self.current_property==2:
+            self.dlabel_1.setText('X: ')
+            self.dlabel_2.setText('Y: ')
+            self.dlabel_3.setText('Z: ')
             data=self.data_all[self.current_model_index]['scale'][1]
         if self.current_property==3:
             self.dlabel_1.setText('R: ')
@@ -2497,15 +2823,24 @@ class SceneMakerMain(ShowBase):
                 # get the mouse position as a LVector2. The values for each axis are from -1 to
                 # 1. The top-left is (-1,-1), the bottom right is (1,1)
                 mpos = self.mouseWatcherNode.getMouse()
+                if self.mouse_rotate_flag==0:
+                    self.props.setCursorHidden(True)
+                    self.win.requestProperties(self.props)
+                    self.win.movePointer(0, int(self.win.getXSize() / 2), int(self.win.getYSize() / 2))
+                    self.mouse_rotate_flag=1
                 mouse = self.win.getPointer(0)
                 mx, my = mouse.getX(), mouse.getY()
                 # Reset mouse to center to prevent edge stopping
-                self.win.movePointer(0, int(800 / 2), int(600 / 2))
-                #self.win.movePointer(0, int(self.win.getXSize() / 2), int(self.win.getYSize() / 2))
+                #self.win.movePointer(0, int(800 / 2), int(600 / 2))
+                self.win.movePointer(0, int(self.win.getXSize() / 2), int(self.win.getYSize() / 2))
+                #print('mx:',mx,',my:',my)
 
                 # Calculate mouse delta
-                dx = mx - 800 / 2
-                dy = my - 600 / 2
+                #dx = mx - 800 / 2
+                #dy = my - 600 / 2
+                # Calculate mouse delta
+                dx = mx - int(self.win.getXSize() / 2)
+                dy = my - int(self.win.getYSize() / 2)
 
                 # Update camera angles based on mouse movement
                 self.cameraAngleH -= dx * self.mouse_sensitivity * globalClock.getDt()
@@ -2524,6 +2859,10 @@ class SceneMakerMain(ShowBase):
                 self.cam_matrix = self.cam_matrix * rotate1 * rotate2
                 self.camera.setMat(self.cam_matrix)
                 """
+            else:
+                self.mouse_rotate_flag=0
+                self.props.setCursorHidden(False)
+                self.win.requestProperties(self.props)
         return Task.cont  # Task continues infinitely
 
     def sun_rotate(self):
@@ -3193,7 +3532,7 @@ class SceneMakerMain(ShowBase):
             if self.current_scroll_index > 0:
                 self.current_scroll_index -= 1
                 self.scrolled_list_e1.scrollTo(self.current_scroll_index)
-                #print("Scroll Up Triggered | Index:", self.current_scroll_index)
+                print("Scroll Up Triggered | Index:", self.current_scroll_index)
         else:
             pass
             #print("Scroll Up Ignored - Mouse outside list")
@@ -3204,7 +3543,7 @@ class SceneMakerMain(ShowBase):
             if self.current_scroll_index < max_index:
                 self.current_scroll_index += 1
                 self.scrolled_list_e1.scrollTo(self.current_scroll_index)
-                #print("Scroll Down Triggered | Index:", self.current_scroll_index)
+                print("Scroll Down Triggered | Index:", self.current_scroll_index)
         else:
             pass
             #print("Scroll Down Ignored - Mouse outside list")
@@ -3514,6 +3853,7 @@ class SceneMakerMain(ShowBase):
             model.detachNode()
         else:
             model.reparentTo(self.models_all[idx-1])
+        
         
 Scene_1=SceneMakerMain()
 Scene_1.run()
