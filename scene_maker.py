@@ -98,6 +98,8 @@ loadPrcFileData("", "basic-shaders-only #t")
 #loadPrcFileData("", "pstats-gpu-timing 1")
 #loadPrcFileData("", "gl-finish 1")
 #loadPrcFileData("", "show-scene-graph-analyzer-meter 1")
+loadPrcFileData("", "icon-filename icons/title_icon.ico")
+loadPrcFileData("", "window-title Scene Maker")
 
 class SceneMakerMain(ShowBase):
 
