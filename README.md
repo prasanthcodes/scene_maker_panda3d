@@ -5,32 +5,33 @@ A Simple Scene Maker for Panda3D.
 Create 3D scenes with your 3d models. You can adjust the light properties, view the animations, set the skybox,heightmaps,fog all via simple User Interface.
 
 ## Features
-* Supports Variety of Models. (egg,bam,glb, etc.)
-* Ambient,directional light settings GUI
-* Model Point Light Adjuster GUI
-* Model Animation Viewer GUI
+* Supports Variety of Model Formats. (egg,bam,glb, etc.)
+* Ambient and Directional Light Settings
+* Model Point Light Adjuster
+* Model Animation Viewer
 * Skybox with HDR image support
-* Heightmap loader
-* Fog settings
-* save scene as JSON file
+* Heightmap Loader
+* Fog Settings
+* Save Scene as JSON file
 
 ![Screenshot of window](Screenshot.jpg)
 
 ## Installation and Usage
 ### For Windows OS:
+
 if already not installed, install Python from https://www.python.org/downloads/ . (python 3.10 or above recommended)
 open command prompt in project folder and
 Install Panda3D by running the command below
-`pip install Panda3D==1.10.14`
+```pip install Panda3D==1.10.14```
 Install the required packages using the command below
-`pip install -r requirements.txt`
+```pip install -r requirements.txt```
 Run the program using the command
-`python scene_maker.py`
+```python scene_maker.py```
 or you can run the program by double-clicking the file 'Run.bat'
 
 ### For Linux OS:
 Open the terminal in project folder and run the following
-`python3 scene_maker.py`
+```python3 scene_maker.py```
 
 
 ## Shortcuts
