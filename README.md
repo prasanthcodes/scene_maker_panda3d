@@ -19,10 +19,9 @@ Create 3D scenes with your 3d models. You can adjust the light properties, view 
 ## Installation and Usage
 ### For Windows OS:
 
-If already not installed, install Python from https://www.python.org/downloads/ . (python 3.10 or above recommended) <br/>
-open command prompt in project folder and <br/>
-Install Panda3D by running the command below <br/>
-```sh 
+If already not installed, install Python from https://www.python.org/downloads/ . (python 3.10 or above recommended). <br/>
+open command prompt in project folder and install Panda3D by running the command below
+```
 pip install Panda3D==1.10.14
 ``` 
 Install the required packages using the command below 
