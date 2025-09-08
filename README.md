@@ -25,16 +25,21 @@ Install Panda3D by running the command below <br/>
 ```sh 
 pip install Panda3D==1.10.14
 ``` 
-<br/>
-Install the required packages using the command below <br/>
-``` pip install -r requirements.txt ``` <br/>
-Run the program using the command <br/>
-``` python scene_maker.py ``` <br/>
+Install the required packages using the command below 
+```
+pip install -r requirements.txt
+```
+Run the program using the command
+```
+python scene_maker.py
+```
 or you can run the program by double-clicking the file 'Run.bat' <br/>
 
 ### For Linux OS:
 Open the terminal in project folder and run the following <br/>
-``` python3 scene_maker.py ``` <br/>
+```
+python3 scene_maker.py
+```
 
 
 ## Shortcuts
