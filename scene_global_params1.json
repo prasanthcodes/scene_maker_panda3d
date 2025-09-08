@@ -1,6 +1,6 @@
 {
     "mouse_sensitivity": 50,
-    "move_speed": 0.9,
+    "move_speed": 0.1,
     "crosshair": false,
     "gizmo": true,
     "ambientlight_intensity": 0.2,
