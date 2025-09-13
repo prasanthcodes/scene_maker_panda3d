@@ -2,7 +2,7 @@
 A Simple Scene Maker for Panda3D.
 
 ## Introduction
-Create 3D scenes with your 3d models. You can adjust the light properties, view the animations, set the skybox,heightmaps,fog all via simple User Interface.
+Create 3D scene by loading 3d models. You can adjust the light properties, view the animations, set the skybox,heightmaps,fog all via simple User Interface.
 
 ## Features
 * Supports Variety of Model Formats. (egg,bam,glb, etc.)
@@ -72,7 +72,7 @@ H - Z decrease <br/> <br/>
 Delete - Delete the current model <br/>
 
 ### Notes
-1. Model files should be loaded from the current relative path. When loading from the outside current folder, there is an error occurs.
+1. Model files should be loaded from the current relative path.
 2. when clicking on "Remove Animation" in GUI, animation names are not immediately removed, but they will not appear after the next restart.
 
 ### Disclaimer
