@@ -2426,6 +2426,7 @@ class SceneMakerMain(ShowBase):
         self.models_light_all=[]
         self.models_light_node_all=[]
         for i in range(len(self.data_all)):
+            print(f"loading models: {i+1}/{len(self.data_all)}")
             data=self.data_all[i]
             self.models_names_all.append(data["uniquename"])
             if 'actor' not in data:
