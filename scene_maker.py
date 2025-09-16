@@ -612,7 +612,16 @@ class SceneMakerMain(ShowBase):
     def create_top_level_main_gui(self):
         self.menu_1 = DirectOptionMenu(text="switch_property", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_1, textMayChange=1,items=self.property_names,pos=(-1.3, 1,0.95),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9))
         
-        self.menu_2 = DirectOptionMenu(text="switch_models", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_2, textMayChange=1,items=self.models_names_all,pos=(0.2, 1,0.95),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9))
+        #self.menu_2 = DirectOptionMenu(text="switch_models", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_2, textMayChange=1,items=self.models_names_all,pos=(0.2, 1,0.95),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9))
+        self.menu_2 = DirectButton(text=("switch_models                                                 ."),scale=.07,command=self.show_ScrolledFrame_menu_2,pos=(0.2, 1,0.95),frameColor=(0,0,0,0.5),text_fg=(1, 1, 1, 0.9),text_align=TextNode.ALeft)
+        self.ScrolledFrame_menu_2=DirectScrolledFrame(
+            frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            frameColor=(0.3, 0.3, 0.3, 0.5)
+        )
+        self.add_models_to_menuoption()
+        self.ScrolledFrame_menu_2.hide()
         
         self.MenuButton_1 = DirectButton(text = "Menu",scale=.06,command=self.menubuttonDef_1,pos=(-0.85, 1,0.95))
         self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0.1, 1,0.95),command=self.ButtonDef_1)
@@ -650,6 +659,12 @@ class SceneMakerMain(ShowBase):
         #self.MenuButton_1.bind(DGG.WITHIN, self.menu_hover_command, [True])
         #---display camera pos at bottom---
         self.bottom_cam_label=DirectLabel(text='CamPos: ',pos=(-1,1,-0.9),scale=0.05,text_align=TextNode.ACenter,text_fg=(1, 1, 1, 0.8),text_bg=(0,0,0,0.2),frameColor=(0, 0, 0, 0.1))
+    
+    def show_ScrolledFrame_menu_2(self):
+        if self.ScrolledFrame_menu_2.isHidden():
+            self.ScrolledFrame_menu_2.show()
+        else:
+            self.ScrolledFrame_menu_2.hide()
     
     def show_top_level_main_gui(self):
         self.menu_1.show()
@@ -1186,7 +1201,7 @@ class SceneMakerMain(ShowBase):
         
         self.ScrolledFrame_h2=DirectScrolledFrame(
             parent=canvas_4,
-            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            frameSize=(-1.5, 1.15, -0.9, 0.55),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
             #pos=(-0.35, 1,0.95)
@@ -1699,8 +1714,8 @@ class SceneMakerMain(ShowBase):
                         # Generate it.
                         self.terrain.generate()
                         self.terrain_all[self.current_model_index]=self.terrain
-                        self.menu_2['items']=self.models_names_all
-                        self.menu_2.set(self.current_model_index)#the respective function is called when setting the menu item
+                        self.add_models_to_menuoption()
+                        self.menudef_2_new(self.current_model_index)                                                       
                         logger.info('terrain generated.')
                         self.display_last_status('terrain generated and added to models.')
                     else:
@@ -2064,8 +2079,8 @@ class SceneMakerMain(ShowBase):
                     self.dentry_3.enterText(textEntered)
                     self.data_all[self.current_model_index]['uniquename']=textEntered
                     self.models_names_all[self.current_model_index]=textEntered
-                    self.menu_2['items']=self.models_names_all
-                    #self.menu_2.set(self.current_model_index)
+                    #self.menu_2['items']=self.models_names_all
+                    self.add_models_to_menuoption()
                     self.param_1['uniquename']=textEntered
                     if self.param_1['uniquename']==curname: 
                         self.param_1['uniquename']=textEntered
@@ -2359,6 +2374,20 @@ class SceneMakerMain(ShowBase):
         self.add_model_animations_to_gui_g1()
         self.add_items_to_model_parent_editor()
 
+    def menudef_2_new(self,item_index):
+        #self.current_model_index=self.models_names_all.index(val)
+        self.current_model_index=item_index
+        data=self.data_all[self.current_model_index]
+        self.param_1=data
+        self.load_model_from_param(fileload_flag=False,indexload_flag=True)
+        self.set_model_values_to_gui()
+        self.makeup_lights_gui()
+        self.add_model_nodepaths_to_gui_f1()
+        self.add_model_animations_to_gui_g1()
+        self.add_items_to_model_parent_editor()
+        self.menu_2["text"]=self.models_names_all[item_index]
+        self.ScrolledFrame_menu_2.hide()
+
     def DialogDef_1(self,arg):
         if arg:
             try:
@@ -2388,8 +2417,8 @@ class SceneMakerMain(ShowBase):
                 
                 self.current_model_index-=1
                 if self.current_model_index<0: self.current_model_index=0
-                self.menu_2['items']=self.models_names_all
-                self.menu_2.set(self.current_model_index)
+                self.add_models_to_menuoption()
+                self.menudef_2_new(self.current_model_index)
                 self.display_last_status('current model deleted.')
                 self.dialog_1.cleanup()
                 print('deleted.')
@@ -2699,9 +2728,7 @@ class SceneMakerMain(ShowBase):
                 self.current_model_index=0
             data=self.data_all[self.current_model_index]
             self.param_1=data
-            #self.load_model_from_param(fileload_flag=False,indexload_flag=True)
-            #self.set_model_values_to_gui()
-            self.menu_2.set(self.current_model_index)#it will trigger the DirectOptionMenu function
+            self.menudef_2_new(self.current_model_index)
         elif key=="load_model":
             print('opening askfilename dialog to load a model')
             self.keyMap['load_model']=False
@@ -2721,9 +2748,8 @@ class SceneMakerMain(ShowBase):
                         tempname=uqname+'.%03d'%(i)
                 self.initialize_model_param(tempname,modelfilepath)
                 self.load_model_from_param(fileload_flag=True,indexload_flag=False)
-                #self.set_model_values_to_gui()# this function called inside menu_2 function, so here it is redundant
-                self.menu_2['items']=self.models_names_all
-                self.menu_2.set(self.current_model_index)#the respective function is called when setting the menu item
+                self.add_models_to_menuoption()
+                self.menudef_2_new(self.current_model_index)                                                                                                                       
                 logger.info('model '+modelfilepath+' loaded')
                 self.display_last_status('model file loaded.')
             else:
@@ -3155,15 +3181,15 @@ class SceneMakerMain(ShowBase):
         else:
             if indexload_flag==True:
                 fileload_flag=False
-                print('model file loading from index going to happen.')
-                self.display_last_status('model file is loading... (using index)')
+                print('model file loading from index '+str(self.current_model_index))
+                self.display_last_status('model file is loading... (index:'+str(self.current_model_index)+')')
             else:
                 if fileload_flag==False:
                     indexload_flag==True
-                    print('model file loading from index going to happen.')
-                    self.display_last_status('model file is loading... (using index)')
+                    print('model file is loading from index '+str(self.current_model_index))
+                    self.display_last_status('model file is loading... (index:'+str(self.current_model_index)+')')
                 else:
-                    print('model file loading from disk going to happen.')
+                    print('model file loading from disk.')
                     self.display_last_status('model file is loading... (from drive)')
             
         if self.param_1['enable']==True:
@@ -3619,6 +3645,57 @@ class SceneMakerMain(ShowBase):
             # Force scrollbars to recompute
             self.ScrolledFrame_f1.guiItem.remanage()
 
+    def add_models_to_menuoption(self):
+        # Get the canvas NodePath
+        canvas = self.ScrolledFrame_menu_2.getCanvas()
+
+        # Remove all child nodes
+        for child in canvas.getChildren():
+            child.removeNode()
+        
+        modellist=[]
+        for name in self.models_names_all:
+            modellist.append(name)
+
+        # Add clickable items to the list
+        for i in range(len(modellist)):
+
+            # Add label
+            label = DirectLabel(
+                parent=canvas,
+                text=f"{i+1}. ",
+                scale=0.05,
+                text_fg=(1, 1, 1, 0.9),
+                frameColor=(0, 0, 0, 0.4),
+                pos=(0, 0, -0.1*i),
+                text_align=TextNode.ALeft
+            )
+
+            # Add button
+            button = DirectButton(
+                parent=canvas,
+                text=modellist[i],
+                text_fg=(1, 1, 1, 0.9),
+                scale=0.05,
+                pos=(0.1, 0, -0.1*i),
+                command=self.menudef_2_new,
+                frameColor=(0, 0, 0, 0.4),
+                text_align=TextNode.ALeft,
+                extraArgs=[i]  # Pass item number to callback
+            )
+            # Define hover events
+            button.bind(DGG.WITHIN, self.on_hover_1, [button])
+            button.bind(DGG.WITHOUT, self.on_exit_1, [button])
+            
+            canvas_left=-0.1
+            canvas_right=6
+            canvas_bottom=-(len(modellist)*button.getHeight()/10)
+            canvas_top=0.1
+            self.ScrolledFrame_menu_2["canvasSize"] = (canvas_left, canvas_right, canvas_bottom, canvas_top)
+
+            # Force scrollbars to recompute
+            self.ScrolledFrame_menu_2.guiItem.remanage()
+
     def on_item_click_f1(self, item_index):
         pass
 
@@ -3777,6 +3854,15 @@ class SceneMakerMain(ShowBase):
             )
             self.Tentry_MNames.append(entry)
             self.Tentry_MIndices.append(entry2)
+            
+            canvas_left=-1.5
+            canvas_right=6
+            canvas_bottom=-(len(self.models_names_all)*entry.getHeight()/10)
+            canvas_top=0.6
+            self.ScrolledFrame_h2["canvasSize"] = (canvas_left, canvas_right, canvas_bottom, canvas_top)
+
+            # Force scrollbars to recompute
+            self.ScrolledFrame_h2.guiItem.remanage()
         
     def update_model_parent(self, textEntered,index):
         now = datetime.datetime.now()
