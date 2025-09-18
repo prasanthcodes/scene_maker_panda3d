@@ -3,6 +3,7 @@
     "move_speed": 0.1,
     "crosshair": false,
     "gizmo": true,
+	"dark_theme":true,
     "ambientlight_intensity": 0.2,
     "ambientlight_R": 1.0,
     "ambientlight_G": 1.0,
