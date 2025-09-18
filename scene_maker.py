@@ -1392,7 +1392,7 @@ class SceneMakerMain(ShowBase):
                     self.display_last_status('skybox disabled. enable to show or hide.')
             elif identifier=='select_image':
                 root = tk.Tk()
-                openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .hdr .exr"),("All files", "*.*")])
+                openedfilename=askopenfilename(title="open an image file",filetypes=[("image files", ".jpg .jpeg .png .hdr .exr"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
                     Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
@@ -1618,7 +1618,7 @@ class SceneMakerMain(ShowBase):
                         self.dentry_j2.enterText("")
             elif identifier=='select_heightmap':
                 root = tk.Tk()
-                openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
+                openedfilename=askopenfilename(title="open an image file",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
                     Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
@@ -1671,7 +1671,7 @@ class SceneMakerMain(ShowBase):
                     self.dentry_j11.enterText("100")
             elif identifier=='select_texture':
                 root = tk.Tk()
-                openedfilename=askopenfilename(title="open an image file",initialdir=".",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
+                openedfilename=askopenfilename(title="open an image file",filetypes=[("image files", ".jpg .jpeg .png .bmp .gif"),("All files", "*.*")])
                 root.destroy()
                 if len(openedfilename)>0:
                     Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
@@ -2326,7 +2326,7 @@ class SceneMakerMain(ShowBase):
     def ButtonDef_g10(self):
         try:
             if self.param_1['actor'][0]==True:
-                openedfilenames=askopenfilename(title="open a model animation file",initialdir=".",filetypes=[("animation files", " .egg .bam .pz"),("All files", "*.*")],multiple=True)
+                openedfilenames=askopenfilename(title="open a model animation file",filetypes=[("animation files", " .egg .bam .pz"),("All files", "*.*")],multiple=True)
                 for i in range(len(openedfilenames)):
                     bname=os.path.basename(openedfilenames[i])
                     relpath=os.path.relpath(openedfilenames[i], os.getcwd())
@@ -2762,24 +2762,25 @@ class SceneMakerMain(ShowBase):
             self.keyMap['load_model']=False
             len_curdir=len(os.getcwd())+1
             root = tk.Tk()
-            openedfilename=askopenfilename(title="open the model file",initialdir=".",filetypes=[("model files", ".gltf .glb .egg .bam .pz"),("All files", "*.*")])
+            openedfilenames=askopenfilename(title="open the model files",filetypes=[("model files", ".gltf .glb .egg .bam .pz"),("All files", "*.*")],multiple=True)#initialdir="."
             root.destroy()
-            if len(openedfilename)>0:
-                modelfilepath=os.path.relpath(openedfilename, os.getcwd())
-                modelfilepath=modelfilepath.replace("\\","/")
-                uqname=os.path.basename(modelfilepath)
-                tempname=uqname
-                for i in range(int(1e3)):
-                    if tempname not in self.models_names_all:
-                        continue
-                    else:
-                        tempname=uqname+'.%03d'%(i)
-                self.initialize_model_param(tempname,modelfilepath)
-                self.load_model_from_param(fileload_flag=True,indexload_flag=False)
-                self.add_models_to_menuoption()
-                self.menudef_2_new(self.current_model_index)                                                                                                                       
-                logger.info('model '+modelfilepath+' loaded')
-                self.display_last_status('model file loaded.')
+            if len(openedfilenames)>0:
+                for idx in range(len(openedfilenames)):
+                    modelfilepath=os.path.relpath(openedfilenames[idx], os.getcwd())
+                    modelfilepath=modelfilepath.replace("\\","/")
+                    uqname=os.path.basename(modelfilepath)
+                    tempname=uqname
+                    for i in range(int(1e3)):
+                        if tempname not in self.models_names_all:
+                            continue
+                        else:
+                            tempname=uqname+'.%03d'%(i)
+                    self.initialize_model_param(tempname,modelfilepath)
+                    self.load_model_from_param(fileload_flag=True,indexload_flag=False)
+                    self.add_models_to_menuoption()
+                    self.menudef_2_new(self.current_model_index)                                                                                                                       
+                    logger.info('model '+modelfilepath+' loaded')
+                self.display_last_status('model files are loaded.')
             else:
                 print('opened file name empty')
                 self.display_last_status('model file not loaded.')
@@ -3666,7 +3667,7 @@ class SceneMakerMain(ShowBase):
             
             canvas_left=-0.1
             canvas_right=6
-            canvas_bottom=-(len(nodepathlist)*button.getHeight()/10)
+            canvas_bottom=-(len(nodepathlist)*0.1)
             canvas_top=0.1
             self.ScrolledFrame_f1["canvasSize"] = (canvas_left, canvas_right, canvas_bottom, canvas_top)
 
@@ -3717,7 +3718,8 @@ class SceneMakerMain(ShowBase):
             
             canvas_left=-0.1
             canvas_right=6
-            canvas_bottom=-(len(modellist)*button.getHeight()/10)
+            #canvas_bottom=-(len(modellist)*button.getHeight()/10)
+            canvas_bottom=-(len(modellist)*0.1)
             canvas_top=0.1
             self.ScrolledFrame_menu_2["canvasSize"] = (canvas_left, canvas_right, canvas_bottom, canvas_top)
 
