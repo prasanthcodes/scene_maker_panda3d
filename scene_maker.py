@@ -1,15 +1,11 @@
 import panda3d
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import AmbientLight, DirectionalLight, PointLight
-from panda3d.core import TextNode, NodePath, LightAttrib
-from panda3d.core import LVector3
 from direct.actor.Actor import Actor
 from direct.task.Task import Task
 from direct.gui.OnscreenText import OnscreenText
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.showbase.DirectObject import DirectObject
 from direct.gui.DirectGui import *
-from panda3d.core import Texture, TexturePool, LoaderOptions, TextureStage, TexGenAttrib, TransformState
 from direct.filter.FilterManager import FilterManager
 
 import random
@@ -27,7 +23,6 @@ from tkinter import messagebox
 import tkinter as tk
 
 import simplepbr
-#import complexpbr
 import gltf
 
 import json
@@ -55,7 +50,6 @@ logger.addHandler(stdout_handler)
 
 # To handle all uncaught exceptions
 def error_handler(exc_type, exc_value, exc_traceback):
-    #logger.exception("Uncaught exception: {0}".format(str(exc_value)), exc_info=True)
     logger.error("Unhandled error: ",exc_info=(exc_type, exc_value, exc_traceback))
 
 # Install exception handler
@@ -86,18 +80,10 @@ panda3d.core.load_prc_file_data("", """
 panda3d.core.load_prc_file_data('', 'show-frame-rate-meter true')
 #panda3d.core.load_prc_file_data('', 'fullscreen true')
 #loadPrcFileData('', 'coordinate-system y-up-left')
-
 loadPrcFileData("", "basic-shaders-only #t")
-#loadPrcFileData("", "gl-version 3 2")
 #loadPrcFileData("", "notify-level-glgsg debug")                                         
 #loadPrcFileData("", "win-size 1920 1080")
 #loadPrcFileData("", "fullscreen t")
-#loadPrcFileData("", "direct-gui-edit 1")
-#loadPrcFileData("", "want-pstats 1")
-#loadPrcFileData("", "pstats-tasks 1")
-#loadPrcFileData("", "pstats-python-profiler 1")
-#loadPrcFileData("", "pstats-gpu-timing 1")
-#loadPrcFileData("", "gl-finish 1")
 #loadPrcFileData("", "show-scene-graph-analyzer-meter 1")
 loadPrcFileData("", "icon-filename icons/title_icon.ico")
 loadPrcFileData("", "window-title Scene Maker")
@@ -110,12 +96,9 @@ class SceneMakerMain(ShowBase):
         self.disable_mouse()
         self.FilterManager_1 = FilterManager(base.win, base.cam)
         self.Filters=CommonFilters(base.win, base.cam)
-        #self.Filters.setBloom()
         self.pstats = True
         
         #---adjustable parameters---
-        #self.mouse_sensitivity=50
-        #self.move_speed=0.1
         base_path = os.path.dirname(os.path.abspath(__file__))
         self.scene_data_filename=os.path.join(base_path,'scene_params1.json')
         self.scene_data_backup_filename=os.path.join(base_path,'scene_params1_tempbackup.json')
@@ -193,16 +176,11 @@ class SceneMakerMain(ShowBase):
         base.accept('tab', base.bufferViewer.toggleEnable)
         
 
-        #self.param_1={}
-        #self.param_1['pos']=[True,[0,0,0]]
-        #self.param_1['uniquename']=''
         self.param_2={}               
         self.current_property=1
         self.property_names=['position','scale','rotation','color']
         self.tonemap_option_items=['Simple Reinhard','Extended Reinhard']
-        #self.pos_acceleration=1
         self.pos_increment=0.001
-        #self.scale_acceleration=1
         self.scale_increment=0.01
         self.temp_count=1
         self.fog=""
@@ -211,7 +189,6 @@ class SceneMakerMain(ShowBase):
         self.entry_temp=""
         self.identifier_temp=""
         self.floating_slider= DirectSlider(pos=(-1, 0, -0.1),scale=1,value=50,range=(0, 100),command=self.on_slider_change,frameSize=(0, 2, -0.05, 0.05),frameColor=(0.2, 0.2, 0.7, 1.0),thumb_frameSize=(-0.04, 0.04, -0.08, 0.08))
-        #self.floating_slider["extraArg"]=[self.floating_slider]
         self.floating_slider.hide()
         
         #---apply global params---
@@ -222,31 +199,22 @@ class SceneMakerMain(ShowBase):
         self.apply_global_params_3()
         self.apply_global_params_4()
         self.display_last_status(self.temp_ststus)
-        #self.gg.writeBamFile("my_scene.bam")
-        
         
         
         #---load pbr pipeline---
-        #env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
-        #tex = loader.loadCubeMap("#.jpg")
-        #env_map = simplepbr.EnvPool.load_env_map('#.jpg')
+
         if self.global_params['skybox_enable_envmap']==True:
             env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
         else:
             env_map=None
         
-        #env_map=None
         self.pipeline = simplepbr.init(
         env_map=env_map,
-        #applyToneMapping=False,
         use_normal_maps=True,
         exposure=0,
-        #sdr_lut_factor=0,
         max_lights=16,
         enable_fog=True
         )
-        
-        #self.pipeline=complexpbr.apply_shader(self.render, intensity=1.0)
         
         
     
@@ -255,11 +223,9 @@ class SceneMakerMain(ShowBase):
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
             pos=(0,0,0),
-            #pos=(-0.35, 1,0.95)
             frameColor=(0, 0, 0, 0)
         )
         canvas_a1=self.ScrolledFrame_a0.getCanvas()
-        #self.daylight_adjuster_gui=DirectFrame(pos=(-1.35, 1,1),frameSize=(0,0.8,-0.9,0),frameColor=(0, 0, 0, 0.1))
         
         self.checkbutton_a1 = DirectCheckButton(parent=canvas_a1,pos=(-0.72, 1,0.97),command=self.icons_command,extraArgs=['1'],scale=0.03,indicatorValue=0,image="icons/1.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
         self.checkbutton_a2 = DirectCheckButton(parent=canvas_a1,pos=(-0.65, 1,0.97),command=self.icons_command,extraArgs=['2'],scale=0.03,indicatorValue=0,image="icons/2.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
@@ -273,8 +239,7 @@ class SceneMakerMain(ShowBase):
         self.checkbutton_a10 = DirectCheckButton(parent=canvas_a1,pos=(-0.09, 1,0.97),command=self.icons_command,extraArgs=['10'],scale=0.03,indicatorValue=0,image="icons/10.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
 
     def icons_command(self,InputValue,identifier):
-        if 1:
-        #try:
+        try:
             if identifier=="1":
                 if InputValue:
                     self.show_properties_gui()
@@ -345,10 +310,9 @@ class SceneMakerMain(ShowBase):
                 else:
                     self.ScrolledFrame_j1.hide()
                     self.checkbutton_a10['image_color'] = (1, 1, 1, 1)
-        else:
-        #except Exception as e:
+        except Exception as e:
             logger.error('error in shortcut icon click:')
-            #logger.error(e)
+            logger.error(e)
             self.display_last_status('error in shortcut icon click.')
             
     def create_global_params(self):
@@ -643,7 +607,6 @@ class SceneMakerMain(ShowBase):
     def create_top_level_main_gui(self):
         self.menu_1 = DirectOptionMenu(text="switch_property", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_1, textMayChange=1,items=self.property_names,pos=(-1.3, 1,0.95),frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1)
         
-        #self.menu_2 = DirectOptionMenu(text="switch_models", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_2, textMayChange=1,items=self.models_names_all,pos=(0.2, 1,0.95),frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1)
         self.menu_2 = DirectButton(text=("switch_models                                                 ."),scale=.07,command=self.show_ScrolledFrame_menu_2,pos=(0.2, 1,0.95),frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
         self.ScrolledFrame_menu_2=DirectScrolledFrame(
             frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
@@ -938,8 +901,7 @@ class SceneMakerMain(ShowBase):
         self.dentry_b11.hide()
 
     def daylight_commands(self,textEntered,identifier):
-        if 1:
-        #try:
+        try:
             # textEntered value may be integer if it called from other than gui
             textEntered_num=float(textEntered)
             textEntered_str=str(textEntered)
@@ -1003,10 +965,9 @@ class SceneMakerMain(ShowBase):
             self.directionalLight.setColor((r,g,b, 1))
             self.dlight1.setHpr(h,p,ro)
             self.dlight1.setPos(x,y,z)
-        else:
-        #except Exception as e:
+        except Exception as e:
             logger.error('error in daylight gui entry:')
-            #logger.error(e)
+            logger.error(e)
             self.display_last_status('error in daylight gui entry.')
 
     def create_daylight_gui(self):
@@ -1018,8 +979,6 @@ class SceneMakerMain(ShowBase):
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_1=self.ScrolledFrame_d1.getCanvas()
-        #self.daylight_adjuster_gui=DirectFrame(pos=(-1.35, 1,1),frameSize=(0,0.8,-0.9,0),frameColor=(0, 0, 0, 0.1))
-        #command=self.SetEntryText_e,extraArgs=['Intensity']
         self.dlabel_c1 = DirectLabel(parent=canvas_1,text='Ambient light: intensity',pos=(-0.8,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_c2 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.3, 1,0.75), command=self.daylight_commands,extraArgs=['ambientlight_intensity'],initialText="0.1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
@@ -1066,7 +1025,6 @@ class SceneMakerMain(ShowBase):
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_2=self.ScrolledFrame_d2.getCanvas()
-        #self.daylight_adjuster_gui=DirectFrame(pos=(-1.35, 1,1),frameSize=(0,0.8,-0.9,0),frameColor=(0, 0, 0, 0.1))
         
         self.dlabel_d1 = DirectLabel(parent=canvas_2,text='Mouse Sensitivity (0-100,default 50): ',pos=(-1.1,1,0.75),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_d2 = DirectEntry(parent=canvas_2,text = "", scale=0.06,width=10,pos=(0.3, 1,0.75), command=self.SetEntryText_d1,initialText="50", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
@@ -1140,11 +1098,8 @@ class SceneMakerMain(ShowBase):
         frameColor=self.FRAME_COLOR_1,
         scale=0.06,
         pos=(0, 0, 0.53),  # Position at top of list frame
-        #frameColor=(0.3, 0.3, 0.5, 1),
         text_fg=(0.3, 0.3, 0.7, 1),
-        #frameSize=(-0.5, 0.5, -0.1, 0.1),
         text_align=TextNode.ALeft
-        #relief=DGG.RAISED
         )
 
         # Bind mouse wheel events
@@ -1185,7 +1140,6 @@ class SceneMakerMain(ShowBase):
             frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
-            #pos=(-0.35, 1,0.95)
             frameColor=self.FRAME_COLOR_1
         )
         
@@ -1194,7 +1148,6 @@ class SceneMakerMain(ShowBase):
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
-            #pos=(-0.35, 1,0.95)
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_3=self.ScrolledFrame_g1.getCanvas()
@@ -1204,7 +1157,6 @@ class SceneMakerMain(ShowBase):
             frameSize=(-1.4, -0.3, -0.9, 0.6),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
-            #pos=(-0.35, 1,0.95)
             frameColor=self.FRAME_COLOR_1
         )
         
@@ -1246,7 +1198,6 @@ class SceneMakerMain(ShowBase):
             frameSize=(-1.5, 1.15, -0.9, 0.55),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
-            #pos=(-0.35, 1,0.95)
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         
@@ -1366,8 +1317,7 @@ class SceneMakerMain(ShowBase):
             self.display_last_status('error when setting tonemapping_method')
         
     def skybox_commands(self,InputValue,identifier):
-        if 1:
-        #try:
+        try:
             if identifier=='enable':
                 self.global_params['skybox_enable']=InputValue
                 self.CheckButton_i1['indicatorValue']=InputValue
@@ -1564,8 +1514,7 @@ class SceneMakerMain(ShowBase):
                     self.display_last_status('error when setting skybox_gamma')
                     logger.error('error when setting skybox_gamma')
                 
-        else:
-        #except Exception as e:
+        except Exception as e:
             logger.error('error in skybox gui entry:')
             logger.error(e)
             self.display_last_status('error in skybox gui entry.')
@@ -1604,7 +1553,6 @@ class SceneMakerMain(ShowBase):
         self.dbutton_j22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','generate_terrain'])
 
     def heightmap_commands(self,InputValue,identifier):
-        #if 1:
         try:
             if identifier=='unique_name':
                 if (InputValue.lower()=='render') or (InputValue.lower()=='none') or (InputValue.lower()==''):
@@ -1764,7 +1712,6 @@ class SceneMakerMain(ShowBase):
                         self.display_last_status('heightmap unique name already exists. enter new unique name.')
                         self.dentry_j2.enterText("")
 
-        #else:
         except Exception as e:
             logger.error('error in heightmap gui entry:')
             logger.error(e)
@@ -1816,7 +1763,6 @@ class SceneMakerMain(ShowBase):
         self.dentry_k16 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=7,pos=(-0.7, 1,0), command=self.fog_commands,extraArgs=['density'],initialText="0.005", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
     def fog_commands(self,InputValue,identifier):
-        #if 1:
         try:
             if identifier=='enable':
                 self.CheckButton_k1['indicatorValue']=InputValue
@@ -1878,7 +1824,6 @@ class SceneMakerMain(ShowBase):
                         self.render.clearFog()
                         self.render.setFog(self.fog)
 
-        #else:
         except Exception as e:
             logger.error('error in fog gui entry:')
             logger.error(e)
@@ -1906,7 +1851,6 @@ class SceneMakerMain(ShowBase):
         if status:
             self.data_all[self.current_model_index]['enable']=True
             self.models_all[self.current_model_index]=loader.loadModel(self.data_all[self.current_model_index]["filename"])
-            #self.models_all[self.current_model_index].reparentTo(self.render)
             self.load_model_from_param(fileload_flag=False,indexload_flag=True)
             self.set_model_values_to_gui()
             self.makeup_lights_gui()
@@ -1914,7 +1858,6 @@ class SceneMakerMain(ShowBase):
             self.add_model_animations_to_gui_g1()
             if self.model_parent_enabled_all[self.current_model_index]==True:
                 self.attach_to_parent_2(self.models_all[self.current_model_index],self.model_parent_indices_all[self.current_model_index])
-            #self.add_items_to_model_parent_editor()
             
         else:
             self.data_all[self.current_model_index]['enable']=False
@@ -2295,7 +2238,6 @@ class SceneMakerMain(ShowBase):
     def on_slider_change(self):
         current_value = self.floating_slider['value']
         if self.identifier_temp=="exposure":
-            #self.entry_temp.enterText(str(current_value))
             current_value=float("{:.2f}".format(current_value))
             self.skybox_commands(current_value,"exposure")
         if self.identifier_temp=="gamma":
@@ -2345,7 +2287,6 @@ class SceneMakerMain(ShowBase):
             self.display_last_status('animation loading error.')
             
     def ButtonDef_g13(self):
-        #if 1:
         try:
             if self.param_1['actor'][0]==True:
                 animIndex=self.dentry_g12.get()
@@ -2370,7 +2311,6 @@ class SceneMakerMain(ShowBase):
             else:
                 print('not an Actor')
                 self.display_last_status('not an Actor.')
-        #else:
         except Exception as e:
             logger.error('anim removing error:')
             logger.error(e)
@@ -2416,8 +2356,6 @@ class SceneMakerMain(ShowBase):
         data=self.data_all[self.current_model_index]
         self.param_1=data
         self.load_model_from_param(fileload_flag=False,indexload_flag=True)
-        #self.menu_2['items']=self.models_names_all
-        #self.menu_2.set(self.current_model_index)
         self.set_model_values_to_gui()
         self.makeup_lights_gui()
         self.add_model_nodepaths_to_gui_f1()
@@ -2425,7 +2363,6 @@ class SceneMakerMain(ShowBase):
         self.add_items_to_model_parent_editor()
 
     def menudef_2_new(self,item_index):
-        #self.current_model_index=self.models_names_all.index(val)
         self.current_model_index=item_index
         data=self.data_all[self.current_model_index]
         self.param_1=data
@@ -2497,7 +2434,6 @@ class SceneMakerMain(ShowBase):
         self.models_names_all=[]
         self.models_names_enabled=[]
         self.ModelTemp=""
-        #self.data_all_light=[]
         self.models_with_lights=[]
         for dobj in self.data_all_light:
             self.models_with_lights.append(dobj["uniquename"])
@@ -2847,26 +2783,16 @@ class SceneMakerMain(ShowBase):
         
     def setupLights(self):  # Sets up some default lighting
         self.ambientLight = AmbientLight("ambientLight")
-        #self.ambientLight_Intensity=0.3
-        #self.ambientLight.setColor((self.ambientLight_Intensity,self.ambientLight_Intensity,self.ambientLight_Intensity, 1))
         self.render.setLight(self.render.attachNewNode(self.ambientLight))
         self.directionalLight = DirectionalLight("directionalLight_1")
-        #self.directionalLight_intensity=5
-        #self.directionalLight.setColor((self.directionalLight_intensity,self.directionalLight_intensity,self.directionalLight_intensity, 1))
-        #self.directionalLight.setSpecularColor((.1, .1, .1, .1))
         self.directionalLight.setShadowCaster(True, 512,512)
         self.dlight1=self.render.attachNewNode(self.directionalLight)
         self.dlight1.setHpr(0, -45, 0)
         self.dlight1.setPos(0,0,20)
-        #self.dlight1.setPos(0,-30,30)
-        #self.dlight1.look_at(0, 0, 0)
         
         self.suncube = loader.loadModel("cube_arrow.glb")
         self.suncube.reparentTo(self.dlight1)
-        self.suncube.setScale(1.5,1.5,1.5)
-        #self.suncube.setPos(10,10,20)
-        #self.suncube.setHpr(0, -45, 0)
-        #self.environ1.set_shader(self.shader)               
+        self.suncube.setScale(1.5,1.5,1.5)              
 
         self.dlight1.node().get_lens().set_film_size(50, 50)
         self.dlight1.node().get_lens().setNearFar(1, 50)
@@ -2888,13 +2814,8 @@ class SceneMakerMain(ShowBase):
                 mouse = self.win.getPointer(0)
                 mx, my = mouse.getX(), mouse.getY()
                 # Reset mouse to center to prevent edge stopping
-                #self.win.movePointer(0, int(800 / 2), int(600 / 2))
                 self.win.movePointer(0, int(self.win.getXSize() / 2), int(self.win.getYSize() / 2))
-                #print('mx:',mx,',my:',my)
 
-                # Calculate mouse delta
-                #dx = mx - 800 / 2
-                #dy = my - 600 / 2
                 # Calculate mouse delta
                 dx = mx - int(self.win.getXSize() / 2)
                 dy = my - int(self.win.getYSize() / 2)
