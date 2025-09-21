@@ -2568,6 +2568,15 @@ class SceneMakerMain(ShowBase):
                         self.models_light_node_all.append(self.light_node_list)
                         for tmp in self.light_node_list:
                             self.render.setLight(tmp)
+                        for j2 in range(len(self.light_name_list)):
+                            idx2=j2
+                            self.plight_idx=j2
+                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][0],'R')
+                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][1],'G')
+                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][2],'B')
+                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'C')
+                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'L')
+                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'Q')
                         
                 self.models_names_enabled.append(data["uniquename"])
                 d=data["pos"][1]
@@ -3491,7 +3500,7 @@ class SceneMakerMain(ShowBase):
         light_list=[]
         light_node_list=[]
         if len(point_lights)>0:
-            logger.info("Found Point Lights: ",data['filename'])
+            logger.info("Found Point Lights: "+str(data['filename']))
             #self.param_2={}
             self.param_2['enable']=True
             self.param_2['show']=True
