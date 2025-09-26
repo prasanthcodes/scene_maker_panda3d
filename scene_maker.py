@@ -3623,7 +3623,7 @@ class SceneMakerMain(ShowBase):
             label = DirectLabel(
                 parent=canvas,
                 text=f"{i+1}. ",
-                scale=0.05,
+                scale=0.07,
                 text_fg=self.TEXTFG_COLOR_1,
                 frameColor=self.FRAME_COLOR_1,
                 pos=(0, 0, -0.1*i),
@@ -3635,7 +3635,7 @@ class SceneMakerMain(ShowBase):
                 parent=canvas,
                 text=modellist[i],
                 text_fg=self.TEXTFG_COLOR_1,
-                scale=0.05,
+                scale=0.07,
                 pos=(0.1, 0, -0.1*i),
                 command=self.menudef_2_new,
                 frameColor=self.FRAME_COLOR_1,
