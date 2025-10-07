@@ -179,7 +179,7 @@ class SceneMakerMain(ShowBase):
         self.param_2={}               
         self.current_property=1
         self.property_names=['position','scale','rotation','color']
-        self.tonemap_option_items=['Simple Reinhard','Extended Reinhard']
+        self.tonemap_option_items=['Linear','Reinhard Simple ','Reinhard Photographic','ACES']
         self.pos_increment=0.001
         self.scale_increment=0.01
         self.temp_count=1
@@ -1290,11 +1290,11 @@ class SceneMakerMain(ShowBase):
         self.dlabel_i19=DirectLabel(parent=canvas_5,text="Exposure:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, -0.3),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_i20 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.8, 1,-0.3), command=self.skybox_commands,extraArgs=['exposure'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusOutCommand=self.focusOutDef_arg)
         self.dentry_i20['focusInCommand'] = self.focusInDef_arg
-        self.dentry_i20['focusInExtraArgs'] = [self.dentry_i20, "exposure",(0,10.0),0.01]
+        self.dentry_i20['focusInExtraArgs'] = [self.dentry_i20, "exposure",(0,50.0),0.01]
         self.dlabel_i21=DirectLabel(parent=canvas_5,text="Gamma:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.3),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_i22 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.1, 1,-0.3), command=self.skybox_commands,extraArgs=['gamma'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusOutCommand=self.focusOutDef_arg)
         self.dentry_i22['focusInCommand'] = self.focusInDef_arg
-        self.dentry_i22['focusInExtraArgs'] = [self.dentry_i22, "gamma",(0,10.0),0.01]
+        self.dentry_i22['focusInExtraArgs'] = [self.dentry_i22, "gamma",(0,50.0),0.01]
         
         self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, -0.5),text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'])
@@ -1492,10 +1492,9 @@ class SceneMakerMain(ShowBase):
                     self.global_params['skybox_exposure']=InputValue
                     self.dentry_i20.enterText(str(InputValue))
                     if self.global_params['skybox_enable_tonemapping']==True:
-                        if self.global_params['skybox_tonemapping_method']==1:
-                            self.skybox.setShaderInput('exposure', self.global_params['skybox_exposure'])
-                        if self.global_params['skybox_tonemapping_method']==2:
-                            self.skybox.setShaderInput('param_a', self.global_params['skybox_exposure'])
+                        #if self.global_params['skybox_tonemapping_method']==1:
+                        #    self.skybox.setShaderInput('exposure', self.global_params['skybox_exposure'])
+                        self.skybox.setShaderInput('exposure', self.global_params['skybox_exposure'])
                     else:
                         self.display_last_status('skybox tonemapping is not enabled.')
                 except:
