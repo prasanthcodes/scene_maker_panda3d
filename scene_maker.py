@@ -146,7 +146,12 @@ class SceneMakerMain(ShowBase):
             self.TEXTFG_COLOR_3=(0.6, 0, 0, 1) #pale red color (to display highlight text, i.e. filenames)
             self.TEXTFG_COLOR_4=(0, 0.6, 0, 0.9) #pale green color (to display help text)
             self.TEXTBG_COLOR_1=(1, 1, 1, 0.4) #white transparent for text background
-
+            
+        #--- new UI parameters---
+        self.thumb_texture = base.loader.loadTexture("icons/thumb_1.png")
+        self.thumb_hover_texture = base.loader.loadTexture("icons/thumb_2.png")
+        self.thumb_clicked_texture = base.loader.loadTexture("icons/thumb_3.png")
+        
                 
         self.light_name_list=[]
         self.light_list=[]
@@ -188,7 +193,20 @@ class SceneMakerMain(ShowBase):
         
         self.entry_temp=""
         self.identifier_temp=""
-        self.floating_slider= DirectSlider(pos=(-1, 0, -0.1),scale=1,value=50,range=(0, 100),command=self.on_slider_change,frameSize=(0, 2, -0.05, 0.05),frameColor=(0.2, 0.2, 0.7, 1.0),thumb_frameSize=(-0.04, 0.04, -0.08, 0.08))
+        self.floating_slider= DirectSlider(
+            pos=(-1, 0, -0.1),
+            scale=1,
+            value=50,
+            range=(0, 100),
+            command=self.on_slider_change,
+            frameSize=(0, 2, -0.05, 0.05),
+            frameColor=(0.2, 0.2, 0.7, 1.0),
+            thumb_frameSize=(-0.04, 0.04, -0.08, 0.08),
+            thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None),  # Thumb textures
+            thumb_relief=PGFrameStyle.TNone,  # No bevel on thumb
+            thumb_image_scale=(-0.04, 0.04,0.08),
+            )
+        self.floating_slider.setTransparency(TransparencyAttrib.MAlpha)
         self.floating_slider.hide()
         
         #---apply global params---
@@ -823,15 +841,18 @@ class SceneMakerMain(ShowBase):
         self.dlabel_2=DirectLabel(text='Y: ',pos=(-1.3,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_3=DirectLabel(text='Z: ',pos=(-1.3,1,0.55),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         
-        self.dslider_1 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_1,pos=(-1.2, 1,0.83),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(0,0.05,0.04,-0.04))
+        self.dslider_1 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_1,pos=(-1.2, 1,0.83),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(-0.032,0.032,-0.04,0.04), thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None), thumb_relief=PGFrameStyle.TNone, thumb_image_scale=(-0.025, 0.025,0.045))
+        self.dslider_1.setTransparency(TransparencyAttrib.MAlpha)
         self.dentry_1 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.75), command=self.SetEntryText_1,initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_1_value=0
 
-        self.dslider_2 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_2,pos=(-1.2, 1,0.73),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(0,0.05,0.04,-0.04))
+        self.dslider_2 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_2,pos=(-1.2, 1,0.73),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(-0.032,0.032,-0.04,0.04), thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None), thumb_relief=PGFrameStyle.TNone, thumb_image_scale=(-0.025, 0.025,0.045))
+        self.dslider_2.setTransparency(TransparencyAttrib.MAlpha)
         self.dentry_2 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.65), command=self.SetEntryText_2,initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_2_value=0
 
-        self.dslider_3 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_3,pos=(-1.2, 1,0.63),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(0,0.05,0.04,-0.04))
+        self.dslider_3 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_3,pos=(-1.2, 1,0.63),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(-0.032,0.032,-0.04,0.04), thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None), thumb_relief=PGFrameStyle.TNone, thumb_image_scale=(-0.025, 0.025,0.045))
+        self.dslider_3.setTransparency(TransparencyAttrib.MAlpha)
         self.dentry_3 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.55), command=self.SetEntryText_3,initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_3_value=0
         
