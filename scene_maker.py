@@ -82,7 +82,9 @@ panda3d.core.load_prc_file_data('', 'show-frame-rate-meter true')
 #panda3d.core.load_prc_file_data('', 'fullscreen true')
 #loadPrcFileData('', 'coordinate-system y-up-left')
 loadPrcFileData("", "basic-shaders-only #t")
-#loadPrcFileData("", "notify-level-glgsg debug")                                         
+#loadPrcFileData("", "notify-level-glgsg debug")
+loadPrcFileData("", "framebuffer-multisample 0")
+loadPrcFileData("", "multisamples 0")
 #loadPrcFileData("", "win-size 1920 1080")
 #loadPrcFileData("", "fullscreen t")
 #loadPrcFileData("", "show-scene-graph-analyzer-meter 1")
@@ -125,7 +127,7 @@ class SceneMakerMain(ShowBase):
         #self.camera.reparentTo(self.cam_node)
         
         #---load global params---
-        self.temp_ststus=''
+        self.temp_status=''
         self.global_params={}
         self.load_global_params()
         
@@ -227,7 +229,7 @@ class SceneMakerMain(ShowBase):
         #self.set_skybox()
         self.apply_global_params_3()
         self.apply_global_params_4()
-        self.display_last_status(self.temp_ststus)
+        self.display_last_status(self.temp_status)
         
         
         #---load pbr pipeline---
@@ -271,17 +273,17 @@ class SceneMakerMain(ShowBase):
         try:
             if identifier=="1":
                 if InputValue:
-                    self.show_properties_gui()
+                    self.ScrolledFrame_b1.show()
                     self.checkbutton_a1['image_color'] = (0.57, 0.88, 0.35, 1)
                 else:
-                    self.hide_properties_gui()
+                    self.ScrolledFrame_b1.hide()
                     self.checkbutton_a1['image_color'] = (1, 1, 1, 1)
             if identifier=="2":
                 if InputValue:
-                    self.show_properties_gui_2()
+                    self.ScrolledFrame_c1.show()
                     self.checkbutton_a2['image_color'] = (0.57, 0.88, 0.35, 1)
                 else:
-                    self.hide_properties_gui_2()
+                    self.ScrolledFrame_c1.hide()
                     self.checkbutton_a2['image_color'] = (1, 1, 1, 1)
             if identifier=="3":
                 if InputValue:
@@ -475,15 +477,15 @@ class SceneMakerMain(ShowBase):
             if not(os.path.exists(self.scene_global_params_filename)):
                 self.create_global_params()
                 self.save_global_params()
-                self.temp_ststus='global params json created (and saved)'
+                self.temp_status='global params json created (and saved)'
                 logger.info('global params json created (and saved)')
             else:
                 with open(self.scene_global_params_filename) as json_data:
                     self.global_params = json.load(json_data)
-                self.temp_ststus='global params json loaded'
+                self.temp_status='global params json loaded'
                 logger.info('global params json loaded')
         except:
-            self.temp_ststus='error while loading global params json file.'
+            self.temp_status='error while loading global params json file.'
             logger.error('error while loading global params json file.')
     
     def display_last_status(self,msg):
@@ -654,9 +656,9 @@ class SceneMakerMain(ShowBase):
         self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.create_shortcut_icons_top()
         self.create_properties_gui()
+        self.ScrolledFrame_b1.hide()
         self.create_properties_gui_2()
-        self.hide_properties_gui_2()
-        self.hide_properties_gui()
+        self.ScrolledFrame_c1.hide()
         self.create_daylight_gui()
         self.ScrolledFrame_d1.hide()
         self.create_general_settings_gui()
@@ -684,6 +686,9 @@ class SceneMakerMain(ShowBase):
         #self.MenuButton_1.bind(DGG.WITHIN, self.menu_hover_command, [True])
         #---display camera pos at bottom---
         self.bottom_cam_label=DirectLabel(text='CamPos: ',pos=(-1,1,-0.9),scale=0.05,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=(0,0,0,0.2),frameColor=(0, 0, 0, 0.1))
+        
+        #---to set a model to menu_2 (initialization to prevent model not found errors)---
+        self.menudef_2_new(0)
     
     def show_ScrolledFrame_menu_2(self):
         if self.ScrolledFrame_menu_2.isHidden():
@@ -970,89 +975,56 @@ class SceneMakerMain(ShowBase):
             )
                                 
     def create_properties_gui(self):
-        self.dlabel_1=DirectLabel(text='X: ',pos=(-1.3,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_2=DirectLabel(text='Y: ',pos=(-1.3,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_3=DirectLabel(text='Z: ',pos=(-1.3,1,0.55),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.ScrolledFrame_b1=DirectScrolledFrame(
+            canvasSize=(-2, 2, -2, 2),
+            frameSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_1=self.ScrolledFrame_b1.getCanvas()
+        self.dlabel_1=DirectLabel(parent=canvas_1,text='X: ',pos=(-1.3,1,0.75),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_2=DirectLabel(parent=canvas_1,text='Y: ',pos=(-1.3,1,0.65),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_3=DirectLabel(parent=canvas_1,text='Z: ',pos=(-1.3,1,0.55),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         
-        self.dslider_1 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_1,pos=(-1.2, 1,0.83),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(-0.032,0.032,-0.04,0.04), thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None), thumb_relief=PGFrameStyle.TNone, thumb_image_scale=(-0.025, 0.025,0.045))
+        self.dslider_1 = DirectSlider(parent=canvas_1,range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_1,pos=(-1.2, 1,0.83),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(-0.032,0.032,-0.04,0.04), thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None), thumb_relief=PGFrameStyle.TNone, thumb_image_scale=(-0.025, 0.025,0.045))
         self.dslider_1.setTransparency(TransparencyAttrib.MAlpha)
-        self.dentry_1 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.75), command=self.SetEntryText_1,initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_1 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.2, 1,0.75), command=self.SetEntryText_1,initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_1_value=0
 
-        self.dslider_2 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_2,pos=(-1.2, 1,0.73),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(-0.032,0.032,-0.04,0.04), thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None), thumb_relief=PGFrameStyle.TNone, thumb_image_scale=(-0.025, 0.025,0.045))
+        self.dslider_2 = DirectSlider(parent=canvas_1,range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_2,pos=(-1.2, 1,0.73),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(-0.032,0.032,-0.04,0.04), thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None), thumb_relief=PGFrameStyle.TNone, thumb_image_scale=(-0.025, 0.025,0.045))
         self.dslider_2.setTransparency(TransparencyAttrib.MAlpha)
-        self.dentry_2 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.65), command=self.SetEntryText_2,initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_2 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.2, 1,0.65), command=self.SetEntryText_2,initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_2_value=0
 
-        self.dslider_3 = DirectSlider(range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_3,pos=(-1.2, 1,0.63),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(-0.032,0.032,-0.04,0.04), thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None), thumb_relief=PGFrameStyle.TNone, thumb_image_scale=(-0.025, 0.025,0.045))
+        self.dslider_3 = DirectSlider(parent=canvas_1,range=(-1000,1000), value=0, pageSize=1, command=self.GetSliderValue_3,pos=(-1.2, 1,0.63),frameSize=(0,0.9,-0.1,0),frameColor=self.FRAME_COLOR_2,thumb_frameSize=(-0.032,0.032,-0.04,0.04), thumb_image=(self.thumb_texture, self.thumb_clicked_texture, self.thumb_hover_texture, None), thumb_relief=PGFrameStyle.TNone, thumb_image_scale=(-0.025, 0.025,0.045))
         self.dslider_3.setTransparency(TransparencyAttrib.MAlpha)
-        self.dentry_3 = DirectEntry(text = "", scale=0.06,width=10,pos=(-0.2, 1,0.55), command=self.SetEntryText_3,initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_3 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=10,pos=(-0.2, 1,0.55), command=self.SetEntryText_3,initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_3_value=0
         
-    def show_properties_gui(self):
-        self.dlabel_1.show()
-        self.dlabel_2.show()
-        self.dlabel_3.show()
-        self.dslider_1.show()
-        self.dentry_1.show()
-        self.dslider_2.show()
-        self.dentry_2.show()
-        self.dslider_3.show()
-        self.dentry_3.show()
-        
-    def hide_properties_gui(self):
-        self.dlabel_1.hide()
-        self.dlabel_2.hide()
-        self.dlabel_3.hide()
-        self.dslider_1.hide()
-        self.dentry_1.hide()
-        self.dslider_2.hide()
-        self.dentry_2.hide()
-        self.dslider_3.hide()
-        self.dentry_3.hide()
-        
     def create_properties_gui_2(self):
-        self.CheckButton_b1 = DirectCheckButton(text = "enable model" ,scale=.06,command=self.cbuttondef_3,pos=(-1.3, 1,0.4),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
-        self.CheckButton_b2 = DirectCheckButton(text = "show model" ,scale=.06,command=self.cbuttondef_4,pos=(-1.3, 1,0.3),frameColor=self.FRAME_COLOR_1, text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
-        self.dlabel_b3=DirectLabel(text='uniquename: ',pos=(-1.3,1,0.2),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_b4 = DirectEntry(text = "", scale=0.06,width=20,pos=(-0.9, 1,0.2), command=self.SetEntryText_4,initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_b5=DirectLabel(text='filename: ',pos=(-1.3,1,0.1),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.ScrolledFrame_c1=DirectScrolledFrame(
+            canvasSize=(-2, 2, -2, 2),
+            frameSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_1=self.ScrolledFrame_c1.getCanvas()
+        self.CheckButton_b1 = DirectCheckButton(parent=canvas_1,text = "enable model" ,scale=.06,command=self.cbuttondef_3,pos=(-1.3, 1,0.4),text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_b1.setTransparency(TransparencyAttrib.MAlpha)
+        self.CheckButton_b2 = DirectCheckButton(parent=canvas_1,text = "show model" ,scale=.06,command=self.cbuttondef_4,pos=(-1.3, 1,0.3), text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_b2.setTransparency(TransparencyAttrib.MAlpha)
+        self.dlabel_b3=DirectLabel(parent=canvas_1,text='uniquename: ',pos=(-1.3,1,0.2),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_b4 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=20,pos=(-0.9, 1,0.2), command=self.SetEntryText_4,initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_b5=DirectLabel(parent=canvas_1,text='filename: ',pos=(-1.3,1,0.1),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         
-        self.dlabel_b6=DirectLabel(text='details: ',pos=(-1.3,1,0),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_b7 = DirectEntry(text = "", scale=0.06,width=30,pos=(-0.9, 1,0), command=self.SetEntryText_5,initialText="", numLines = 4, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_b8=DirectLabel(text='notes: ',pos=(-1.3,1,-0.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_b9 = DirectEntry(text = "", scale=0.06,width=30,pos=(-0.9, 1,-0.3), command=self.SetEntryText_6,initialText="", numLines = 4, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.CheckButton_b10 = DirectCheckButton(text = "pickable" ,scale=.06,command=self.cbuttondef_5,pos=(-1.3, 1,-0.6),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
-        self.dlabel_b9_2=DirectLabel(text='description: ',pos=(-1.3,1,-0.7),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_b11 = DirectEntry(text = "", scale=0.06,width=30,pos=(-0.9, 1,-0.7), command=self.SetEntryText_7,initialText="", numLines = 4, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-
-    def show_properties_gui_2(self):
-        self.CheckButton_b1.show()
-        self.CheckButton_b2.show()
-        self.dlabel_b3.show()
-        self.dentry_b4.show()
-        self.dlabel_b5.show()
-        self.dlabel_b6.show()
-        self.dentry_b7.show()
-        self.dlabel_b8.show()
-        self.dentry_b9.show()
-        self.dlabel_b9_2.show()
-        self.CheckButton_b10.show()
-        self.dentry_b11.show()
-        
-    def hide_properties_gui_2(self):
-        self.CheckButton_b1.hide()
-        self.CheckButton_b2.hide()
-        self.dlabel_b3.hide()
-        self.dentry_b4.hide()
-        self.dlabel_b5.hide()
-        self.dlabel_b6.hide()
-        self.dentry_b7.hide()
-        self.dlabel_b8.hide()
-        self.dentry_b9.hide()
-        self.dlabel_b9_2.hide()
-        self.CheckButton_b10.hide()
-        self.dentry_b11.hide()
+        self.dlabel_b6=DirectLabel(parent=canvas_1,text='details: ',pos=(-1.3,1,0),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_b7 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=30,pos=(-0.9, 1,0), command=self.SetEntryText_5,initialText="", numLines = 4, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_b8=DirectLabel(parent=canvas_1,text='notes: ',pos=(-1.3,1,-0.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_b9 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=30,pos=(-0.9, 1,-0.3), command=self.SetEntryText_6,initialText="", numLines = 4, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.CheckButton_b10 = DirectCheckButton(parent=canvas_1,text = "pickable" ,scale=.06,command=self.cbuttondef_5,pos=(-1.3, 1,-0.6),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_b10.setTransparency(TransparencyAttrib.MAlpha)
+        self.dlabel_b9_2=DirectLabel(parent=canvas_1,text='description: ',pos=(-1.3,1,-0.7),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_b11 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=30,pos=(-0.9, 1,-0.7), command=self.SetEntryText_7,initialText="", numLines = 4, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
     def daylight_commands(self,textEntered,identifier):
         try:
@@ -1129,7 +1101,6 @@ class SceneMakerMain(ShowBase):
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
-            #pos=(-0.35, 1,0.95)
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_1=self.ScrolledFrame_d1.getCanvas()
@@ -1175,7 +1146,6 @@ class SceneMakerMain(ShowBase):
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
-            #pos=(-0.35, 1,0.95)
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_2=self.ScrolledFrame_d2.getCanvas()
@@ -1191,10 +1161,16 @@ class SceneMakerMain(ShowBase):
             scale=0.06,
             command=self.cbuttondef_gs1,
             pos=(-1.05, 1,0.55),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5)
             )
+        self.CheckButton_gs1.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_gs2 = DirectCheckButton(
             parent=canvas_2,
             text = " Show Gizmo" ,
@@ -1202,10 +1178,16 @@ class SceneMakerMain(ShowBase):
             scale=0.06,
             command=self.cbuttondef_gs2,
             pos=(-1.05, 1,0.45),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=1
+            indicatorValue=1,
+            frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5)
             )
+        self.CheckButton_gs2.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_gs3 = DirectCheckButton(
             parent=canvas_2,
             text = " Dark Theme" ,
@@ -1213,17 +1195,22 @@ class SceneMakerMain(ShowBase):
             scale=0.06,
             command=self.cbuttondef_gs3,
             pos=(-1.05, 1,0.35),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=1
-            )            
+            indicatorValue=1,
+            frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5)
+            )
+        self.CheckButton_gs3.setTransparency(TransparencyAttrib.MAlpha)
 
     def create_model_lights_gui(self):
         self.ScrolledFrame_e1=DirectScrolledFrame(
             #canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
-            #pos=(-0.35, 1,0.95)
             frameColor=(0.3, 0.3, 0.3, 0)
         )
 
@@ -1321,17 +1308,24 @@ class SceneMakerMain(ShowBase):
             scale=0.06,
             command=self.cbuttondef_g3,
             pos=(-1.05, 1,0.7),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
-            )
-
+            indicatorValue=0,
+            frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5)
+        )
+        self.checkbutton_g3.setTransparency(TransparencyAttrib.MAlpha)
+        
         self.dlabel_g4 = DirectLabel(parent=canvas_3,text='Current Animation: ',pos=(-0.1,1,0.6),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_g5 = DirectLabel(parent=canvas_3,text='',pos=(0,1,0.5),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dbutton_g6 = DirectButton(parent=canvas_3,text='Play',pos=(-0.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g6)
         self.dbutton_g7 = DirectButton(parent=canvas_3,text='Pause',pos=(-0.1,1,0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g7)
         self.dbutton_g8 = DirectButton(parent=canvas_3,text='Stop',pos=(-0.1,1,0.1),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g8)
-        self.checkbutton_g9=DirectCheckButton(parent=canvas_3,text = " Loop" ,text_align=TextNode.ALeft,scale=0.06,command=self.cbuttondef_g9,pos=(-0.05, 1,0),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,indicatorValue=0)
+        self.checkbutton_g9=DirectCheckButton(parent=canvas_3,text = " Loop" ,text_align=TextNode.ALeft,scale=0.06,command=self.cbuttondef_g9,pos=(-0.05, 1,0),text_fg=self.TEXTFG_COLOR_1,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.checkbutton_g9.setTransparency(TransparencyAttrib.MAlpha)
         self.dbutton_g10 = DirectButton(parent=canvas_3,text='Load Egg Animation File',pos=(-0.1,1,-0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g10)
         self.dlabel_g11 = DirectLabel(parent=canvas_3,text='Animation Index to Remove(* for all): ',pos=(-0.1,1,-0.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_g12 = DirectEntry(parent=canvas_3,text = "", scale=0.06,width=3,pos=(0.95, 1,-0.3), command=self.SetEntryText_g12,initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
@@ -1409,8 +1403,10 @@ class SceneMakerMain(ShowBase):
         canvas_5=self.ScrolledFrame_i1.getCanvas()
         
         self.dlabel_i0=DirectLabel(parent=canvas_5,text="SKYBOX SETTINGS",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.7),text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "Enable Skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['enable'],pos=(-1.15, 1,0.6),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
-        self.CheckButton_i2 = DirectCheckButton(parent=canvas_5,text = "Show Skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['show'],pos=(-1.15, 1,0.5),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
+        self.CheckButton_i1 = DirectCheckButton(parent=canvas_5,text = "Enable Skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['enable'],pos=(-1.15, 1,0.6),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_i1.setTransparency(TransparencyAttrib.MAlpha)
+        self.CheckButton_i2 = DirectCheckButton(parent=canvas_5,text = "Show Skybox" ,scale=.06,command=self.skybox_commands,extraArgs=['show'],pos=(-1.15, 1,0.5),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_i2.setTransparency(TransparencyAttrib.MAlpha)
         self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.4),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.05,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.4),text_fg=self.TEXTFG_COLOR_3,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_2)
         self.dbutton_i5 = DirectButton(parent=canvas_5,text='Select Image',pos=(-1.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
@@ -1436,7 +1432,8 @@ class SceneMakerMain(ShowBase):
         self.dlabel_i13_2=DirectLabel(parent=canvas_5,text="A:",text_scale=0.06,text_align=TextNode.ALeft,pos=(0.8, 0, 0),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_i14_2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=4,pos=(0.9, 1,0), command=self.skybox_commands,extraArgs=['A0'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         
-        self.CheckButton_i16 = DirectCheckButton(parent=canvas_5,text = "Enable ToneMapping" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_tonemapping'],pos=(-1.15, 1,-0.1),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
+        self.CheckButton_i16 = DirectCheckButton(parent=canvas_5,text = "Enable ToneMapping" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_tonemapping'],pos=(-1.15, 1,-0.1),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_i16.setTransparency(TransparencyAttrib.MAlpha)
         self.dlabel_i16_s = DirectLabel(parent=canvas_5,text = "*tonemapping for HDR images" ,scale=.06,pos=(-0.4, 1,-0.1),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,text_align=TextNode.ALeft)
         self.dlabel_i17 = DirectLabel(parent=canvas_5,text = "ToneMapping Method:" ,scale=.06,pos=(-1.1, 1,-0.2),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,text_align=TextNode.ALeft)
         self.optionmenu_i18 = DirectOptionMenu(parent=canvas_5,text="switch_tonemap_method", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.set_skybox_tonemapping_method, textMayChange=1,items=self.tonemap_option_items,pos=(-0.4, 1,-0.2),frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
@@ -1453,7 +1450,8 @@ class SceneMakerMain(ShowBase):
         self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, -0.5),text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'])
         self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.6),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.7),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
+        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.7),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_i15.setTransparency(TransparencyAttrib.MAlpha)
         self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.7),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.8),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
 
@@ -1990,16 +1988,15 @@ class SceneMakerMain(ShowBase):
         
     def cbuttondef_1(self,status):
         if status:
-            self.show_properties_gui()
-            #self.CheckButton_1.setImage(self.checked_image)
+            self.ScrolledFrame_b1.show()
         else:
-            self.hide_properties_gui()
+            self.ScrolledFrame_b1.hide()
 
     def cbuttondef_2(self,status):
         if status:
-            self.show_properties_gui_2()
+            self.ScrolledFrame_c1.show()
         else:
-            self.hide_properties_gui_2()
+            self.ScrolledFrame_c1.hide()
 
     def cbuttondef_3(self,status):
         if status:
@@ -2020,12 +2017,15 @@ class SceneMakerMain(ShowBase):
             self.models_all[self.current_model_index]=''
             
     def cbuttondef_4(self,status):
-        if status:
-            self.data_all[self.current_model_index]['show']=True
-            self.models_all[self.current_model_index].show()
+        if type(self.models_all[self.current_model_index])==type(NodePath()):
+            if status:
+                self.data_all[self.current_model_index]['show']=True
+                self.models_all[self.current_model_index].show()
+            else:
+                self.data_all[self.current_model_index]['show']=False
+                self.models_all[self.current_model_index].hide()
         else:
-            self.data_all[self.current_model_index]['show']=False
-            self.models_all[self.current_model_index].hide()
+            self.display_last_status("current model is not a valid(nodepath) type")
 
     def cbuttondef_5(self,status):
         if status:
