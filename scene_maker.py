@@ -6,6 +6,7 @@ from direct.gui.OnscreenText import OnscreenText
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.showbase.DirectObject import DirectObject
 from direct.gui.DirectGui import *
+from direct.gui import DirectGuiGlobals as DGG
 from direct.filter.FilterManager import FilterManager
 
 import random
@@ -132,6 +133,8 @@ class SceneMakerMain(ShowBase):
         self.dark_theme = self.global_params['dark_theme']
         if self.dark_theme==True:
             self.FRAME_COLOR_1=(0, 0, 0, 0.4) #black transparent
+            self.CButton_Pressed_FColor=(0,0.6,0,0.4)
+            self.CButton_Hover_FColor=(0,0,0,0.6)
             self.FRAME_COLOR_2=(0, 0, 0, 0.5) #black and slight less transparent
             self.TEXTFG_COLOR_1=(1,1,1,0.9) #white color
             self.TEXTFG_COLOR_2=(0.7,0.7,1,0.9) #pale blue color (to display info text)
@@ -151,8 +154,16 @@ class SceneMakerMain(ShowBase):
         self.thumb_texture = base.loader.loadTexture("icons/thumb_1.png")
         self.thumb_hover_texture = base.loader.loadTexture("icons/thumb_2.png")
         self.thumb_clicked_texture = base.loader.loadTexture("icons/thumb_3.png")
+        self.button_normal = "icons/button_1.png"
+        self.button_hover = "icons/button_2.png"
+        self.button_pressed = "icons/button_3.png"
+        self.button_normal = "icons/button_1.png"
+        #self.unchecked_image = loader.loadTexture("unchecked.png")
+        #self.checked_image = loader.loadTexture("checked.png")
+        self.unchecked_image = loader.loadTexture("icons/unchecked.png")
+        self.checked_image = loader.loadTexture("icons/checked.png")
         
-                
+
         self.light_name_list=[]
         self.light_list=[]
         self.light_node_list=[]
@@ -635,8 +646,10 @@ class SceneMakerMain(ShowBase):
         self.add_models_to_menuoption()
         self.ScrolledFrame_menu_2.hide()
         
-        self.MenuButton_1 = DirectButton(text = "Menu",scale=.06,command=self.menubuttonDef_1,pos=(-0.85, 1,0.95))
-        self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0.1, 1,0.95),command=self.ButtonDef_1)
+        self.MenuButton_1 = DirectButton(text = "Menu",scale=.06,command=self.menubuttonDef_1,pos=(-0.85, 1,0.95),image=[self.button_normal,self.button_pressed,self.button_hover,self.button_normal],relief=None,image_pos=(0,0,0.2),image_scale=(1.5, 1, 0.8))
+        self.MenuButton_1.setTransparency(TransparencyAttrib.MAlpha)
+        self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0.1, 1,0.95),command=self.ButtonDef_1,image=[self.button_normal,self.button_pressed,self.button_hover,self.button_normal],relief=None,image_pos=(0,0,0.2),image_scale=(1.5, 1, 0.8))
+        self.dbutton_1.setTransparency(TransparencyAttrib.MAlpha)
         self.dlabel_status=DirectLabel(text='Last Status: ',pos=(-1.3,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.create_shortcut_icons_top()
@@ -721,10 +734,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_1,
             pos=(0.1,1,-0.1),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_1.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_2 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "all properties" ,
@@ -732,10 +756,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_2,
             pos=(0.1, 1,-0.2),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_2.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_3 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "General Settings" ,
@@ -743,10 +778,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b3,
             pos=(0.1, 1,-0.3),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_3.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_4 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "Light Settings" ,
@@ -754,10 +800,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b4,
             pos=(0.1, 1,-0.4),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_4.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_5 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "Model Light Settings" ,
@@ -765,10 +822,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b5,
             pos=(0.1, 1,-0.5),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_5.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_6 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "Model NodePaths Viewer" ,
@@ -776,10 +844,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b6,
             pos=(0.1, 1,-0.6),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_6.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_7 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "Model Animation Viewer" ,
@@ -787,10 +866,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b7,
             pos=(0.1, 1,-0.7),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_7.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_8 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "Model Parent Editor" ,
@@ -798,10 +888,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b8,
             pos=(0.1, 1,-0.8),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_8.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_9 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "Skybox Settings" ,
@@ -809,10 +910,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b9,
             pos=(0.1, 1,-0.9),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_9.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_10 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "HeightMap Loader" ,
@@ -820,10 +932,21 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b10,
             pos=(0.1, 1,-1.0),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
+        self.CheckButton_10.setTransparency(TransparencyAttrib.MAlpha)
         self.CheckButton_11 = DirectCheckButton(
             parent=self.menu_dropdown_1.getCanvas(),
             text = "Fog Settings" ,
@@ -831,9 +954,19 @@ class SceneMakerMain(ShowBase):
             scale=.06,
             command=self.cbuttondef_b11,
             pos=(0.1, 1,-1.1),
-            frameColor=self.FRAME_COLOR_1,
             text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0
+            indicatorValue=0,
+            frameColor=(
+                self.FRAME_COLOR_1, # normal
+                self.CButton_Pressed_FColor,  # Pressed
+                self.CButton_Hover_FColor,  # hover
+                self.FRAME_COLOR_1  # disabled
+            ),
+            indicator_text_scale=0,
+            indicator_relief=None,
+            boxPlacement="left",
+            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
+            boxImageScale=(.5,.5,.5),
             )
                                 
     def create_properties_gui(self):
@@ -1858,6 +1991,7 @@ class SceneMakerMain(ShowBase):
     def cbuttondef_1(self,status):
         if status:
             self.show_properties_gui()
+            #self.CheckButton_1.setImage(self.checked_image)
         else:
             self.hide_properties_gui()
 
