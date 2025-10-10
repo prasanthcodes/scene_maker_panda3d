@@ -1321,16 +1321,28 @@ class SceneMakerMain(ShowBase):
         
         self.dlabel_g4 = DirectLabel(parent=canvas_3,text='Current Animation: ',pos=(-0.1,1,0.6),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_g5 = DirectLabel(parent=canvas_3,text='',pos=(0,1,0.5),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dbutton_g6 = DirectButton(parent=canvas_3,text='Play',pos=(-0.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g6)
-        self.dbutton_g7 = DirectButton(parent=canvas_3,text='Pause',pos=(-0.1,1,0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g7)
-        self.dbutton_g8 = DirectButton(parent=canvas_3,text='Stop',pos=(-0.1,1,0.1),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g8)
+        self.dbutton_g6 = DirectButton(parent=canvas_3,text='Play',pos=(-0.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g6,relief=None)
+        self.set_image_to_button(self.dbutton_g6)
+        self.dbutton_g7 = DirectButton(parent=canvas_3,text='Pause',pos=(-0.1,1,0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g7,relief=None)
+        self.set_image_to_button(self.dbutton_g7)
+        self.dbutton_g8 = DirectButton(parent=canvas_3,text='Stop',pos=(-0.1,1,0.1),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g8,relief=None)
+        self.set_image_to_button(self.dbutton_g8)
         self.checkbutton_g9=DirectCheckButton(parent=canvas_3,text = " Loop" ,text_align=TextNode.ALeft,scale=0.06,command=self.cbuttondef_g9,pos=(-0.05, 1,0),text_fg=self.TEXTFG_COLOR_1,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
         self.checkbutton_g9.setTransparency(TransparencyAttrib.MAlpha)
-        self.dbutton_g10 = DirectButton(parent=canvas_3,text='Load Egg Animation File',pos=(-0.1,1,-0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g10)
+        self.dbutton_g10 = DirectButton(parent=canvas_3,text='Load Egg Animation File',pos=(-0.1,1,-0.2),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g10,relief=None)
+        self.set_image_to_button(self.dbutton_g10)
         self.dlabel_g11 = DirectLabel(parent=canvas_3,text='Animation Index to Remove(* for all): ',pos=(-0.1,1,-0.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_g12 = DirectEntry(parent=canvas_3,text = "", scale=0.06,width=3,pos=(0.95, 1,-0.3), command=self.SetEntryText_g12,initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dentry_g12.enterText('*')
-        self.dbutton_g13 = DirectButton(parent=canvas_3,text='Remove Animation',pos=(-0.1,1,-0.4),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g13)
+        self.dbutton_g13 = DirectButton(parent=canvas_3,text='Remove Animation',pos=(-0.1,1,-0.4),scale=0.07,text_align=TextNode.ALeft,command=self.ButtonDef_g13,relief=None)
+        self.set_image_to_button(self.dbutton_g13)
+
+    def set_image_to_button(self,button):
+        bounds=button.getBounds()
+        button["image"]=[self.button_normal,self.button_pressed,self.button_hover,self.button_normal]
+        button["image_scale"]=(0.15+(bounds[1]-bounds[0]) / 2.0, 1, 0.15+(bounds[3]-bounds[2]) / 2)
+        button["image_pos"]=((bounds[1]-bounds[0]) / 2.0, 1, ((bounds[3]-bounds[2])-(bounds[3]-bounds[2])/1.3))
+        button.setTransparency(TransparencyAttrib.MAlpha)
         
     def create_model_parent_editor_gui(self):
         self.ScrolledFrame_h1=DirectScrolledFrame(
@@ -1409,7 +1421,8 @@ class SceneMakerMain(ShowBase):
         self.CheckButton_i2.setTransparency(TransparencyAttrib.MAlpha)
         self.dlabel_i3=DirectLabel(parent=canvas_5,text="Current Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.4),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_i4=DirectLabel(parent=canvas_5,text="",text_scale=0.05,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.4),text_fg=self.TEXTFG_COLOR_3,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_2)
-        self.dbutton_i5 = DirectButton(parent=canvas_5,text='Select Image',pos=(-1.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'])
+        self.dbutton_i5 = DirectButton(parent=canvas_5,text='Select Image',pos=(-1.1,1,0.3),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','select_image'],relief=None)
+        self.set_image_to_button(self.dbutton_i5)
         self.dlabel_i5_2=DirectLabel(parent=canvas_5,text=" *should be Equirectangular image",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, 0.3),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_i5_3=DirectLabel(parent=canvas_5,text="Skybox AmbientLight Intensity:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.2),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_i5_4 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.2, 1,0.2), command=self.skybox_commands,extraArgs=['intensity'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
@@ -1448,7 +1461,8 @@ class SceneMakerMain(ShowBase):
         self.dentry_i22['focusInExtraArgs'] = [self.dentry_i22, "gamma",(0,50.0),0.01]
         
         self.dlabel_i13=DirectLabel(parent=canvas_5,text="ENVIRONMENT MAP + IBL SETTINGS (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, -0.5),text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'])
+        self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'],relief=None)
+        self.set_image_to_button(self.dbutton_i14)
         self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.6),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.7),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
         self.CheckButton_i15.setTransparency(TransparencyAttrib.MAlpha)
@@ -1684,7 +1698,8 @@ class SceneMakerMain(ShowBase):
         self.dentry_j2 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=20,pos=(-0.9, 0,0.6), command=self.heightmap_commands,extraArgs=['unique_name'],initialText="Terrain_1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_j3=DirectLabel(parent=canvas_5,text="Current Heightmap Image: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.5),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_j4=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.6, 0, 0.5),text_fg=self.TEXTFG_COLOR_3,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dbutton_j5 = DirectButton(parent=canvas_5,text='Select HeightMap Image',pos=(-1.4,0,0.4),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','select_heightmap'])
+        self.dbutton_j5 = DirectButton(parent=canvas_5,text='Select HeightMap Image',pos=(-1.4,0,0.4),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','select_heightmap'],relief=None)
+        self.set_image_to_button(self.dbutton_j5)
         self.dlabel_j6=DirectLabel(parent=canvas_5,text="BlockSize: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.3),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_j7 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-1, 1,0.3), command=self.heightmap_commands,extraArgs=['blocksize'],initialText="32", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_j8=DirectLabel(parent=canvas_5,text="Near: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.2),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
@@ -1695,13 +1710,15 @@ class SceneMakerMain(ShowBase):
         self.dlabel_j13=DirectLabel(parent=canvas_5,text=" self.Camera",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1, 0, 0),text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_j14=DirectLabel(parent=canvas_5,text="Current Texture: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.2),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_j15=DirectLabel(parent=canvas_5,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.8, 0, -0.2),text_fg=self.TEXTFG_COLOR_3,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dbutton_j16 = DirectButton(parent=canvas_5,text='Load Texture',pos=(-1.4,0,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','select_texture'])
+        self.dbutton_j16 = DirectButton(parent=canvas_5,text='Load Texture',pos=(-1.4,0,-0.3),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','select_texture'],relief=None)
+        self.set_image_to_button(self.dbutton_j16)
         self.dlabel_j17=DirectLabel(parent=canvas_5,text="Texture Scale: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, -0.4),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_j18=DirectLabel(parent=canvas_5,text="X: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.9, 0, -0.4),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_j19 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.8, 0,-0.4), command=self.heightmap_commands,extraArgs=['X'],initialText="10", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_j20=DirectLabel(parent=canvas_5,text="Y: ",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.4),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_j21 = DirectEntry(parent=canvas_5,text = "", scale=0.06,width=5,pos=(-0.3, 0,-0.4), command=self.heightmap_commands,extraArgs=['Y'],initialText="10", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dbutton_j22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','generate_terrain'])
+        self.dbutton_j22 = DirectButton(parent=canvas_5,text='Generate Terrain',pos=(-1.4,0,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.heightmap_commands,extraArgs=['','generate_terrain'],relief=None)
+        self.set_image_to_button(self.dbutton_j22)
 
     def heightmap_commands(self,InputValue,identifier):
         try:
