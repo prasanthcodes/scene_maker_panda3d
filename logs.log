@@ -1,0 +1,86 @@
+2025-10-11 10:09:29,188 | INFO | program started
+2025-10-11 10:09:30,930 | INFO | global params json loaded
+2025-10-11 10:15:50,290 | INFO | program exiting.
+2025-10-11 10:29:24,565 | INFO | program started
+2025-10-11 10:29:25,641 | INFO | global params json loaded
+2025-10-11 10:29:59,924 | INFO | program exiting.
+2025-10-11 10:30:04,276 | INFO | program started
+2025-10-11 10:30:05,267 | INFO | global params json loaded
+2025-10-11 10:30:16,386 | INFO | program exiting.
+2025-10-11 10:30:46,151 | INFO | program started
+2025-10-11 10:30:47,359 | INFO | global params json loaded
+2025-10-11 10:30:59,823 | INFO | program exiting.
+2025-10-11 10:32:12,757 | INFO | program started
+2025-10-11 10:32:12,757 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "E:\downloads 2025\ytdl\panda\current\github_repo\scene_maker_panda3d\scene_maker.py", line 94, in <module>
+    custom_font = FontPool.getFont('Inter_18pt-Regular.ttf')
+AttributeError: type object 'panda3d.core.FontPool' has no attribute 'getFont'
+2025-10-11 10:33:16,693 | INFO | program started
+2025-10-11 10:33:17,839 | INFO | global params json loaded
+2025-10-11 10:43:26,161 | INFO | program exiting.
+2025-10-11 10:48:13,423 | INFO | program started
+2025-10-11 10:48:14,704 | INFO | global params json loaded
+2025-10-11 10:48:47,286 | INFO | model Ch31_nonPBR.fbx loaded
+2025-10-11 10:52:53,405 | INFO | model Ch31_nonPBR.fbx loaded
+2025-10-11 10:57:27,485 | INFO | program exiting.
+2025-10-11 11:31:57,662 | INFO | program started
+2025-10-11 11:31:58,795 | INFO | global params json loaded
+2025-10-11 11:31:59,902 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "E:\downloads 2025\ytdl\panda\current\github_repo\scene_maker_panda3d\scene_maker.py", line 3073, in general_tasks
+    if self.keyMap['take_screenshot']==True:
+KeyError: 'take_screenshot'
+2025-10-11 11:31:59,906 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "E:\downloads 2025\ytdl\panda\current\github_repo\scene_maker_panda3d\scene_maker.py", line 4086, in <module>
+    Scene_1.run()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\ShowBase.py", line 3331, in run
+    self.taskMgr.run()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\task\Task.py", line 553, in run
+    self.step()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\task\Task.py", line 504, in step
+    self.mgr.poll()
+  File "E:\downloads 2025\ytdl\panda\current\github_repo\scene_maker_panda3d\scene_maker.py", line 3073, in general_tasks
+    if self.keyMap['take_screenshot']==True:
+KeyError: 'take_screenshot'
+2025-10-11 11:33:57,532 | INFO | program started
+2025-10-11 11:33:58,530 | INFO | global params json loaded
+2025-10-11 11:37:29,541 | INFO | program exiting.
+2025-10-11 11:38:08,679 | INFO | program started
+2025-10-11 11:38:09,867 | INFO | global params json loaded
+2025-10-11 11:38:50,063 | INFO | program exiting.
+2025-10-11 12:08:39,199 | INFO | program started
+2025-10-11 12:08:40,208 | INFO | global params json loaded
+2025-10-11 12:19:34,776 | INFO | program exiting.
+2025-10-11 12:35:46,825 | INFO | program started
+2025-10-11 12:35:47,836 | INFO | global params json loaded
+2025-10-11 12:36:02,435 | INFO | program exiting.
+2025-10-11 12:43:10,351 | INFO | program started
+2025-10-11 12:43:11,319 | INFO | global params json loaded
+2025-10-11 12:44:35,901 | INFO | program exiting.
+2025-10-11 14:58:15,589 | INFO | program started
+2025-10-11 14:58:16,809 | INFO | global params json loaded
+2025-10-11 14:58:26,009 | INFO | model tst_raw.bam loaded
+2025-10-11 15:01:57,949 | INFO | model cube_arrow.glb loaded
+2025-10-11 15:02:27,392 | INFO | entered uniquename already exist.
+2025-10-11 15:03:33,032 | INFO | program exiting.
+2025-10-11 15:31:33,904 | INFO | program started
+2025-10-11 15:31:34,899 | INFO | global params json loaded
+2025-10-11 15:40:11,923 | INFO | program exiting.
+2025-10-11 15:40:16,200 | INFO | program started
+2025-10-11 15:40:17,259 | INFO | global params json loaded
+2025-10-11 15:43:04,614 | INFO | program exiting.
+2025-10-11 16:15:14,698 | INFO | program started
+2025-10-11 16:15:15,874 | INFO | global params json loaded
+2025-10-11 16:15:52,716 | INFO | program exiting.
+2025-10-11 16:18:14,611 | INFO | program started
+2025-10-11 16:18:16,116 | INFO | global params json loaded
+2025-10-11 16:19:17,162 | INFO | model cube_arrow.glb loaded
+2025-10-11 16:19:25,152 | INFO | program exiting.
+2025-10-11 16:21:21,074 | INFO | program started
+2025-10-11 16:21:22,293 | INFO | global params json loaded
+2025-10-11 16:21:30,593 | INFO | program exiting.
+2025-10-11 16:21:52,009 | INFO | program started
+2025-10-11 16:21:53,205 | INFO | global params json loaded
+2025-10-11 16:25:29,348 | INFO | program exiting.

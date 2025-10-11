@@ -91,15 +91,21 @@ loadPrcFileData("", "multisamples 0")
 loadPrcFileData("", "icon-filename icons/title_icon.ico")
 loadPrcFileData("", "window-title Scene Maker")
 
+#loadPrcFileData('', 'text-default-font Figtree-Regular.ttf')
+
+custom_font = FontPool.loadFont('Figtree-Regular.ttf') 
+custom_font.setLineHeight(1)
+TextNode.setDefaultFont(custom_font)
+
 class SceneMakerMain(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
         self.props = WindowProperties()
         self.disable_mouse()
-        self.FilterManager_1 = FilterManager(base.win, base.cam)
-        self.Filters=CommonFilters(base.win, base.cam)
-        self.pstats = True
+        #self.FilterManager_1 = FilterManager(base.win, base.cam)
+        #self.Filters=CommonFilters(base.win, base.cam)
+        #self.pstats = True
         
         #---adjustable parameters---
         base_path = os.path.dirname(os.path.abspath(__file__))
@@ -2760,7 +2766,7 @@ class SceneMakerMain(ShowBase):
                 
         
     def set_keymap(self):
-        self.keyMap = {"move_forward": 0, "move_backward": 0, "move_left": 0, "move_right": 0,"gravity_on":0,"load_model":0,"set_camera_pos":0,"x_increase":0,"x_decrease":0,"y_increase":0,"y_decrease":0,"z_increase":0,"z_decrease":0,"right_click":0,"switch_model":0,"delete_model":0,"up_arrow":0,"down_arrow":0,"right_arrow":0,"left_arrow":0,"look_at":0,"show_gui":1}
+        self.keyMap = {"move_forward": 0, "move_backward": 0, "move_left": 0, "move_right": 0,"gravity_on":0,"load_model":0,"set_camera_pos":0,"x_increase":0,"x_decrease":0,"y_increase":0,"y_decrease":0,"z_increase":0,"z_decrease":0,"right_click":0,"switch_model":0,"delete_model":0,"up_arrow":0,"down_arrow":0,"right_arrow":0,"left_arrow":0,"look_at":0,"show_gui":1,"take_screenshot":0}
         self.accept('escape', self.exit_program)
         self.accept("w", self.setKey, ["move_forward", True])
         self.accept("s", self.setKey, ["move_backward", True])
@@ -2791,16 +2797,10 @@ class SceneMakerMain(ShowBase):
         self.accept("z", self.setKey, ["switch_model", True])
         self.accept("delete", self.setKey, ["delete_model", False])
         self.accept("v", self.setKey, ["look_at", True])
-        self.accept("m", self.setKey, ["show_gui", True])                                                                
+        self.accept("m", self.setKey, ["show_gui", True])
+        self.accept("x", self.setKey, ["take_screenshot", True])           
+        #self.accept("x", self.take_screenshot)        
         
-        self.accept("arrow_up", self.setKey, ["up_arrow", True])
-        self.accept("arrow_up-up", self.setKey, ["up_arrow", False])
-        self.accept("arrow_down", self.setKey, ["down_arrow", True])
-        self.accept("arrow_down-up", self.setKey, ["down_arrow", False])
-        self.accept("arrow_right", self.setKey, ["right_arrow", True])
-        self.accept("arrow_right-up", self.setKey, ["right_arrow", False])
-        self.accept("arrow_left", self.setKey, ["left_arrow", True])
-        self.accept("arrow_left-up", self.setKey, ["left_arrow", False])
         
     def change_property(self):
         if self.current_property==1:
@@ -2886,6 +2886,7 @@ class SceneMakerMain(ShowBase):
                     modelfilepath=modelfilepath.replace("\\","/")
                     uqname=os.path.basename(modelfilepath)
                     tempname=uqname
+                    #--- increment the unique name if already exist ---
                     for i in range(int(1e3)):
                         if tempname not in self.models_names_all:
                             continue
@@ -3071,7 +3072,10 @@ class SceneMakerMain(ShowBase):
             
         if self.keyMap['look_at']==True:
             self.camera.lookAt(self.models_all[self.current_model_index])
-            self.keyMap['look_at']=False                   
+            self.keyMap['look_at']=False
+        if self.keyMap['take_screenshot']==True:
+            self.take_screenshot()
+            self.keyMap['take_screenshot']=False
         if self.keyMap['x_increase']==True:
             if type(self.models_all[self.current_model_index])==type(NodePath()):
                 if self.current_property==1:
@@ -4073,6 +4077,14 @@ class SceneMakerMain(ShowBase):
         else:
             model.reparentTo(self.models_all[idx-1])
                 
+    def take_screenshot(self):
+        now = datetime.datetime.now()
+        timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
+        filename = Filename(f"screenshot_{timestamp}.jpg")
+        base.win.saveScreenshot(filename)
+        print("Screenshot saved")
+        self.display_last_status("Screenshot saved")
+
 Scene_1=SceneMakerMain()
 Scene_1.run()
 

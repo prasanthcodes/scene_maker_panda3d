@@ -20,6 +20,7 @@ o - load model
 c - set camera position to the center of current selected model
 v - camera look at current selected model
 m - to hide all GUI
+x - screenshot
 
 r - x increase
 f - x decrease
