@@ -84,3 +84,92 @@ KeyError: 'take_screenshot'
 2025-10-11 16:21:52,009 | INFO | program started
 2025-10-11 16:21:53,205 | INFO | global params json loaded
 2025-10-11 16:25:29,348 | INFO | program exiting.
+2025-10-11 19:19:34,534 | INFO | program started
+2025-10-11 19:19:34,923 | INFO | global params json loaded
+2025-10-11 19:22:55,838 | INFO | program exiting.
+2025-10-11 19:23:05,054 | INFO | program started
+2025-10-11 19:23:05,436 | INFO | global params json loaded
+2025-10-11 19:26:16,538 | INFO | program exiting.
+2025-10-11 20:12:59,323 | INFO | program started
+2025-10-11 20:12:59,690 | INFO | global params json loaded
+2025-10-11 20:13:24,141 | INFO | model DamagedHelmet.glb loaded
+2025-10-11 20:17:13,337 | INFO | program exiting.
+2025-10-11 20:20:34,034 | INFO | program started
+2025-10-11 20:20:34,389 | INFO | global params json loaded
+2025-10-11 20:21:00,444 | INFO | Found Point Lights: ../../house_model.glb
+2025-10-11 20:21:00,658 | INFO | model ../../house_model.glb loaded
+2025-10-11 20:27:22,888 | INFO | program exiting.
+2025-10-11 20:30:45,764 | INFO | program started
+2025-10-11 20:30:46,139 | INFO | global params json loaded
+2025-10-11 20:31:20,317 | INFO | Found Point Lights: ../../house_model.glb
+2025-10-11 20:31:20,527 | INFO | model ../../house_model.glb loaded
+2025-10-11 20:36:59,437 | INFO | program exiting.
+2025-10-11 21:41:15,866 | INFO | program started
+2025-10-11 21:41:16,231 | INFO | global params json loaded
+2025-10-11 21:41:16,396 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "E:\github_repos\scene_maker_panda3d\with_no_GUI.py", line 1503, in <module>
+    Scene_1=SceneMakerMain()
+  File "E:\github_repos\scene_maker_panda3d\with_no_GUI.py", line 144, in __init__
+    taskMgr.add(self.general_tasks, "general_tasks")
+AttributeError: 'SceneMakerMain' object has no attribute 'general_tasks'
+2025-10-11 21:41:34,419 | INFO | program started
+2025-10-11 21:41:34,769 | INFO | global params json loaded
+2025-10-11 21:41:34,936 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "E:\github_repos\scene_maker_panda3d\with_no_GUI.py", line 1502, in <module>
+    Scene_1=SceneMakerMain()
+  File "E:\github_repos\scene_maker_panda3d\with_no_GUI.py", line 146, in __init__
+    self.gizmo=self.create_gizmo(scale=10)
+AttributeError: 'SceneMakerMain' object has no attribute 'create_gizmo'
+2025-10-11 21:41:44,979 | INFO | program started
+2025-10-11 21:41:45,360 | INFO | global params json loaded
+2025-10-11 21:41:45,527 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "E:\github_repos\scene_maker_panda3d\with_no_GUI.py", line 1500, in <module>
+    Scene_1=SceneMakerMain()
+  File "E:\github_repos\scene_maker_panda3d\with_no_GUI.py", line 161, in __init__
+    self.create_top_level_main_gui()
+AttributeError: 'SceneMakerMain' object has no attribute 'create_top_level_main_gui'
+2025-10-11 21:41:59,421 | INFO | program started
+2025-10-11 21:41:59,767 | INFO | global params json loaded
+2025-10-11 21:42:43,924 | INFO | program exiting.
+2025-10-11 21:42:57,729 | INFO | program started
+2025-10-11 21:42:58,092 | INFO | global params json loaded
+2025-10-11 21:42:58,624 | ERROR | error in fog gui entry:
+2025-10-11 21:42:58,624 | ERROR | 'SceneMakerMain' object has no attribute 'RadioButtons_k9'
+2025-10-11 21:42:59,421 | ERROR | error in fog gui entry:
+2025-10-11 21:42:59,421 | ERROR | 'list' object has no attribute 'set'
+2025-10-11 21:43:09,173 | ERROR | error in fog gui entry:
+2025-10-11 21:43:09,173 | ERROR | 'list' object has no attribute 'set'
+2025-10-11 21:43:11,673 | ERROR | error in fog gui entry:
+2025-10-11 21:43:11,673 | ERROR | 'list' object has no attribute 'set'
+2025-10-11 21:43:13,789 | ERROR | error in fog gui entry:
+2025-10-11 21:43:13,789 | ERROR | 'list' object has no attribute 'set'
+2025-10-11 21:43:15,723 | ERROR | error in fog gui entry:
+2025-10-11 21:43:15,723 | ERROR | 'list' object has no attribute 'set'
+2025-10-11 21:44:11,225 | INFO | program exiting.
+2025-10-11 21:47:48,614 | INFO | program started
+2025-10-11 21:47:49,351 | INFO | global params json loaded
+2025-10-11 21:50:36,271 | INFO | program exiting.
+2025-10-11 21:50:42,025 | INFO | program started
+2025-10-11 21:50:42,389 | INFO | global params json loaded
+2025-10-11 21:50:47,456 | INFO | program exiting.
+2025-10-11 21:51:01,678 | INFO | program started
+2025-10-11 21:51:02,041 | INFO | global params json loaded
+2025-10-11 21:51:10,490 | INFO | program exiting.
+2025-10-11 21:53:20,947 | INFO | program started
+2025-10-11 21:53:21,304 | INFO | global params json loaded
+2025-10-11 21:53:25,724 | INFO | program exiting.
+2025-10-11 21:54:02,393 | INFO | program started
+2025-10-11 21:54:02,760 | INFO | global params json loaded
+2025-10-11 21:54:05,923 | INFO | program exiting.
+2025-10-11 21:54:51,443 | INFO | program started
+2025-10-11 21:54:51,803 | INFO | global params json loaded
+2025-10-11 21:54:56,740 | INFO | program exiting.
+2025-10-11 21:57:35,144 | INFO | program started
+2025-10-11 21:57:35,497 | INFO | global params json loaded
+2025-10-11 21:57:41,954 | INFO | program exiting.
+2025-10-11 21:58:19,428 | INFO | program started
+2025-10-11 21:58:19,778 | INFO | global params json loaded
+2025-10-11 21:58:22,555 | INFO | program exiting.

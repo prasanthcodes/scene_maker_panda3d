@@ -396,6 +396,7 @@ class SceneMakerMain(ShowBase):
         
         # fog params
         self.global_params['fog_enable']=False
+        self.global_params['fog_type']=1
         self.global_params['fog_R']=0.5
         self.global_params['fog_G']=0.5
         self.global_params['fog_B']=0.5
@@ -461,6 +462,13 @@ class SceneMakerMain(ShowBase):
         self.dlabel_i4.setText(self.global_params['skybox_image'])
             
     def apply_global_params_4(self): #fog params
+        print(self.global_params['fog_type'])
+        if self.global_params['fog_type']==0:
+            self.fog_commands(self.global_params['fog_type'],'radio_1')
+            print('ff1')
+        else:
+            self.fog_commands(self.global_params['fog_type'],'radio_2')
+            print('ff2')
         self.fog_commands(self.global_params['fog_R'],'R')
         self.fog_commands(self.global_params['fog_G'],'G')
         self.fog_commands(self.global_params['fog_B'],'B')
@@ -481,8 +489,8 @@ class SceneMakerMain(ShowBase):
     def load_global_params(self):
         try:
             if not(os.path.exists(self.scene_global_params_filename)):
-                self.create_global_params()
-                self.save_global_params()
+                #self.create_global_params()
+                #self.save_global_params()
                 self.temp_status='global params json created (and saved)'
                 logger.info('global params json created (and saved)')
             else:
@@ -651,6 +659,8 @@ class SceneMakerMain(ShowBase):
             pos=(0.1,0,0),
             frameColor=(0.3, 0.3, 0.3, 0.5)
         )
+        self.ScrolledFrame_menu_2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,False,0.1])
+        self.ScrolledFrame_menu_2.accept("wheel_down",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,True,0.1])
         self.add_models_to_menuoption()
         self.ScrolledFrame_menu_2.hide()
         
@@ -1289,6 +1299,8 @@ class SceneMakerMain(ShowBase):
             pos=(0.1,0,0),
             frameColor=self.FRAME_COLOR_1
         )
+        self.ScrolledFrame_f1.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_f1,False,0.1])
+        self.ScrolledFrame_f1.accept("wheel_down",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_f1,True,0.1])
         
     def create_model_animation_viewer_gui(self):
         self.ScrolledFrame_g1=DirectScrolledFrame(
@@ -1306,6 +1318,8 @@ class SceneMakerMain(ShowBase):
             pos=(0.1,0,0),
             frameColor=self.FRAME_COLOR_1
         )
+        self.ScrolledFrame_g2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_g2,False,0.1])
+        self.ScrolledFrame_g2.accept("wheel_down",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_g2,True,0.1])
         
         self.checkbutton_g3=DirectCheckButton(
             parent=canvas_3,
@@ -1366,6 +1380,8 @@ class SceneMakerMain(ShowBase):
             pos=(0.1,0,0),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
+        self.ScrolledFrame_h2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_h2,False,0.1])
+        self.ScrolledFrame_h2.accept("wheel_down",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_h2,True,0.1])
         
         # description label at top
         self.dlabel_h0=DirectLabel(
@@ -1944,9 +1960,9 @@ class SceneMakerMain(ShowBase):
                 if self.global_params['fog_enable']==True:
                     self.fog = Fog("FogEffect")
                     self.fog.setColor(Vec4(self.global_params['fog_R'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
-                    if self.fog_radio_val[0]==0:
+                    if self.global_params['fog_type']==0:
                         self.fog.setLinearRange(self.global_params['fog_start'], self.global_params['fog_end'])
-                    if self.fog_radio_val[0]==1:
+                    if self.global_params['fog_type']==1:
                         self.fog.setExpDensity(self.global_params['fog_density'])
                     self.render.setFog(self.fog)
                 else:
@@ -1970,11 +1986,39 @@ class SceneMakerMain(ShowBase):
                 self.global_params['fog_B']=InputValue
                 if self.global_params['fog_enable']==True:
                     self.fog.setColor(Vec4(self.global_params['fog_R'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
+            if identifier=='radio_1':
+                self.global_params['fog_type']=0
+                self.fog_radio_val=[0]
+                #--fog enable code--
+                if self.global_params['fog_enable']==True:
+                    self.fog = Fog("FogEffect")
+                    self.fog.setColor(Vec4(self.global_params['fog_R'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
+                    if self.global_params['fog_type']==0:
+                        self.fog.setLinearRange(self.global_params['fog_start'], self.global_params['fog_end'])
+                    if self.global_params['fog_type']==1:
+                        self.fog.setExpDensity(self.global_params['fog_density'])
+                    self.render.setFog(self.fog)
+                else:
+                    self.render.clearFog()
+            if identifier=='radio_2':
+                self.global_params['fog_type']=1
+                self.fog_radio_val=[1]
+                #--fog enable code--
+                if self.global_params['fog_enable']==True:
+                    self.fog = Fog("FogEffect")
+                    self.fog.setColor(Vec4(self.global_params['fog_R'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
+                    if self.global_params['fog_type']==0:
+                        self.fog.setLinearRange(self.global_params['fog_start'], self.global_params['fog_end'])
+                    if self.global_params['fog_type']==1:
+                        self.fog.setExpDensity(self.global_params['fog_density'])
+                    self.render.setFog(self.fog)
+                else:
+                    self.render.clearFog()
             if identifier=='start':
                 self.dentry_k12.enterText(str(InputValue))
                 InputValue=float(InputValue)
                 self.global_params['fog_start']=InputValue
-                if self.fog_radio_val[0]==0:
+                if self.global_params['fog_type']==0:
                     if self.global_params['fog_enable']==True:
                         self.fog.setLinearRange(self.global_params['fog_start'], self.global_params['fog_end'])
                         self.render.clearFog()
@@ -1983,7 +2027,7 @@ class SceneMakerMain(ShowBase):
                 self.dentry_k14.enterText(str(InputValue))
                 InputValue=float(InputValue)
                 self.global_params['fog_end']=InputValue
-                if self.fog_radio_val[0]==0:
+                if self.global_params['fog_type']==0:
                     if self.global_params['fog_enable']==True:
                         self.fog.setLinearRange(self.global_params['fog_start'], self.global_params['fog_end'])
                         self.render.clearFog()
@@ -1992,7 +2036,7 @@ class SceneMakerMain(ShowBase):
                 self.dentry_k16.enterText(str(InputValue))
                 InputValue=float(InputValue)
                 self.global_params['fog_density']=InputValue
-                if self.fog_radio_val[0]==1:
+                if self.global_params['fog_type']==1:
                     if self.global_params['fog_enable']==True:
                         self.fog.setExpDensity(self.global_params['fog_density'])
                         self.render.clearFog()
@@ -4084,6 +4128,12 @@ class SceneMakerMain(ShowBase):
         base.win.saveScreenshot(filename)
         print("Screenshot saved")
         self.display_last_status("Screenshot saved")
+        
+    def scroll_vertical(self,ObjectIn,is_up,increment=0.1):
+        current_value = ObjectIn.verticalScroll["value"]
+        #increment = 0.1  # Adjust scroll speed
+        new_value = max(0, min(1, current_value + (increment if is_up else -increment)))
+        ObjectIn.verticalScroll["value"] = new_value
 
 Scene_1=SceneMakerMain()
 Scene_1.run()
