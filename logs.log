@@ -173,3 +173,149 @@ AttributeError: 'SceneMakerMain' object has no attribute 'create_top_level_main_
 2025-10-11 21:58:19,428 | INFO | program started
 2025-10-11 21:58:19,778 | INFO | global params json loaded
 2025-10-11 21:58:22,555 | INFO | program exiting.
+2025-10-12 17:00:09,593 | INFO | program started
+2025-10-12 17:00:10,401 | INFO | global params json loaded
+2025-10-12 17:04:09,612 | INFO | program exiting.
+2025-10-12 17:04:13,540 | INFO | program started
+2025-10-12 17:04:13,900 | INFO | global params json loaded
+2025-10-12 17:04:33,963 | INFO | program exiting.
+2025-10-12 17:04:47,717 | INFO | program started
+2025-10-12 17:04:48,079 | INFO | global params json loaded
+2025-10-12 17:05:51,862 | INFO | program exiting.
+2025-10-12 17:06:00,528 | INFO | program started
+2025-10-12 17:06:00,908 | INFO | global params json loaded
+2025-10-12 17:06:20,145 | INFO | program exiting.
+2025-10-12 17:06:30,530 | INFO | program started
+2025-10-12 17:06:30,893 | INFO | global params json loaded
+2025-10-12 17:06:43,612 | INFO | program exiting.
+2025-10-12 17:06:51,924 | INFO | program started
+2025-10-12 17:06:52,291 | INFO | global params json loaded
+2025-10-12 17:07:44,129 | INFO | program exiting.
+2025-10-12 17:07:59,924 | INFO | program started
+2025-10-12 17:08:00,283 | INFO | global params json loaded
+2025-10-12 17:08:36,012 | INFO | program exiting.
+2025-10-12 17:08:44,022 | INFO | program started
+2025-10-12 17:08:44,383 | INFO | global params json loaded
+2025-10-12 17:09:41,694 | INFO | program exiting.
+2025-10-12 17:10:22,249 | INFO | program started
+2025-10-12 17:10:22,628 | INFO | global params json loaded
+2025-10-12 17:16:17,026 | INFO | program exiting.
+2025-10-12 18:51:31,613 | INFO | program started
+2025-10-12 18:51:32,165 | INFO | global params json loaded
+2025-10-12 18:51:33,210 | ERROR | error in fog gui entry:
+2025-10-12 18:51:33,212 | ERROR | 'str' object has no attribute 'setColor'
+2025-10-12 18:51:33,212 | ERROR | error in fog gui entry:
+2025-10-12 18:51:33,212 | ERROR | 'str' object has no attribute 'setColor'
+2025-10-12 18:51:33,212 | ERROR | error in fog gui entry:
+2025-10-12 18:51:33,212 | ERROR | 'str' object has no attribute 'setColor'
+2025-10-12 18:51:33,212 | ERROR | error in fog gui entry:
+2025-10-12 18:51:33,212 | ERROR | 'str' object has no attribute 'setLinearRange'
+2025-10-12 18:51:33,212 | ERROR | error in fog gui entry:
+2025-10-12 18:51:33,212 | ERROR | 'str' object has no attribute 'setLinearRange'
+2025-10-12 18:52:23,015 | INFO | program exiting.
+2025-10-12 18:55:05,162 | INFO | program started
+2025-10-12 18:55:05,532 | INFO | global params json loaded
+2025-10-12 18:55:06,459 | ERROR | error in fog gui entry:
+2025-10-12 18:55:06,461 | ERROR | 'str' object has no attribute 'setColor'
+2025-10-12 18:55:06,461 | ERROR | error in fog gui entry:
+2025-10-12 18:55:06,461 | ERROR | 'str' object has no attribute 'setColor'
+2025-10-12 18:55:06,461 | ERROR | error in fog gui entry:
+2025-10-12 18:55:06,461 | ERROR | 'str' object has no attribute 'setColor'
+2025-10-12 18:55:06,461 | ERROR | error in fog gui entry:
+2025-10-12 18:55:06,461 | ERROR | 'str' object has no attribute 'setLinearRange'
+2025-10-12 18:55:06,461 | ERROR | error in fog gui entry:
+2025-10-12 18:55:06,461 | ERROR | 'str' object has no attribute 'setLinearRange'
+2025-10-12 18:55:12,833 | INFO | program exiting.
+2025-10-12 18:56:00,289 | INFO | program started
+2025-10-12 18:56:00,660 | INFO | global params json loaded
+2025-10-12 18:56:11,548 | INFO | program exiting.
+2025-10-12 18:56:39,723 | INFO | program started
+2025-10-12 18:56:40,103 | INFO | global params json loaded
+2025-10-12 18:56:50,248 | INFO | program exiting.
+2025-10-12 18:57:07,701 | INFO | program started
+2025-10-12 18:57:08,063 | INFO | global params json loaded
+2025-10-12 18:57:15,415 | INFO | program exiting.
+2025-10-12 18:57:21,305 | INFO | program started
+2025-10-12 18:57:21,680 | INFO | global params json loaded
+2025-10-12 18:57:25,615 | INFO | program exiting.
+2025-10-12 18:57:38,420 | INFO | program started
+2025-10-12 18:57:38,781 | INFO | global params json loaded
+2025-10-12 18:57:44,896 | INFO | program exiting.
+2025-10-12 19:01:55,345 | INFO | program started
+2025-10-12 19:01:55,715 | INFO | global params json loaded
+2025-10-12 19:02:03,512 | INFO | program exiting.
+2025-10-12 19:02:14,411 | INFO | program started
+2025-10-12 19:02:14,776 | INFO | global params json loaded
+2025-10-12 19:04:33,165 | INFO | program exiting.
+2025-10-12 19:04:38,562 | INFO | program started
+2025-10-12 19:04:38,931 | INFO | global params json loaded
+2025-10-12 19:04:40,258 | ERROR | error in fog gui entry:
+2025-10-12 19:04:40,258 | ERROR | Arguments must match:
+set_state(const PGItem self, int state)
+
+2025-10-12 19:05:00,276 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\EventManager.py", line 49, in eventLoopTask
+    self.doEvents()
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\EventManager.py", line 43, in doEvents
+    processFunc(dequeueFunc())
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\EventManager.py", line 99, in processEvent
+    messenger.send(eventName, paramList)
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\Messenger.py", line 337, in send
+    self.__dispatch(acceptorDict, event, sentArgs, foundWatch)
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\Messenger.py", line 422, in __dispatch
+    result = method (*(extraArgs + sentArgs))
+  File "C:\Panda3D-1.10.14-x64\direct\gui\DirectCheckButton.py", line 172, in commandFunc
+    self['indicatorValue'] = 1 - self['indicatorValue']
+  File "C:\Panda3D-1.10.14-x64\direct\gui\DirectGuiBase.py", line 446, in __setitem__
+    self.configure(**{key: value})
+  File "C:\Panda3D-1.10.14-x64\direct\gui\DirectGuiBase.py", line 442, in configure
+    func()
+  File "C:\Panda3D-1.10.14-x64\direct\gui\DirectCheckButton.py", line 181, in setIndicatorValue
+    self.component('indicator').guiItem.setState(self['indicatorValue'])
+TypeError: Arguments must match:
+set_state(const PGItem self, int state)
+
+2025-10-12 19:05:00,336 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "E:\github_repos\scene_maker_panda3d\scene_maker.py", line 4136, in <module>
+    Scene_1.run()
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\ShowBase.py", line 3331, in run
+    self.taskMgr.run()
+  File "C:\Panda3D-1.10.14-x64\direct\task\Task.py", line 553, in run
+    self.step()
+  File "C:\Panda3D-1.10.14-x64\direct\task\Task.py", line 504, in step
+    self.mgr.poll()
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\EventManager.py", line 49, in eventLoopTask
+    self.doEvents()
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\EventManager.py", line 43, in doEvents
+    processFunc(dequeueFunc())
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\EventManager.py", line 99, in processEvent
+    messenger.send(eventName, paramList)
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\Messenger.py", line 337, in send
+    self.__dispatch(acceptorDict, event, sentArgs, foundWatch)
+  File "C:\Panda3D-1.10.14-x64\direct\showbase\Messenger.py", line 422, in __dispatch
+    result = method (*(extraArgs + sentArgs))
+  File "C:\Panda3D-1.10.14-x64\direct\gui\DirectCheckButton.py", line 172, in commandFunc
+    self['indicatorValue'] = 1 - self['indicatorValue']
+  File "C:\Panda3D-1.10.14-x64\direct\gui\DirectGuiBase.py", line 446, in __setitem__
+    self.configure(**{key: value})
+  File "C:\Panda3D-1.10.14-x64\direct\gui\DirectGuiBase.py", line 442, in configure
+    func()
+  File "C:\Panda3D-1.10.14-x64\direct\gui\DirectCheckButton.py", line 181, in setIndicatorValue
+    self.component('indicator').guiItem.setState(self['indicatorValue'])
+TypeError: Arguments must match:
+set_state(const PGItem self, int state)
+
+2025-10-12 19:08:01,090 | INFO | program started
+2025-10-12 19:08:01,456 | INFO | global params json loaded
+2025-10-12 19:10:51,575 | INFO | program exiting.
+2025-10-12 19:12:27,152 | INFO | program started
+2025-10-12 19:12:27,520 | INFO | global params json loaded
+2025-10-12 19:13:39,209 | INFO | program exiting.
+2025-10-12 19:13:42,526 | INFO | program started
+2025-10-12 19:13:42,897 | INFO | global params json loaded
+2025-10-12 19:14:24,860 | INFO | program exiting.
+2025-10-12 19:15:36,360 | INFO | program started
+2025-10-12 19:15:36,728 | INFO | global params json loaded
+2025-10-12 19:15:41,511 | INFO | program exiting.

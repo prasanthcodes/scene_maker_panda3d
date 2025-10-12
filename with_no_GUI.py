@@ -101,12 +101,10 @@ class SceneMakerMain(ShowBase):
         #---adjustable parameters---
         base_path = os.path.dirname(os.path.abspath(__file__))
         self.scene_data_filename=os.path.join(base_path,'scene_params1.json')
-        self.scene_data_backup_filename=os.path.join(base_path,'scene_params1_tempbackup.json')
         self.scene_light_data_filename=os.path.join(base_path,'scene_light_params1.json')
-        self.scene_light_data_backup_filename=os.path.join(base_path,'scene_light_params1_tempbackup.json')
         self.scene_global_params_filename=os.path.join(base_path,'scene_global_params1.json')
 
-        self.load_lights_from_json=True #set this False if you dont want to load point lights from json file
+        self.load_lights_from_json=True #set this False if you dont want to load point light properties from json file
 
         # Camera param initializations
         self.cameraHeight = 1.5     # camera Height above ground
@@ -147,7 +145,7 @@ class SceneMakerMain(ShowBase):
         self.crosshair.setTransparency(TransparencyAttrib.MAlpha)
         self.crosshair.hide()
         
-        self.bottom_cam_label=DirectLabel(text='CamPos: ',pos=(-1,1,-0.9),scale=0.05,text_align=TextNode.ACenter,text_fg=(1,1,1,0.9),text_bg=(0,0,0,0.2),frameColor=(0, 0, 0, 0.1))
+        #self.bottom_cam_label=DirectLabel(text='CamPos: ',pos=(-1,1,-0.9),scale=0.05,text_align=TextNode.ACenter,text_fg=(1,1,1,0.9),text_bg=(0,0,0,0.2),frameColor=(0, 0, 0, 0.1))
         base.accept('tab', base.bufferViewer.toggleEnable)
 
         self.param_2={}               
@@ -281,6 +279,7 @@ class SceneMakerMain(ShowBase):
         self.skybox_commands(self.global_params['skybox_gamma'],'gamma')
                     
     def apply_global_params_4(self): #fog params
+        self.fog_commands(self.global_params['fog_enable'],'enable')
         self.fog_commands(self.global_params['fog_R'],'R')
         self.fog_commands(self.global_params['fog_G'],'G')
         self.fog_commands(self.global_params['fog_B'],'B')
@@ -1043,61 +1042,9 @@ class SceneMakerMain(ShowBase):
         
         if key=="gravity_on":
             self.keyMap[key]=not(self.keyMap[key])
-        elif key=="show_gui":
-            self.keyMap[key]=not(self.keyMap[key])
-            if self.keyMap[key]==True:
-                self.show_top_level_main_gui()
-            else:
-                self.hide_top_level_main_gui()
-        
         elif key=='take_screenshot':
             self.take_screenshot()
             self.keyMap[key]=False
-        elif key=="change_property":
-            self.current_property+=1
-            if self.current_property>len(self.property_names):
-                self.current_property=1
-            self.change_property()
-            self.menu_1.set(self.current_property-1)
-        elif key=="switch_model":
-            self.current_model_index+=1
-            if self.current_model_index>=len(self.models_names_all):
-                self.current_model_index=0
-            data=self.data_all[self.current_model_index]
-            self.param_1=data
-            self.menudef_2_new(self.current_model_index)
-        elif key=="load_model":
-            print('opening askfilename dialog to load a model')
-            self.keyMap['load_model']=False
-            len_curdir=len(os.getcwd())+1
-            root = tk.Tk()
-            openedfilenames=askopenfilename(title="open the model files",filetypes=[("model files", ".gltf .glb .egg .bam .pz"),("All files", "*.*")],multiple=True)#initialdir="."
-            root.destroy()
-            if len(openedfilenames)>0:
-                for idx in range(len(openedfilenames)):
-                    modelfilepath=os.path.relpath(openedfilenames[idx], os.getcwd())
-                    modelfilepath=modelfilepath.replace("\\","/")
-                    uqname=os.path.basename(modelfilepath)
-                    tempname=uqname
-                    #--- increment the unique name if already exist ---
-                    for i in range(int(1e3)):
-                        if tempname not in self.models_names_all:
-                            continue
-                        else:
-                            tempname=uqname+'.%03d'%(i)
-                    self.initialize_model_param(tempname,modelfilepath)
-                    self.load_model_from_param(fileload_flag=True,indexload_flag=False)
-                    self.add_models_to_menuoption()
-                    self.menudef_2_new(self.current_model_index)                                                                                                                       
-                    logger.info('model '+modelfilepath+' loaded')
-                self.display_last_status('model files are loaded.')
-            else:
-                print('opened file name empty')
-                self.display_last_status('model file not loaded.')
-        elif key=="delete_model":
-            print('delete pressed.')
-            self.dialog_1 = YesNoDialog(dialogName="YesNoCancelDialog", text="Delete the current model?",
-                     command=self.DialogDef_1)
         else:
             self.keyMap[key] = value
 
@@ -1189,9 +1136,6 @@ class SceneMakerMain(ShowBase):
             newval_1=pos_val[1]+self.move_speed*math.cos(heading)*math.cos(pitch)
             newval_2=pos_val[0]-self.move_speed*math.sin(heading)*math.cos(pitch)
             newval_3=pos_val[2]+self.move_speed*math.sin(pitch)
-            #print([newval_2,newval_1,newval_3])
-            #print(self.cam_node.getPos())
-            #print(self.render.getRelativePoint(self.camera, Vec3(0, 0, 0)))
         if self.keyMap['move_backward']==True:
             newval_1=pos_val[1]-self.move_speed*math.cos(heading)*math.cos(pitch)
             newval_2=pos_val[0]+self.move_speed*math.sin(heading)*math.cos(pitch)
@@ -1205,13 +1149,12 @@ class SceneMakerMain(ShowBase):
         if self.keyMap['gravity_on']==True:
             newval_3=1
         self.camera.setPos(newval_2,newval_1,newval_3)
-        self.bottom_cam_label.setText('CamPos: %0.2f,%0.2f,%0.2f'%(newval_2,newval_1,newval_3))
+        #self.bottom_cam_label.setText('CamPos: %0.2f,%0.2f,%0.2f'%(newval_2,newval_1,newval_3))
         #print([newval_2,newval_1,newval_3])
         return Task.cont
 
     def get_an_point_front_of_camera(self,distance,H,P):
         pos_val=self.camera.getPos()
-        #pos_val=self.render.getRelativePoint(self.camera, Vec3(0,0,0))
         heading=(math.pi*(H))/180
         pitch=(math.pi*(P))/180
         newval_1=pos_val[1]+distance*math.cos(heading)*math.cos(pitch)

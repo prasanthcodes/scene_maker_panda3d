@@ -115,7 +115,7 @@ class SceneMakerMain(ShowBase):
         self.scene_light_data_backup_filename=os.path.join(base_path,'scene_light_params1_tempbackup.json')
         self.scene_global_params_filename=os.path.join(base_path,'scene_global_params1.json')
 
-        self.load_lights_from_json=True #set this False if you dont want to load point lights from json file
+        self.load_lights_from_json=True #set this False if you dont want to load point light properties from json file
 
         # Camera param initializations
         self.cameraHeight = 1.5     # camera Height above ground
@@ -240,6 +240,7 @@ class SceneMakerMain(ShowBase):
         
         #---load pbr pipeline---
 
+        
         if self.global_params['skybox_enable_envmap']==True:
             env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
         else:
@@ -252,6 +253,7 @@ class SceneMakerMain(ShowBase):
         max_lights=16,
         enable_fog=True
         )
+        
         
         
     
@@ -404,6 +406,7 @@ class SceneMakerMain(ShowBase):
         self.global_params['fog_end']=150
         self.global_params['fog_density']=0.001
         
+
     def apply_global_params_1(self): #settings params
         self.mouse_sensitivity=self.global_params['mouse_sensitivity']
         self.dentry_d2.enterText(str(self.mouse_sensitivity))
@@ -463,12 +466,7 @@ class SceneMakerMain(ShowBase):
             
     def apply_global_params_4(self): #fog params
         print(self.global_params['fog_type'])
-        if self.global_params['fog_type']==0:
-            self.fog_commands(self.global_params['fog_type'],'radio_1')
-            print('ff1')
-        else:
-            self.fog_commands(self.global_params['fog_type'],'radio_2')
-            print('ff2')
+        self.fog_commands(self.global_params['fog_enable'],'enable')
         self.fog_commands(self.global_params['fog_R'],'R')
         self.fog_commands(self.global_params['fog_G'],'G')
         self.fog_commands(self.global_params['fog_B'],'B')
@@ -1664,8 +1662,6 @@ class SceneMakerMain(ShowBase):
                         self.skybox.setShaderInput('exposure', self.global_params['skybox_exposure'])
                         self.skybox.setShaderInput('gamma', self.global_params['skybox_gamma'])
                         self.skybox.setShaderInput('tonemapping_method', self.global_params['skybox_tonemapping_method'])
-                        self.skybox.setShaderInput('param_a', self.global_params['skybox_exposure'])
-                        
                         self.display_last_status('skybox tonemapping enabled.')
                     else:
                         #self.skybox.setLightOff()
@@ -1935,7 +1931,7 @@ class SceneMakerMain(ShowBase):
         self.dentry_k6 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(-0.5, 1,0.5), command=self.fog_commands,extraArgs=['G'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_k7=DirectLabel(parent=canvas_6,text="B:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.1, 0, 0.5),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_k8 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(0, 1,0.5), command=self.fog_commands,extraArgs=['B'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.fog_radio_val=[1]
+        self.fog_radio_val=[self.global_params['fog_type']] # self.fog_radio_val=[1]
         self.RadioButtons_k9 = [
             DirectRadioButton(parent=canvas_6,text='Linear Fog', variable=self.fog_radio_val, value=[0],scale=0.07, pos=(-1.3, 0, 0.4), command=self.fog_commands,extraArgs=['','radio_1'],text_align=TextNode.ALeft,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1),
             DirectRadioButton(parent=canvas_6,text='Exponential Fog', variable=self.fog_radio_val, value=[1],scale=0.07, pos=(-1.3, 0, 0.1), command=self.fog_commands,extraArgs=['','radio_2'],text_align=TextNode.ALeft,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1)
@@ -1987,6 +1983,7 @@ class SceneMakerMain(ShowBase):
                 if self.global_params['fog_enable']==True:
                     self.fog.setColor(Vec4(self.global_params['fog_R'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
             if identifier=='radio_1':
+                print('r1')
                 self.global_params['fog_type']=0
                 self.fog_radio_val=[0]
                 #--fog enable code--
@@ -2039,8 +2036,9 @@ class SceneMakerMain(ShowBase):
                 if self.global_params['fog_type']==1:
                     if self.global_params['fog_enable']==True:
                         self.fog.setExpDensity(self.global_params['fog_density'])
-                        self.render.clearFog()
+                        #self.render.clearFog()
                         self.render.setFog(self.fog)
+                        print('hh')
 
         except Exception as e:
             logger.error('error in fog gui entry:')
