@@ -71,5 +71,78 @@
             0,
             0
         ]
+    },
+    {
+        "uniquename": "DamagedHelmet.glb",
+        "filename": "DamagedHelmet.glb",
+        "enable": true,
+        "show": true,
+        "pos": [
+            true,
+            [
+                0.0,
+                9.317626953125,
+                0.90625
+            ]
+        ],
+        "scale": [
+            true,
+            [
+                1.0,
+                1.0,
+                1.0
+            ]
+        ],
+        "color": [
+            true,
+            [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ]
+        ],
+        "hpr": [
+            true,
+            [
+                0.0,
+                0.0,
+                0.0
+            ]
+        ],
+        "details": "",
+        "notes": "",
+        "pickable": [
+            true,
+            ""
+        ],
+        "enable_lights_from_model": [
+            false,
+            ""
+        ],
+        "load_lights_from_json": [
+            true,
+            ""
+        ],
+        "actor": [
+            false,
+            "",
+            false,
+            []
+        ],
+        "parent": [
+            true,
+            "render"
+        ],
+        "type": "3d_model",
+        "heightmap_param": [
+            "",
+            0,
+            0,
+            0,
+            "",
+            0,
+            0
+        ]
     }
 ]

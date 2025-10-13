@@ -1,5 +1,7 @@
 import panda3d
 from direct.showbase.ShowBase import ShowBase
+from panda3d.core import *
+import panda3d.core as p3d
 from direct.actor.Actor import Actor
 from direct.task.Task import Task
 from direct.gui.OnscreenText import OnscreenText
@@ -7,17 +9,16 @@ from direct.gui.OnscreenImage import OnscreenImage
 from direct.showbase.DirectObject import DirectObject
 from direct.gui.DirectGui import *
 from direct.gui import DirectGuiGlobals as DGG
-from direct.filter.FilterManager import FilterManager
+
+#from direct.filter.FilterManager import FilterManager
+#from direct.filter.CommonFilters import CommonFilters
 
 import random
 import sys
 import os
 import shutil
 import math
-from direct.filter.CommonFilters import CommonFilters
 
-from panda3d.core import *
-import panda3d.core as p3d
 import tkinter
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
@@ -79,7 +80,6 @@ panda3d.core.load_prc_file_data("", """
 #panda3d.core.load_prc_file_data('', 'framebuffer-srgb true')
 #panda3d.core.load_prc_file_data('', 'load-display pandadx9')#pandagl,p3tinydisplay,pandadx9,pandadx8
 panda3d.core.load_prc_file_data('', 'show-frame-rate-meter true')
-#panda3d.core.load_prc_file_data('', 'fullscreen true')
 #loadPrcFileData('', 'coordinate-system y-up-left')
 loadPrcFileData("", "basic-shaders-only #t")
 #loadPrcFileData("", "notify-level-glgsg debug")
@@ -101,6 +101,7 @@ class SceneMakerMain(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
+        print('initializing...')
         self.props = WindowProperties()
         self.disable_mouse()
         #self.FilterManager_1 = FilterManager(base.win, base.cam)
@@ -239,7 +240,6 @@ class SceneMakerMain(ShowBase):
         
         
         #---load pbr pipeline---
-
         
         if self.global_params['skybox_enable_envmap']==True:
             env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
@@ -254,7 +254,7 @@ class SceneMakerMain(ShowBase):
         enable_fog=True
         )
         
-        
+        print('loading completed.')
         
     
     def create_shortcut_icons_top(self):
@@ -1153,7 +1153,7 @@ class SceneMakerMain(ShowBase):
         self.dlabel_c25=DirectLabel(parent=canvas_1,text='Y: ',pos=(-0.6,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_c26 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(-0.55, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_Y'],initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.dlabel_c27=DirectLabel(parent=canvas_1,text='Z: ',pos=(0.1,1,-0.35),scale=0.06,text_align=TextNode.ACenter,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_c28 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(0.55, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_Z'],initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dentry_c28 = DirectEntry(parent=canvas_1,text = "", scale=0.06,width=8,pos=(0.15, 1,-0.35), command=self.daylight_commands,extraArgs=['DL_Z'],initialText="0", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
     def create_general_settings_gui(self):
         self.ScrolledFrame_d2=DirectScrolledFrame(
