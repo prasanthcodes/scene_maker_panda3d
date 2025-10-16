@@ -657,6 +657,12 @@ class SceneMakerMain(ShowBase):
             pos=(0.1,0,0),
             frameColor=(0.3, 0.3, 0.3, 0.5)
         )
+        # Bring to top
+        np = self.ScrolledFrame_menu_2.stateNodePath[0]
+        np.setBin('fixed', 100)  # 'fixed' bin, sort 100 (higher = front)
+        np.setDepthTest(False)   # Disable depth test for 2D
+        np.setDepthWrite(False)  # Disable depth write for 2D
+
         self.ScrolledFrame_menu_2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,False,0.1])
         self.ScrolledFrame_menu_2.accept("wheel_down",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,True,0.1])
         self.add_models_to_menuoption()
@@ -1314,7 +1320,7 @@ class SceneMakerMain(ShowBase):
             frameSize=(-1.4, -0.3, -0.9, 0.6),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
-            frameColor=self.FRAME_COLOR_1
+            frameColor=self.FRAME_COLOR_1,
         )
         self.ScrolledFrame_g2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_g2,False,0.1])
         self.ScrolledFrame_g2.accept("wheel_down",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_g2,True,0.1])
