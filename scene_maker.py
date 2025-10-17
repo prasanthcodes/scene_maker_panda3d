@@ -650,24 +650,6 @@ class SceneMakerMain(ShowBase):
     def create_top_level_main_gui(self):
         self.menu_1 = DirectOptionMenu(text="switch_property", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_1, textMayChange=1,items=self.property_names,pos=(-1.3, 1,0.95),frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1)
         
-        self.menu_2 = DirectButton(text=("switch_models                                                 ."),scale=.07,command=self.show_ScrolledFrame_menu_2,pos=(0.2, 1,0.95),frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
-        self.ScrolledFrame_menu_2=DirectScrolledFrame(
-            frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
-            canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
-            frameColor=(0.3, 0.3, 0.3, 0.5)
-        )
-        # Bring to top
-        np = self.ScrolledFrame_menu_2.stateNodePath[0]
-        np.setBin('fixed', 100)  # 'fixed' bin, sort 100 (higher = front)
-        np.setDepthTest(False)   # Disable depth test for 2D
-        np.setDepthWrite(False)  # Disable depth write for 2D
-
-        self.ScrolledFrame_menu_2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,False,0.1])
-        self.ScrolledFrame_menu_2.accept("wheel_down",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,True,0.1])
-        self.add_models_to_menuoption()
-        self.ScrolledFrame_menu_2.hide()
-        
         self.MenuButton_1 = DirectButton(text = "Menu",scale=.06,command=self.menubuttonDef_1,pos=(-0.85, 1,0.95),image=[self.button_normal,self.button_pressed,self.button_hover,self.button_normal],relief=None,image_pos=(0,0,0.2),image_scale=(1.5, 1, 0.8))
         self.MenuButton_1.setTransparency(TransparencyAttrib.MAlpha)
         self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0.1, 1,0.95),command=self.ButtonDef_1,image=[self.button_normal,self.button_pressed,self.button_hover,self.button_normal],relief=None,image_pos=(0,0,0.2),image_scale=(1.5, 1, 0.8))
@@ -697,6 +679,19 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_j1.hide()
         self.create_fog_settings_gui()
         self.ScrolledFrame_k1.hide()
+        
+        #----switch_models menu is created last here to display it on top of other frames---
+        self.menu_2 = DirectButton(text=("switch_models                                                 ."),scale=.07,command=self.show_ScrolledFrame_menu_2,pos=(0.2, 1,0.95),frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
+        self.ScrolledFrame_menu_2=DirectScrolledFrame(
+            frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0.1,0,0),
+            frameColor=(0.3, 0.3, 0.3, 0.5)
+        )
+        self.ScrolledFrame_menu_2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,False,0.1])
+        self.ScrolledFrame_menu_2.accept("wheel_down",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,True,0.1])
+        self.add_models_to_menuoption()
+        self.ScrolledFrame_menu_2.hide()
         
         self.create_dropdown_main_menu()
         self.menu_dropdown_1.hide()
