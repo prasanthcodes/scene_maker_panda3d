@@ -204,7 +204,7 @@ class SceneMakerMain(ShowBase):
         self.param_2={}               
         self.current_property=1
         self.property_names=['position','scale','rotation','color']
-        self.tonemap_option_items=['Linear','Reinhard Simple ','Reinhard Photographic','ACES']
+        self.tonemap_option_items=['Linear','Reinhard Simple ','Reinhard Photographic','ACES','PBR Neutral']
         self.pos_increment=0.001
         self.scale_increment=0.01
         self.temp_count=1

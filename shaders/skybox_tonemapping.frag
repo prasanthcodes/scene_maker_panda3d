@@ -52,15 +52,25 @@ vec3 aces_fitted(vec3 v)
 }
 
 
-// ACES tone scale approximation (Narkowicz 2015, fitted to ACES RRT+ODT)
-vec3 aces_tone_scale(vec3 x) {
-    const float a = 2.51;
-    const float b = 0.03;
-    const float c = 2.43;
-    const float d = 0.59;
-    const float e = 0.14;
-    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+vec3 PBRNeutralToneMapping( vec3 color ) {
+  const float startCompression = 0.8 - 0.04;
+  const float desaturation = 0.15;
+
+  float x = min(color.r, min(color.g, color.b));
+  float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
+  color -= offset;
+
+  float peak = max(color.r, max(color.g, color.b));
+  if (peak < startCompression) return color;
+
+  const float d = 1. - startCompression;
+  float newPeak = 1. - d * d / (peak + d - startCompression);
+  color *= newPeak / peak;
+
+  float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
+  return mix(color, newPeak * vec3(1, 1, 1), g);
 }
+
 
 void main() {
     // Flip texture horizontally by modifying UV coordinates
@@ -96,7 +106,15 @@ void main() {
 	color = pow(color, vec3(1.0/gamma));
 	fragColor = vec4(color, 1.0) * p3d_LightModel.ambient;
 	
+	} else if (tonemapping_method==5) {
+	// pbrNeutral tonemapping from https://github.com/KhronosGroup/ToneMapping/blob/main/PBR_Neutral/pbrNeutral.glsl
+	color = color * exposure;
+	color = PBRNeutralToneMapping(color);
+	color = pow(color, vec3(1.0/gamma));
+	fragColor = vec4(color, 1.0) * p3d_LightModel.ambient;
+	
 	}
+	
 	
 }
 
