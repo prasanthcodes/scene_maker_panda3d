@@ -204,7 +204,7 @@ class SceneMakerMain(ShowBase):
         self.param_2={}               
         self.current_property=1
         self.property_names=['position','scale','rotation','color']
-        self.tonemap_option_items=['Linear','Reinhard Simple ','Reinhard Photographic','ACES']
+        self.tonemap_option_items=['Linear','Reinhard Simple ','Reinhard Photographic','ACES','PBR Neutral']
         self.pos_increment=0.001
         self.scale_increment=0.01
         self.temp_count=1
@@ -1315,7 +1315,7 @@ class SceneMakerMain(ShowBase):
             frameSize=(-1.4, -0.3, -0.9, 0.6),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
             pos=(0.1,0,0),
-            frameColor=self.FRAME_COLOR_1
+            frameColor=self.FRAME_COLOR_1,
         )
         self.ScrolledFrame_g2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_g2,False,0.1])
         self.ScrolledFrame_g2.accept("wheel_down",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_g2,True,0.1])

@@ -6,8 +6,6 @@ gltflib
 
 
 
-
-
 # python 3.10
 
 #Panda3D==1.10.14
