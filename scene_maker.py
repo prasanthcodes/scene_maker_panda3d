@@ -2508,6 +2508,7 @@ class SceneMakerMain(ShowBase):
             
     def ButtonDef_g13(self):
         try:
+            if self.models_names_enabled[self.current_model_index]==
             if self.param_1['actor'][0]==True:
                 animIndex=self.dentry_g12.get()
                 if animIndex=='*':
@@ -2673,6 +2674,8 @@ class SceneMakerMain(ShowBase):
             if 'heightmap_param' not in data:
                 data['heightmap_param']=['',0,0,0,'',0,0]
                
+            self.current_actor=''
+            self.ModelTemp=''
             if data["enable"]:
                 if data['actor'][0]==True:
                     self.current_actor=Actor(data["filename"])
@@ -2682,7 +2685,6 @@ class SceneMakerMain(ShowBase):
                     #self.ModelTemp=Actor(ModelTemp.find("**/__Actor_modelRoot"))
                     self.terrain_all.append('')
                 elif data['type']=='terrain':
-                    self.current_actor=''
                     self.actors_all.append(self.current_actor)
                     self.terrain = GeoMipTerrain("myDynamicTerrain")
                     self.terrain.setHeightfield(data['heightmap_param'][0])#heightmap.png
@@ -2705,7 +2707,6 @@ class SceneMakerMain(ShowBase):
                     self.terrain.generate()
                     self.terrain_all.append(self.terrain)
                 else:
-                    self.current_actor=''
                     self.actors_all.append(self.current_actor)
                     self.ModelTemp=loader.loadModel(data["filename"])
                     self.terrain_all.append('')
@@ -2774,6 +2775,8 @@ class SceneMakerMain(ShowBase):
                 self.param_1=data
             else:
                 self.models_all.append("")
+                self.actors_all.append('')
+                self.terrain_all.append('')
                 
         #---parenting---
         self.create_model_parent_vars()
