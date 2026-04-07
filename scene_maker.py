@@ -242,6 +242,11 @@ class SceneMakerMain(ShowBase):
         #---load pbr pipeline---
         
         if self.global_params['skybox_enable_envmap']==True:
+            # 1. Release any existing texture with that name from the pool
+            tex = TexturePool.findTexture("#_envmap.jpg")
+            if tex:
+                TexturePool.releaseTexture(tex)   # pass the actual Texture object
+                TexturePool.garbageCollect()
             env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
         else:
             env_map=None
@@ -638,14 +643,14 @@ class SceneMakerMain(ShowBase):
         skybox.set_material_off()
         skybox.setShaderOff()
         skybox.setScale(1000,1000,1000)
-        #skybox.setHpr(0,90,0)                             
+        #skybox.setHpr(0,90,0)
          # Create and configure an ambient light
         #ambient_light = AmbientLight("ambient_light")
         #ambient_light.set_color((.1, .1, .1, 1))  # RGBA: full white light, fully opaque
         ambient_light_node = self.render.attach_new_node(self.ambientLight)
 
         # Apply the light to the loaded model
-        skybox.set_light(ambient_light_node)          
+        skybox.set_light(ambient_light_node)
         
     def create_top_level_main_gui(self):
         self.menu_1 = DirectOptionMenu(text="switch_property", scale=0.07, initialitem=0,highlightColor=(0.65, 0.65, 0.65, 1),command=self.menudef_1, textMayChange=1,items=self.property_names,pos=(-1.3, 1,0.95),frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1)
@@ -2508,27 +2513,29 @@ class SceneMakerMain(ShowBase):
             
     def ButtonDef_g13(self):
         try:
-            if self.models_names_enabled[self.current_model_index]==
-            if self.param_1['actor'][0]==True:
-                animIndex=self.dentry_g12.get()
-                if animIndex=='*':
-                    self.current_actor=self.actors_all[self.current_model_index]
-                    self.current_actor.unloadAnims()
-                    self.actors_all[self.current_model_index].unloadAnims()
-                    self.data_all[self.current_model_index]['actor'][3]=[]
+            if self.data_all[self.current_model_index]['enable']==True:
+                if self.param_1['actor'][0]==True:
+                    animIndex=self.dentry_g12.get()
+                    if animIndex=='*':
+                        self.current_actor=self.actors_all[self.current_model_index]
+                        self.current_actor.unloadAnims()
+                        self.actors_all[self.current_model_index].unloadAnims()
+                        self.data_all[self.current_model_index]['actor'][3]=[]
+                    else:
+                        animIndex=int(animIndex)-1
+                        self.current_actor.stop(self.anim_name_list[animIndex]) # this is important
+                        self.current_actor.unloadAnims(anims = [self.anim_name_list[animIndex]])
+                        for i in range(len(self.data_all[self.current_model_index]['actor'][3])-1,-1,-1):
+                            aname=self.data_all[self.current_model_index]['actor'][3][i]
+                            if aname==self.anim_name_list[animIndex]:
+                                del self.data_all[self.current_model_index]['actor'][3][i]
+                        # Release the animation control
+                        #anim_control=self.current_actor.getAnimControl(self.anim_name_list[animIndex])
+                        #self.current_actor.releaseAnim(anim_control)
+                        self.add_model_animations_to_gui_g1()
+                    self.display_last_status('animation unloaded.')
                 else:
-                    animIndex=int(animIndex)-1
-                    self.current_actor.stop(self.anim_name_list[animIndex]) # this is important
-                    self.current_actor.unloadAnims(anims = [self.anim_name_list[animIndex]])
-                    for i in range(len(self.data_all[self.current_model_index]['actor'][3])-1,-1,-1):
-                        aname=self.data_all[self.current_model_index]['actor'][3][i]
-                        if aname==self.anim_name_list[animIndex]:
-                            del self.data_all[self.current_model_index]['actor'][3][i]
-                    # Release the animation control
-                    #anim_control=self.current_actor.getAnimControl(self.anim_name_list[animIndex])
-                    #self.current_actor.releaseAnim(anim_control)
-                    self.add_model_animations_to_gui_g1()
-                self.display_last_status('animation unloaded.')
+                    self.display_last_status('current model not enabled.')
             else:
                 print('not an Actor')
                 self.display_last_status('not an Actor.')
