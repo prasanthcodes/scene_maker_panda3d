@@ -41,12 +41,12 @@ python3 scene_maker.py
 ```
 
 
-## Shortcuts
+## Controls
 
 ### Mouse Controls
 Right click and drag to view the 3D scene
 
-### Keyboard Shortcuts
+### Keyboard Controls
 
 W - Move Forward <br/>
 S - Move Backward <br/>
