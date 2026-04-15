@@ -321,7 +321,19 @@ class SceneMakerMain(ShowBase):
             entry['frameColor'] = (0, 0, 0.5, 0.6)   # hover color
         else:
             entry['frameColor'] = self.FRAME_COLOR_2
-                        
+
+    def checkbutton_hover_handler(self,entry,hover):
+        if hover:
+            if entry['indicatorValue']==True:
+                entry['image_color'] = (0.6, 0.6, 1, 1)   # hover color if indicatorValue on
+            else:
+                entry['image_color'] = (0.6, 0.6, 1, 1)   # hover color
+        else:
+            if entry['indicatorValue']==True:
+                entry['image_color'] = (0.57, 0.88, 0.35, 1)   # indicatorValue color
+            else:
+                entry['image_color'] = (1,1,1,1)
+            
     def create_shortcut_icons_top(self):
         self.ScrolledFrame_a0=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
@@ -342,6 +354,27 @@ class SceneMakerMain(ShowBase):
         self.checkbutton_a9 = DirectCheckButton(parent=canvas_a1,pos=(-0.16, 1,0.97),command=self.icons_command,extraArgs=['9'],scale=0.03,indicatorValue=0,image="icons/9.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
         self.checkbutton_a10 = DirectCheckButton(parent=canvas_a1,pos=(-0.09, 1,0.97),command=self.icons_command,extraArgs=['10'],scale=0.03,indicatorValue=0,image="icons/10.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
 
+        self.checkbutton_a1.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a1,True))
+        self.checkbutton_a1.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a1,False))
+        self.checkbutton_a2.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a2,True))
+        self.checkbutton_a2.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a2,False))
+        self.checkbutton_a3.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a3,True))
+        self.checkbutton_a3.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a3,False))
+        self.checkbutton_a4.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a4,True))
+        self.checkbutton_a4.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a4,False))
+        self.checkbutton_a5.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a5,True))
+        self.checkbutton_a5.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a5,False))
+        self.checkbutton_a6.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a6,True))
+        self.checkbutton_a6.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a6,False))
+        self.checkbutton_a7.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a7,True))
+        self.checkbutton_a7.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a7,False))
+        self.checkbutton_a8.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a8,True))
+        self.checkbutton_a8.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a8,False))
+        self.checkbutton_a9.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a9,True))
+        self.checkbutton_a9.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a9,False))
+        self.checkbutton_a10.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a10,True))
+        self.checkbutton_a10.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a10,False))
+        
     def icons_command(self,InputValue,identifier):
         try:
             if identifier=="1":
