@@ -127,9 +127,9 @@ class SceneMakerMain(ShowBase):
         self.load_global_params()
         
 
-        self.light_name_list=[]
-        self.light_list=[]
-        self.light_node_list=[]
+        self.light_name_list=[[],[]]
+        self.light_list=[[],[]]
+        self.light_node_list=[[],[]]
         self.current_light_model_index=None
         self.plight_idx=0
         self.set_keymap()
@@ -151,7 +151,7 @@ class SceneMakerMain(ShowBase):
         self.param_2={}               
         self.current_property=1
         self.property_names=['position','scale','rotation','color']
-        self.tonemap_option_items=['Linear','Reinhard Simple ','Reinhard Photographic','ACES']
+        self.tonemap_option_items=['Linear','Reinhard Simple ','Reinhard Photographic','ACES','PBR Neutral']
         self.pos_increment=0.001
         self.scale_increment=0.01
         self.temp_count=1
@@ -595,7 +595,6 @@ class SceneMakerMain(ShowBase):
                         self.skybox.setShaderInput('exposure', self.global_params['skybox_exposure'])
                         self.skybox.setShaderInput('gamma', self.global_params['skybox_gamma'])
                         self.skybox.setShaderInput('tonemapping_method', self.global_params['skybox_tonemapping_method'])
-                        self.skybox.setShaderInput('param_a', self.global_params['skybox_exposure'])
 
                     else:
                         #self.skybox.setLightOff()
@@ -784,74 +783,164 @@ class SceneMakerMain(ShowBase):
         try:
             idx=self.current_light_model_index
             idx2=self.plight_idx
-            if identifier=='Overall_Intensity':
-                overall_intensity=float(textEntered)
-                self.data_all_light[idx]['overall_intensity']=overall_intensity
-                for i in range(len(self.light_list)):
-                    intensity=self.data_all_light[idx]['plights'][i]['intensity']
-                    r=self.data_all_light[idx]['plights'][i]['color'][1][0]*intensity*overall_intensity
-                    g=self.data_all_light[idx]['plights'][i]['color'][1][1]*intensity*overall_intensity
-                    b=self.data_all_light[idx]['plights'][i]['color'][1][2]*intensity*overall_intensity
-                    self.light_list[i].setColor((r,g,b,1))
-            elif identifier=='Intensity':
-                intensity=float(textEntered)
-                self.data_all_light[idx]['plights'][idx2]['intensity']=intensity
-                overall_intensity=self.data_all_light[idx]['overall_intensity']
-                r2=self.data_all_light[idx]['plights'][idx2]['color'][1][0]*intensity*overall_intensity
-                g2=self.data_all_light[idx]['plights'][idx2]['color'][1][1]*intensity*overall_intensity
-                b2=self.data_all_light[idx]['plights'][idx2]['color'][1][2]*intensity*overall_intensity
-                self.light_list[idx2].setColor((r2,g2,b2,1))
-            elif identifier=='R':
-                r=float(textEntered)
-                overall_intensity=self.data_all_light[idx]['overall_intensity']
-                intensity=self.data_all_light[idx]['plights'][idx2]['intensity']
-                self.data_all_light[idx]['plights'][idx2]['color'][1][0]=r
-                r2=r*intensity*overall_intensity
-                g2=self.data_all_light[idx]['plights'][idx2]['color'][1][1]*intensity*overall_intensity
-                b2=self.data_all_light[idx]['plights'][idx2]['color'][1][2]*intensity*overall_intensity
-                self.light_list[idx2].setColor((r2,g2,b2,1))
-            elif identifier=='G':
-                g=float(textEntered)
-                overall_intensity=self.data_all_light[idx]['overall_intensity']
-                intensity=self.data_all_light[idx]['plights'][idx2]['intensity']
-                self.data_all_light[idx]['plights'][idx2]['color'][1][1]=g
-                g2=g*intensity*overall_intensity
-                r2=self.data_all_light[idx]['plights'][idx2]['color'][1][0]*intensity*overall_intensity
-                b2=self.data_all_light[idx]['plights'][idx2]['color'][1][2]*intensity*overall_intensity
-                self.light_list[idx2].setColor((r2,g2,b2,1))
-            elif identifier=='B':
-                b=float(textEntered)
-                overall_intensity=self.data_all_light[idx]['overall_intensity']
-                intensity=self.data_all_light[idx]['plights'][idx2]['intensity']
-                self.data_all_light[idx]['plights'][idx2]['color'][1][2]=b
-                b2=b*intensity*overall_intensity
-                r2=self.data_all_light[idx]['plights'][idx2]['color'][1][0]*intensity*overall_intensity
-                g2=self.data_all_light[idx]['plights'][idx2]['color'][1][1]*intensity*overall_intensity
-                self.light_list[idx2].setColor((r2,g2,b2,1))
-            elif identifier=='C':
-                c=float(textEntered)
-                self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0]=c
-                #c=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0]
-                l=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][1]
-                q=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][2]
-                self.light_list[idx2].setAttenuation((c,l,q))
-            elif identifier=='L':
-                l=float(textEntered)
-                self.data_all_light[idx]['plights'][idx2]['attenuation'][1][1]=l
-                c=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0]
-                #l=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][1]
-                q=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][2]
-                self.light_list[idx2].setAttenuation((c,l,q))
-            elif identifier=='Q':
-                q=float(textEntered)
-                self.data_all_light[idx]['plights'][idx2]['attenuation'][1][2]=q
-                c=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0]
-                l=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][1]
-                #q=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][2]
-                self.light_list[idx2].setAttenuation((c,l,q))
-            elif identifier=='Notes':
-                val=str(textEntered)
-                self.data_all_light[idx]['plights'][idx2]['notes']=val
+            idx3=self.slight_idx
+            if self.light_type=="point_light":
+                if identifier=='Overall_Intensity':
+                    overall_intensity=float(textEntered)
+                    self.data_all_light[idx]['overall_intensity']=overall_intensity
+                    for i in range(len(self.light_list[0])):
+                        intensity=self.data_all_light[idx]['plights'][i]['intensity']
+                        r=self.data_all_light[idx]['plights'][i]['color'][1][0]*intensity*overall_intensity
+                        g=self.data_all_light[idx]['plights'][i]['color'][1][1]*intensity*overall_intensity
+                        b=self.data_all_light[idx]['plights'][i]['color'][1][2]*intensity*overall_intensity
+                        self.light_list[0][i].setColor((r,g,b,1))
+                elif identifier=='Intensity':
+                    intensity=float(textEntered)
+                    self.data_all_light[idx]['plights'][idx2]['intensity']=intensity
+                    overall_intensity=self.data_all_light[idx]['overall_intensity']
+                    r2=self.data_all_light[idx]['plights'][idx2]['color'][1][0]*intensity*overall_intensity
+                    g2=self.data_all_light[idx]['plights'][idx2]['color'][1][1]*intensity*overall_intensity
+                    b2=self.data_all_light[idx]['plights'][idx2]['color'][1][2]*intensity*overall_intensity
+                    self.light_list[0][idx2].setColor((r2,g2,b2,1))
+                elif identifier=='R':
+                    r=float(textEntered)
+                    overall_intensity=self.data_all_light[idx]['overall_intensity']
+                    intensity=self.data_all_light[idx]['plights'][idx2]['intensity']
+                    self.data_all_light[idx]['plights'][idx2]['color'][1][0]=r
+                    r2=r*intensity*overall_intensity
+                    g2=self.data_all_light[idx]['plights'][idx2]['color'][1][1]*intensity*overall_intensity
+                    b2=self.data_all_light[idx]['plights'][idx2]['color'][1][2]*intensity*overall_intensity
+                    self.light_list[0][idx2].setColor((r2,g2,b2,1))
+                elif identifier=='G':
+                    g=float(textEntered)
+                    overall_intensity=self.data_all_light[idx]['overall_intensity']
+                    intensity=self.data_all_light[idx]['plights'][idx2]['intensity']
+                    self.data_all_light[idx]['plights'][idx2]['color'][1][1]=g
+                    g2=g*intensity*overall_intensity
+                    r2=self.data_all_light[idx]['plights'][idx2]['color'][1][0]*intensity*overall_intensity
+                    b2=self.data_all_light[idx]['plights'][idx2]['color'][1][2]*intensity*overall_intensity
+                    self.light_list[0][idx2].setColor((r2,g2,b2,1))
+                elif identifier=='B':
+                    b=float(textEntered)
+                    overall_intensity=self.data_all_light[idx]['overall_intensity']
+                    intensity=self.data_all_light[idx]['plights'][idx2]['intensity']
+                    self.data_all_light[idx]['plights'][idx2]['color'][1][2]=b
+                    b2=b*intensity*overall_intensity
+                    r2=self.data_all_light[idx]['plights'][idx2]['color'][1][0]*intensity*overall_intensity
+                    g2=self.data_all_light[idx]['plights'][idx2]['color'][1][1]*intensity*overall_intensity
+                    self.light_list[0][idx2].setColor((r2,g2,b2,1))
+                elif identifier=='C':
+                    c=float(textEntered)
+                    self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0]=c
+                    #c=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0]
+                    l=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][1]
+                    q=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][2]
+                    self.light_list[0][idx2].setAttenuation((c,l,q))
+                elif identifier=='L':
+                    l=float(textEntered)
+                    self.data_all_light[idx]['plights'][idx2]['attenuation'][1][1]=l
+                    c=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0]
+                    #l=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][1]
+                    q=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][2]
+                    self.light_list[0][idx2].setAttenuation((c,l,q))
+                elif identifier=='Q':
+                    q=float(textEntered)
+                    self.data_all_light[idx]['plights'][idx2]['attenuation'][1][2]=q
+                    c=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][0]
+                    l=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][1]
+                    #q=self.data_all_light[idx]['plights'][idx2]['attenuation'][1][2]
+                    self.light_list[0][idx2].setAttenuation((c,l,q))
+                elif identifier=='Notes':
+                    val=str(textEntered)
+                    self.data_all_light[idx]['plights'][idx2]['notes']=val
+            if self.light_type=="spot_light":
+                if identifier=='Overall_Intensity':
+                    overall_intensity=float(textEntered)
+                    self.data_all_light[idx]['overall_intensity']=overall_intensity
+                    for i in range(len(self.light_list[1])):
+                        intensity=self.data_all_light[idx]['slights'][i]['intensity']
+                        r=self.data_all_light[idx]['slights'][i]['color'][1][0]*intensity*overall_intensity
+                        g=self.data_all_light[idx]['slights'][i]['color'][1][1]*intensity*overall_intensity
+                        b=self.data_all_light[idx]['slights'][i]['color'][1][2]*intensity*overall_intensity
+                        self.light_list[1][i].setColor((r,g,b,1))
+                elif identifier=='Intensity':
+                    intensity=float(textEntered)
+                    self.data_all_light[idx]['slights'][idx3]['intensity']=intensity
+                    overall_intensity=self.data_all_light[idx]['overall_intensity']
+                    r2=self.data_all_light[idx]['slights'][idx3]['color'][1][0]*intensity*overall_intensity
+                    g2=self.data_all_light[idx]['slights'][idx3]['color'][1][1]*intensity*overall_intensity
+                    b2=self.data_all_light[idx]['slights'][idx3]['color'][1][2]*intensity*overall_intensity
+                    self.light_list[1][idx3].setColor((r2,g2,b2,1))
+                elif identifier=='R':
+                    r=float(textEntered)
+                    overall_intensity=self.data_all_light[idx]['overall_intensity']
+                    intensity=self.data_all_light[idx]['slights'][idx3]['intensity']
+                    self.data_all_light[idx]['slights'][idx3]['color'][1][0]=r
+                    r2=r*intensity*overall_intensity
+                    g2=self.data_all_light[idx]['slights'][idx3]['color'][1][1]*intensity*overall_intensity
+                    b2=self.data_all_light[idx]['slights'][idx3]['color'][1][2]*intensity*overall_intensity
+                    self.light_list[1][idx3].setColor((r2,g2,b2,1))
+                elif identifier=='G':
+                    g=float(textEntered)
+                    overall_intensity=self.data_all_light[idx]['overall_intensity']
+                    intensity=self.data_all_light[idx]['slights'][idx3]['intensity']
+                    self.data_all_light[idx]['slights'][idx3]['color'][1][1]=g
+                    g2=g*intensity*overall_intensity
+                    r2=self.data_all_light[idx]['slights'][idx3]['color'][1][0]*intensity*overall_intensity
+                    b2=self.data_all_light[idx]['slights'][idx3]['color'][1][2]*intensity*overall_intensity
+                    self.light_list[1][idx3].setColor((r2,g2,b2,1))
+                elif identifier=='B':
+                    b=float(textEntered)
+                    overall_intensity=self.data_all_light[idx]['overall_intensity']
+                    intensity=self.data_all_light[idx]['slights'][idx3]['intensity']
+                    self.data_all_light[idx]['slights'][idx3]['color'][1][2]=b
+                    b2=b*intensity*overall_intensity
+                    r2=self.data_all_light[idx]['slights'][idx3]['color'][1][0]*intensity*overall_intensity
+                    g2=self.data_all_light[idx]['slights'][idx3]['color'][1][1]*intensity*overall_intensity
+                    self.light_list[1][idx3].setColor((r2,g2,b2,1))
+                elif identifier=='C':
+                    c=float(textEntered)
+                    self.data_all_light[idx]['slights'][idx3]['attenuation'][1][0]=c
+                    #c=self.data_all_light[idx]['slights'][idx3]['attenuation'][1][0]
+                    l=self.data_all_light[idx]['slights'][idx3]['attenuation'][1][1]
+                    q=self.data_all_light[idx]['slights'][idx3]['attenuation'][1][2]
+                    self.light_list[1][idx3].setAttenuation((c,l,q))
+                elif identifier=='L':
+                    l=float(textEntered)
+                    self.data_all_light[idx]['slights'][idx3]['attenuation'][1][1]=l
+                    c=self.data_all_light[idx]['slights'][idx3]['attenuation'][1][0]
+                    #l=self.data_all_light[idx]['slights'][idx3]['attenuation'][1][1]
+                    q=self.data_all_light[idx]['slights'][idx3]['attenuation'][1][2]
+                    self.light_list[1][idx3].setAttenuation((c,l,q))
+                elif identifier=='Q':
+                    q=float(textEntered)
+                    self.data_all_light[idx]['slights'][idx3]['attenuation'][1][2]=q
+                    c=self.data_all_light[idx]['slights'][idx3]['attenuation'][1][0]
+                    l=self.data_all_light[idx]['slights'][idx3]['attenuation'][1][1]
+                    #q=self.data_all_light[idx]['slights'][idx3]['attenuation'][1][2]
+                    self.light_list[1][idx3].setAttenuation((c,l,q))
+                elif identifier=='Notes':
+                    val=str(textEntered)
+                    self.data_all_light[idx]['slights'][idx3]['notes']=val
+                elif identifier=='FOV_X':
+                    val=float(textEntered)
+                    fov_y=self.data_all_light[idx]['slights'][idx3]['FOV'][1]
+                    self.data_all_light[idx]['slights'][idx3]['FOV']=[val,fov_y]
+                    self.light_list[1][idx3].getLens().setFov(val,fov_y)
+                elif identifier=='FOV_Y':
+                    val=float(textEntered)
+                    fov_x=self.data_all_light[idx]['slights'][idx3]['FOV'][0]
+                    self.data_all_light[idx]['slights'][idx3]['FOV']=[fov_x,val]
+                    self.light_list[1][idx3].getLens().setFov(fov_x,val)
+                elif identifier=='ShadowCaster':
+                    InputValue=bool(textEntered)
+                    self.data_all_light[idx]['slights'][idx3]['ShadowCaster']=InputValue
+                    if InputValue==True:
+                        self.light_list[1][idx3].setShadowCaster(True)
+                        self.light_list[1][idx3].showFrustum()
+                    else:
+                        self.light_list[1][idx3].setShadowCaster(False)
+                        self.light_list[1][idx3].showFrustum()
         #else:
         except:
             logger.error('error in entry_e')
@@ -883,12 +972,14 @@ class SceneMakerMain(ShowBase):
             if 'actor' not in data:
                 data['actor']=[False, "",False,[]]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
             if 'parent' not in data:
-                data['parent']=[True, "render"]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
+                data['parent']=[True, "render"]#[enable parent?,parent_name]
             if 'type' not in data:
                 data['type']="3d_model"
             if 'heightmap_param' not in data:
                 data['heightmap_param']=['',0,0,0,'',0,0]
                
+            self.current_actor=''
+            self.ModelTemp=''                                                                         
             if data["enable"]:
                 if data['actor'][0]==True:
                     self.current_actor=Actor(data["filename"])
@@ -898,7 +989,6 @@ class SceneMakerMain(ShowBase):
                     #self.ModelTemp=Actor(ModelTemp.find("**/__Actor_modelRoot"))
                     self.terrain_all.append('')
                 elif data['type']=='terrain':
-                    self.current_actor=''
                     self.actors_all.append(self.current_actor)
                     self.terrain = GeoMipTerrain("myDynamicTerrain")
                     self.terrain.setHeightfield(data['heightmap_param'][0])#heightmap.png
@@ -921,35 +1011,24 @@ class SceneMakerMain(ShowBase):
                     self.terrain.generate()
                     self.terrain_all.append(self.terrain)
                 else:
-                    self.current_actor=''
                     self.actors_all.append(self.current_actor)
                     self.ModelTemp=loader.loadModel(data["filename"])
                     self.terrain_all.append('')
-                #--- uncomment the below code to load the point lights from model and use save button to save the params
-                #(param_2,light_name_list,light_list,light_node_list)=self.get_point_light_properties_from_model(self.ModelTemp,data)
+                #--- uncomment the below code to load the point and spot lights from model and use save button to save the params
+                #(param_2,light_name_list,light_list,light_node_list)=self.get_point_and_spot_light_properties_from_model(self.ModelTemp,data)
                 #if len(param_2)>0:
                 #    self.data_all_light.append(param_2.copy())
                 if data["uniquename"] in self.models_with_lights:
                     idx=self.models_with_lights.index(data["uniquename"])
-                    (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_point_light_properties_from_model(self.ModelTemp,data)
+                    (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_point_and_spot_light_properties_from_model(self.ModelTemp,data)
                     if len(self.param_2)>0:
                         if self.load_lights_from_json==True:
                             self.current_light_model_index=idx
                         self.models_light_names.append(self.light_name_list)
                         self.models_light_all.append(self.light_list)
                         self.models_light_node_all.append(self.light_node_list)
-                        for tmp in self.light_node_list:
-                            self.render.setLight(tmp)
-                        for j2 in range(len(self.light_name_list)):
-                            idx2=j2
-                            self.plight_idx=j2
-                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][0],'R')
-                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][1],'G')
-                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][2],'B')
-                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'C')
-                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'L')
-                            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'Q')
-                        
+                        self.add_light_properties_to_gui_e1()
+
                 self.models_names_enabled.append(data["uniquename"])
                 d=data["pos"][1]
                 if data["pos"][0]: self.ModelTemp.setPos(d[0],d[1],d[2])
@@ -990,6 +1069,8 @@ class SceneMakerMain(ShowBase):
                 self.param_1=data
             else:
                 self.models_all.append("")
+                self.actors_all.append('')
+                self.terrain_all.append('')                                          
                 
         #---parenting---
         self.create_model_parent_vars()
@@ -1189,7 +1270,7 @@ class SceneMakerMain(ShowBase):
                 if self.param_1['type']=='3d_model':
                     self.ModelTemp=loader.loadModel(self.param_1["filename"])
                 #---get and load light properties---
-                (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_point_light_properties_from_model(self.ModelTemp,self.param_1)
+                (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_point_and_spot_light_properties_from_model(self.ModelTemp,self.param_1)
                 if len(self.param_2)>0:
                     self.models_with_lights.append(self.param_1["uniquename"])
                     self.current_light_model_index=len(self.models_with_lights)-1
@@ -1197,18 +1278,8 @@ class SceneMakerMain(ShowBase):
                     self.models_light_names.append(self.light_name_list)
                     self.models_light_all.append(self.light_list)
                     self.models_light_node_all.append(self.light_node_list)
-                    for tmp in self.light_node_list:
-                        self.render.setLight(tmp)
-                    for j2 in range(len(self.light_name_list)):
-                        idx2=j2
-                        self.plight_idx=j2
-                        self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][0],'R')
-                        self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][1],'G')
-                        self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][2],'B')
-                        self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'C')
-                        self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'L')
-                        self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'Q')
-                    
+                    self.add_light_properties_to_gui_e1()
+
             if indexload_flag==True:
                 self.ModelTemp=self.models_all[self.current_model_index]
                 #self.ModelTemp.reparentTo(self.render)
@@ -1224,9 +1295,9 @@ class SceneMakerMain(ShowBase):
                     self.light_list=self.models_light_all[idx]
                     self.light_node_list=self.models_light_node_all[idx]
                 else:
-                    self.light_name_list=[]
-                    self.light_list=[]
-                    self.light_node_list=[]
+                    self.light_name_list=[[],[]]
+                    self.light_list=[[],[]]
+                    self.light_node_list=[[],[]]
                 
             if ("pos" in self.param_1) and self.param_1["pos"][0]:
                 d=self.param_1['pos'][1]
@@ -1313,14 +1384,27 @@ class SceneMakerMain(ShowBase):
                 #print(nodepath.ls())
         return point_lights   
 
-    def get_point_light_properties_from_model(self,model,data):
+    def find_spot_lights(self, root_node):
+        spot_lights = []
+        for nodepath in root_node.findAllMatches("**"):
+            node = nodepath.node()
+            if isinstance(node, Spotlight):
+                spot_lights.append((node, nodepath))
+        return spot_lights
+        
+    def get_point_and_spot_light_properties_from_model(self,model,data):
         # load point lights from model
         #model.ls()
         point_lights = self.find_point_lights(model)
+        spot_lights = self.find_spot_lights(model)
         self.param_2={}
         light_name_list=[]
         light_list=[]
         light_node_list=[]
+        
+        light_name_list_temp=[]
+        light_list_temp=[]
+        light_node_list_temp=[]
         if len(point_lights)>0:
             logger.info("Found Point Lights: "+str(data['filename']))
             #self.param_2={}
@@ -1335,10 +1419,10 @@ class SceneMakerMain(ShowBase):
             temp_dict={}
             
             for i, (light, nodepath) in enumerate(point_lights):
-                light_list.append(light)
-                light_node_list.append(nodepath)
+                light_list_temp.append(light)
+                light_node_list_temp.append(nodepath)
                 temp_dict['name']=light.getName()
-                light_name_list.append(temp_dict['name'])
+                light_name_list_temp.append(temp_dict['name'])
                 temp_dict['notes']=""
                 temp_dict['intensity']=1
                 temp1=nodepath.getPos(self.render)
@@ -1351,8 +1435,81 @@ class SceneMakerMain(ShowBase):
                 #print(nodepath.getHpr())
                 self.param_2['plights'].append(temp_dict.copy())
         #print('light_name_list',light_name_list)
-        return (self.param_2,light_name_list,light_list,light_node_list)
+        light_name_list.append(light_name_list_temp)
+        light_list.append(light_list_temp)
+        light_node_list.append(light_node_list_temp)
         
+        #---spot lights---
+        s_light_name_list=[]
+        s_light_list=[]
+        s_light_node_list=[]
+        if len(spot_lights)>0:
+            logger.info("Found Point Lights: "+str(data['filename']))
+            #self.param_2={}
+            self.param_2['enable']=True
+            self.param_2['show']=True
+            self.param_2['uniquename']=data['uniquename']
+            self.param_2['filename']=data['filename']
+            self.param_2['details']=data['details']
+            self.param_2['notes']=""
+            self.param_2['overall_intensity']=1
+            self.param_2['slights']=[]
+            temp_dict={}
+            
+            for i, (light, nodepath) in enumerate(spot_lights):
+                s_light_list.append(light)
+                s_light_node_list.append(nodepath)
+                temp_dict['name']=light.getName()
+                s_light_name_list.append(temp_dict['name'])
+                temp_dict['notes']=""
+                temp_dict['intensity']=1
+                temp1=nodepath.getPos(self.render)
+                temp_dict['pos']=[False,[temp1[0],temp1[1],temp1[2]]]
+                temp1=light.getColor()
+                temp_dict['color']=[True,[temp1[0],temp1[1],temp1[2],temp1[3]]]
+                temp1=light.getAttenuation()
+                temp_dict['attenuation']=[True,[temp1[0],temp1[1],temp1[2]]]
+                hfov, vfov = light.getLens().getFov()
+                temp_dict['FOV']=[hfov,vfov]
+                temp_dict['ShadowCaster']=light.isShadowCaster()
+                self.param_2['slights'].append(temp_dict.copy())
+        light_name_list.append(s_light_name_list)
+        light_list.append(s_light_list)
+        light_node_list.append(s_light_node_list)
+                
+        return (self.param_2,light_name_list,light_list,light_node_list)    
+        
+
+    def add_light_properties_to_gui_e1(self):
+        #--- for p lights ---
+        for tmp in self.light_node_list[0]:
+            self.render.setLight(tmp)
+        for j2 in range(len(self.light_name_list[0])):
+            idx2=j2
+            self.plight_idx=j2
+            self.light_type="point_light"
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][0],'R')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][1],'G')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['color'][1][2],'B')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'C')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'L')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['plights'][idx2]['attenuation'][1][0],'Q')
+        #--- for s lights ---
+        for tmp in self.light_node_list[1]:
+            self.render.setLight(tmp)
+        for j2 in range(len(self.light_name_list[1])):
+            idx2=j2
+            self.slight_idx=j2
+            self.light_type="spot_light"
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['slights'][idx2]['color'][1][0],'R')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['slights'][idx2]['color'][1][1],'G')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['slights'][idx2]['color'][1][2],'B')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['slights'][idx2]['attenuation'][1][0],'C')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['slights'][idx2]['attenuation'][1][0],'L')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['slights'][idx2]['attenuation'][1][0],'Q')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['slights'][idx2]['FOV'][0],'FOV_X')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['slights'][idx2]['FOV'][1],'FOV_Y')
+            self.SetEntryText_e(self.data_all_light[self.current_light_model_index]['slights'][idx2]['ShadowCaster'],'ShadowCaster')
     def update_model_parent(self, textEntered,index):
         now = datetime.datetime.now()
         try:

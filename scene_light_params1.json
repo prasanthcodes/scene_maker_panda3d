@@ -1,1 +1,48 @@
-[]
+[
+    {
+        "enable": true,
+        "show": true,
+        "uniquename": "SpotLight.bam",
+        "filename": "SpotLight.bam",
+        "details": "",
+        "notes": "",
+        "overall_intensity": 1,
+        "slights": [
+            {
+                "name": "spotlight",
+                "notes": "",
+                "intensity": 1000.0,
+                "pos": [
+                    false,
+                    [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "color": [
+                    true,
+                    [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                ],
+                "attenuation": [
+                    true,
+                    [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                ],
+                "FOV": [
+                    30.000001907348633,
+                    30.0
+                ],
+                "ShadowCaster": true
+            }
+        ]
+    }
+]

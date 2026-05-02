@@ -144,5 +144,78 @@
             0,
             0
         ]
+    },
+    {
+        "uniquename": "SpotLight.bam",
+        "filename": "SpotLight.bam",
+        "enable": true,
+        "show": true,
+        "pos": [
+            true,
+            [
+                -8.0877685546875,
+                10.24566650390625,
+                2.940185546875
+            ]
+        ],
+        "scale": [
+            true,
+            [
+                1.0,
+                1.0,
+                1.0
+            ]
+        ],
+        "color": [
+            true,
+            [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ]
+        ],
+        "hpr": [
+            true,
+            [
+                274.0,
+                345.0,
+                0.0
+            ]
+        ],
+        "details": "",
+        "notes": "",
+        "pickable": [
+            true,
+            ""
+        ],
+        "enable_lights_from_model": [
+            false,
+            ""
+        ],
+        "load_lights_from_json": [
+            true,
+            ""
+        ],
+        "actor": [
+            false,
+            "",
+            false,
+            []
+        ],
+        "parent": [
+            true,
+            "render"
+        ],
+        "type": "3d_model",
+        "heightmap_param": [
+            "",
+            0,
+            0,
+            0,
+            "",
+            0,
+            0
+        ]
     }
 ]
