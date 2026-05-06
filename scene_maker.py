@@ -18,7 +18,8 @@ import sys
 import os
 import shutil
 import math
-
+import numpy as np
+    
 import tkinter
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
@@ -276,18 +277,8 @@ class SceneMakerMain(ShowBase):
         self.apply_global_params_3()
         self.apply_global_params_4()
         self.display_last_status(self.temp_status)
-        
-        """
-        #---this not works---
-        lut_tex = loader.loadTexture("LUT/FGCineBasic.cube-s16.png")
-        lut_tex.setFormat(Texture.F_srgb)
-        lut_tex.set_minfilter(Texture.FT_linear)   # or FT_linear_mipmap_linear
-        lut_tex.set_magfilter(Texture.FT_linear)
-        lut_tex.set_wrap_u(Texture.WM_clamp)
-        lut_tex.set_wrap_v(Texture.WM_clamp)
-        """
-        
-        
+
+        self.lut_tex = self.load_cube_lut("FGCineBright.cube")
         #---load pbr pipeline---
         if self.global_params['skybox_enable_envmap']==True:
             env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
@@ -301,12 +292,90 @@ class SceneMakerMain(ShowBase):
         exposure=0,
         max_lights=16,
         enable_fog=True,
-        #sdr_lut=lut_tex,
-        #sdr_lut_factor=0.8,
+        sdr_lut=self.lut_tex,
+        #sdr_lut_factor=1,
+        use_330=True
         )
         
-        print('loading completed.')
+    def clear_envmap_cache(self, filename: str):
+        """Clear both disk and RAM cache for one envmap"""
+        filepath = Filename.from_os_specific(filename)
+        filepath.make_absolute()
         
+        env_pool = simplepbr.EnvPool.ptr()
+        
+        # Clear RAM cache
+        if hasattr(env_pool, '_envmaps') and filepath in env_pool._envmaps:
+            del env_pool._envmaps[filepath]
+            print("envmap cleared from RAM cache")
+        
+        # Clear disk cache using internal method
+        try:
+            dummy = simplepbr.envmap.EnvMap.from_file_path(filepath, skip_prepare=True)
+            cache_path = env_pool._get_cache_path(dummy)
+            if cache_path.exists():
+                cache_path.unlink()
+                print(f"Deleted EnvMap disk cache: {cache_path}")
+        except:
+            pass  # ignore if internal method changes
+        
+
+    def load_cube_lut(self,file_path,swap_to_bgr=True):
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+
+        lut_size = 0
+        data_points = []
+
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            
+            # Detect the size of the LUT
+            if line.startswith("LUT_3D_SIZE"):
+                lut_size = int(line.split()[-1])
+                continue
+            
+            # Try to parse RGB data points
+            try:
+                parts = list(map(float, line.split()))
+                if len(parts) == 3:
+                    data_points.append(parts)
+            except ValueError:
+                continue
+
+        if lut_size == 0 or not data_points:
+            raise ValueError("Could not find LUT size or data in file.")
+
+        # Convert to a NumPy array (float32)
+        # Shape needs to be (Size, Size, Size, 3)
+        lut_array = np.array(data_points, dtype=np.float32)
+        
+        # This flips the last axis from [R, G, B] to [B, G, R]
+        if swap_to_bgr:
+            lut_array = lut_array[:, [2, 1, 0]]
+        
+        # Create the Panda3D Texture
+        lut_tex = Texture("sdr_lut")
+        lut_tex.setup_3d_texture(
+            lut_size, lut_size, lut_size, 
+            Texture.T_float, 
+            Texture.F_rgb32
+        )
+
+        # Set filtering (Crucial for smooth color transitions)
+        lut_tex.set_magfilter(Texture.FT_linear)
+        lut_tex.set_minfilter(Texture.FT_linear)
+        lut_tex.set_wrap_u(Texture.WM_clamp)
+        lut_tex.set_wrap_v(Texture.WM_clamp)
+        lut_tex.set_wrap_w(Texture.WM_clamp)
+
+        # Upload the data to the RAM image of the texture
+        lut_tex.set_ram_image(lut_array.tobytes())
+        
+        return lut_tex
+
     def hover_handler(self,entry,hover):
         if hover:
             if entry['focus']==True:
@@ -1622,10 +1691,12 @@ class SceneMakerMain(ShowBase):
         self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'],relief=None)
         self.set_image_to_button(self.dbutton_i14)
         self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.6),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.7),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.dbutton_i14_3 = DirectButton(parent=canvas_5,text='Clear envmap cache',pos=(-1.2,1,-0.7),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','clear_cache'],relief=None)
+        self.set_image_to_button(self.dbutton_i14_3)
+        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.8),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
         self.CheckButton_i15.setTransparency(TransparencyAttrib.MAlpha)
-        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.7),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.8),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.8),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.9),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
 
     def set_skybox_tonemapping_method(self,InputValue):
         try:
@@ -1778,6 +1849,17 @@ class SceneMakerMain(ShowBase):
                 base.saveCubeMap('#_envmap.jpg', size = 512)
                 logger.info('envmap saved.')
                 self.display_last_status('envmap saved.')
+                
+                self.reload_environment("#_envmap.jpg")
+                # Normal load
+                #self.change_environment("#_envmap.jpg")
+
+                # Force full reload (recommended when you changed the file)
+                #self.change_environment("#_envmap.jpg", force_reload=True)
+
+                # Quick switch without clearing cache
+                #self.change_environment("new_env.hdr", force_reload=False)
+
             elif identifier=='enable_ibl':
                 self.CheckButton_i15['indicatorValue']=InputValue
                 if InputValue==True:
@@ -1834,6 +1916,10 @@ class SceneMakerMain(ShowBase):
                 except:
                     self.display_last_status('error when setting skybox_gamma')
                     logger.error('error when setting skybox_gamma')
+            elif identifier=='clear_cache':
+                self.clear_envmap_cache("#_envmap.jpg")
+                self.display_last_status('envmap cache cleared')
+                logger.error('envmap cache of simplepbr cleared.')
                 
         except Exception as e:
             logger.error('error in skybox gui entry:')
@@ -3176,8 +3262,9 @@ class SceneMakerMain(ShowBase):
                 print('opened file name empty')
                 self.display_last_status('model file not loaded.')
         elif key=="delete_model":
-            self.dialog_1 = YesNoDialog(dialogName="YesNoCancelDialog", text="Delete the current model?",
-                     command=self.DialogDef_1)
+            self.dialog_1 = YesNoDialog(dialogName="YesNoCancelDialog", text="Delete the current model?",command=self.DialogDef_1)
+            #self.pipeline.sdr_lut=self.lut_tex
+            self.pipeline.sdr_lut_factor=0.2
         else:
             self.keyMap[key] = value
 
