@@ -319,7 +319,6 @@ class SceneMakerMain(ShowBase):
         except:
             pass  # ignore if internal method changes
         
-
     def load_cube_lut(self,file_path,swap_to_bgr=True):
         with open(file_path, 'r') as f:
             lines = f.readlines()
@@ -405,120 +404,61 @@ class SceneMakerMain(ShowBase):
                 entry['image_color'] = (0.57, 0.88, 0.35, 1)   # indicatorValue color
             else:
                 entry['image_color'] = (1,1,1,1)
+                
+            taskMgr.remove("tooltip_task")
+            self.tooltip.hide()
+                
+                
             
     def create_shortcut_icons_top(self):
         self.ScrolledFrame_a0=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
-            pos=(0,0,0),
+            pos=(0,0,-0.1),
             frameColor=(0, 0, 0, 0)
         )
         canvas_a1=self.ScrolledFrame_a0.getCanvas()
-        
-        self.checkbutton_a1 = DirectCheckButton(parent=canvas_a1,pos=(-0.72, 1,0.97),command=self.icons_command,extraArgs=['1'],scale=0.03,indicatorValue=0,image="icons/1.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a2 = DirectCheckButton(parent=canvas_a1,pos=(-0.65, 1,0.97),command=self.icons_command,extraArgs=['2'],scale=0.03,indicatorValue=0,image="icons/2.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a3 = DirectCheckButton(parent=canvas_a1,pos=(-0.58, 1,0.97),command=self.icons_command,extraArgs=['3'],scale=0.03,indicatorValue=0,image="icons/3.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a4 = DirectCheckButton(parent=canvas_a1,pos=(-0.51, 1,0.97),command=self.icons_command,extraArgs=['4'],scale=0.03,indicatorValue=0,image="icons/4.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a5 = DirectCheckButton(parent=canvas_a1,pos=(-0.44, 1,0.97),command=self.icons_command,extraArgs=['5'],scale=0.03,indicatorValue=0,image="icons/5.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a6 = DirectCheckButton(parent=canvas_a1,pos=(-0.37, 1,0.97),command=self.icons_command,extraArgs=['6'],scale=0.03,indicatorValue=0,image="icons/6.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a7 = DirectCheckButton(parent=canvas_a1,pos=(-0.30, 1,0.97),command=self.icons_command,extraArgs=['7'],scale=0.03,indicatorValue=0,image="icons/7.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a8 = DirectCheckButton(parent=canvas_a1,pos=(-0.23, 1,0.97),command=self.icons_command,extraArgs=['8'],scale=0.03,indicatorValue=0,image="icons/8.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a9 = DirectCheckButton(parent=canvas_a1,pos=(-0.16, 1,0.97),command=self.icons_command,extraArgs=['9'],scale=0.03,indicatorValue=0,image="icons/9.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a10 = DirectCheckButton(parent=canvas_a1,pos=(-0.09, 1,0.97),command=self.icons_command,extraArgs=['10'],scale=0.03,indicatorValue=0,image="icons/10.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
 
-        self.checkbutton_a1.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a1,True))
-        self.checkbutton_a1.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a1,False))
-        self.checkbutton_a2.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a2,True))
-        self.checkbutton_a2.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a2,False))
-        self.checkbutton_a3.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a3,True))
-        self.checkbutton_a3.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a3,False))
-        self.checkbutton_a4.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a4,True))
-        self.checkbutton_a4.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a4,False))
-        self.checkbutton_a5.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a5,True))
-        self.checkbutton_a5.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a5,False))
-        self.checkbutton_a6.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a6,True))
-        self.checkbutton_a6.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a6,False))
-        self.checkbutton_a7.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a7,True))
-        self.checkbutton_a7.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a7,False))
-        self.checkbutton_a8.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a8,True))
-        self.checkbutton_a8.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a8,False))
-        self.checkbutton_a9.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a9,True))
-        self.checkbutton_a9.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a9,False))
-        self.checkbutton_a10.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a10,True))
-        self.checkbutton_a10.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a10,False))
-        
+        start_x = -1.25
+        spacing = 0.09
+
+        for i in range(1, 11):
+            x_pos = start_x + (i - 1) * spacing
+            button = DirectCheckButton(parent=canvas_a1,pos=(x_pos, 1, 0.97),command=self.icons_command,extraArgs=[str(i)],scale=0.04,indicatorValue=0,image=f"icons/{i}.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+            setattr(self, f"checkbutton_a{i}", button)
+            button.bind(DGG.WITHIN,lambda event=None, b=button: self.checkbutton_hover_handler(b, True))
+            button.bind(DGG.WITHOUT,lambda event=None, b=button: self.checkbutton_hover_handler(b, False))
+
     def icons_command(self,InputValue,identifier):
         try:
-            if identifier=="1":
+            mapping = {
+                "1":  (self.ScrolledFrame_b1, self.checkbutton_a1),
+                "2":  (self.ScrolledFrame_c1, self.checkbutton_a2),
+                "3":  (self.ScrolledFrame_d2, self.checkbutton_a3),
+                "4":  (self.ScrolledFrame_d1, self.checkbutton_a4),
+                "5":  (self.ScrolledFrame_e1, self.checkbutton_a5),
+                "6":  (self.ScrolledFrame_f1, self.checkbutton_a6),
+                "7":  (self.ScrolledFrame_g1, self.checkbutton_a7),
+                "8":  (self.ScrolledFrame_h1, self.checkbutton_a8),
+                "9":  (self.ScrolledFrame_i1, self.checkbutton_a9),
+                "10": (self.ScrolledFrame_j1, self.checkbutton_a10),
+            }
+            if identifier in mapping:
+                frame, button = mapping[identifier]
+
                 if InputValue:
-                    self.ScrolledFrame_b1.show()
-                    self.checkbutton_a1['image_color'] = (0.57, 0.88, 0.35, 1)
+                    frame.show()
+                    button['image_color'] = (0.57, 0.88, 0.35, 1)
+                    #self.cbutton_commands(InputValue, identifier, frame)
+                    #btn = getattr(self, f"CheckButton_{identifier}")
+                    #btn["indicatorValue"] = 1
                 else:
-                    self.ScrolledFrame_b1.hide()
-                    self.checkbutton_a1['image_color'] = (1, 1, 1, 1)
-            if identifier=="2":
-                if InputValue:
-                    self.ScrolledFrame_c1.show()
-                    self.checkbutton_a2['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_c1.hide()
-                    self.checkbutton_a2['image_color'] = (1, 1, 1, 1)
-            if identifier=="3":
-                if InputValue:
-                    self.ScrolledFrame_d2.show()
-                    self.checkbutton_a3['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_d2.hide()
-                    self.checkbutton_a3['image_color'] = (1, 1, 1, 1)
-            if identifier=="4":
-                if InputValue:
-                    self.ScrolledFrame_d1.show()
-                    self.checkbutton_a4['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_d1.hide()
-                    self.checkbutton_a4['image_color'] = (1, 1, 1, 1)
-            if identifier=="5":
-                if InputValue:
-                    self.ScrolledFrame_e1.show()
-                    self.checkbutton_a5['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_e1.hide()
-                    self.checkbutton_a5['image_color'] = (1, 1, 1, 1)
-            if identifier=="6":
-                if InputValue:
-                    self.ScrolledFrame_f1.show()
-                    self.checkbutton_a6['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_f1.hide()
-                    self.checkbutton_a6['image_color'] = (1, 1, 1, 1)
-            if identifier=="7":
-                if InputValue:
-                    self.ScrolledFrame_g1.show()
-                    self.checkbutton_a7['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_g1.hide()
-                    self.checkbutton_a7['image_color'] = (1, 1, 1, 1)
-            if identifier=="8":
-                if InputValue:
-                    self.ScrolledFrame_h1.show()
-                    self.checkbutton_a8['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_h1.hide()
-                    self.checkbutton_a8['image_color'] = (1, 1, 1, 1)
-            if identifier=="9":
-                if InputValue:
-                    self.ScrolledFrame_i1.show()
-                    self.checkbutton_a9['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_i1.hide()
-                    self.checkbutton_a9['image_color'] = (1, 1, 1, 1)
-            if identifier=="10":
-                if InputValue:
-                    self.ScrolledFrame_j1.show()
-                    self.checkbutton_a10['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_j1.hide()
-                    self.checkbutton_a10['image_color'] = (1, 1, 1, 1)
+                    frame.hide()
+                    button['image_color'] = (1, 1, 1, 1)
+                    #self.cbutton_commands(InputValue, identifier, frame)
+                    #btn = getattr(self, f"CheckButton_{identifier}")
+                    #btn["indicatorValue"] = 0
+                    
         except Exception as e:
             logger.error('error in shortcut icon click:')
             logger.error(e)
@@ -824,8 +764,8 @@ class SceneMakerMain(ShowBase):
         self.MenuButton_1.setTransparency(TransparencyAttrib.MAlpha)
         self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0.1, 1,0.95),command=self.ButtonDef_1,image=[self.button_normal,self.button_pressed,self.button_hover,self.button_normal],relief=None,image_pos=(0,0,0.2),image_scale=(1.5, 1, 0.8))
         self.dbutton_1.setTransparency(TransparencyAttrib.MAlpha)
-        self.dlabel_status=DirectLabel(text='Last Status: ',pos=(-1.3,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_status=DirectLabel(text='Last Status: ',pos=(-1.3,1,0.75),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.75),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.create_shortcut_icons_top()
         self.create_properties_gui()
         self.ScrolledFrame_b1.hide()
@@ -854,9 +794,9 @@ class SceneMakerMain(ShowBase):
         # frameColor=(Ready, Pressed, Rollover, Disabled)
         self.menu_2 = DirectButton(text=("switch_models                                                 ."),scale=.07,command=self.show_ScrolledFrame_menu_2,pos=(0.2, 1,0.95),frameColor=(self.FRAME_COLOR_2,self.FRAME_COLOR_2,(0, 0, 0.5, 0.6),self.FRAME_COLOR_2),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
         self.ScrolledFrame_menu_2=DirectScrolledFrame(
-            frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
+            frameSize=(-1.2, 1.2, -0.9, 0.8),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0.5)
         )
         self.ScrolledFrame_menu_2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,False,0.1])
@@ -918,253 +858,73 @@ class SceneMakerMain(ShowBase):
             frameColor=self.FRAME_COLOR_1
         )
         
-        self.CheckButton_1 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "properties " ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_1,
-            pos=(0.1,1,-0.1),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
+        # button data
+        button_data = [
+            ("properties",self.ScrolledFrame_b1),
+            ("all properties",self.ScrolledFrame_c1),
+            ("General Settings",self.ScrolledFrame_d2),
+            ("Light Settings",self.ScrolledFrame_d1),
+            ("Model Light Settings",self.ScrolledFrame_e1),
+            ("Model NodePaths Viewer",self.ScrolledFrame_f1),
+            ("Model Animation Viewer",self.ScrolledFrame_g1),
+            ("Model Parent Editor",self.ScrolledFrame_h1),
+            ("Skybox Settings",self.ScrolledFrame_i1),
+            ("HeightMap Loader",self.ScrolledFrame_j1),
+            ("Fog Settings",self.ScrolledFrame_k1),
+        ]
+
+        for i, (text,frame) in enumerate(button_data):
+
+            btn = DirectCheckButton(
+                parent=self.menu_dropdown_1.getCanvas(),
+                text=text,
+                text_align=TextNode.ALeft,
+                scale=.06,
+                command=self.cbutton_commands,
+                extraArgs=[str(i+1),frame],
+                pos=(0.1, 1, -0.1 - (i * 0.1)),
+                text_fg=self.TEXTFG_COLOR_1,
+                indicatorValue=0,
+                frameColor=(
+                    self.FRAME_COLOR_1,
+                    self.CButton_Pressed_FColor,
+                    self.CButton_Hover_FColor,
+                    self.FRAME_COLOR_1
+                ),
+                indicator_text_scale=0,
+                indicator_relief=None,
+                boxPlacement="left",
+                boxImage=(
+                    self.unchecked_image,
+                    self.checked_image,
+                    self.unchecked_image
+                ),
+                boxImageScale=(.5, .5, .5),
             )
-        self.CheckButton_1.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_2 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "all properties" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_2,
-            pos=(0.1, 1,-0.2),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_2.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_3 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "General Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b3,
-            pos=(0.1, 1,-0.3),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_3.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_4 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Light Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b4,
-            pos=(0.1, 1,-0.4),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_4.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_5 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Model Light Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b5,
-            pos=(0.1, 1,-0.5),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_5.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_6 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Model NodePaths Viewer" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b6,
-            pos=(0.1, 1,-0.6),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_6.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_7 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Model Animation Viewer" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b7,
-            pos=(0.1, 1,-0.7),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_7.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_8 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Model Parent Editor" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b8,
-            pos=(0.1, 1,-0.8),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_8.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_9 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Skybox Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b9,
-            pos=(0.1, 1,-0.9),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_9.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_10 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "HeightMap Loader" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b10,
-            pos=(0.1, 1,-1.0),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_10.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_11 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Fog Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b11,
-            pos=(0.1, 1,-1.1),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-                                
+
+            btn.setTransparency(TransparencyAttrib.MAlpha)
+
+            # optional dynamic variable names
+            setattr(self, f"CheckButton_{i+1}", btn)
+
+    def cbutton_commands(self, status, identifier, frame):
+        if status:
+            frame.show()
+            #btn = getattr(self, f"CheckButton_{identifier}")
+            #btn["indicatorValue"] = 1
+            #self.icons_command(True,identifier)
+        else:
+            frame.hide()
+            #btn = getattr(self, f"CheckButton_{identifier}")
+            #btn["indicatorValue"] = 0
+            #self.icons_command(False,identifier)
+        self.menu_dropdown_1.hide()
+        
     def create_properties_gui(self):
         self.ScrolledFrame_b1=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.1),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_1=self.ScrolledFrame_b1.getCanvas()
@@ -1191,7 +951,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_c1=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_1=self.ScrolledFrame_c1.getCanvas()
@@ -1286,7 +1046,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_d1=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.1),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_1=self.ScrolledFrame_d1.getCanvas()
@@ -1331,7 +1091,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_d2=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.15),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_2=self.ScrolledFrame_d2.getCanvas()
@@ -1396,7 +1156,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_e1=DirectScrolledFrame(
             #canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
 
@@ -1493,7 +1253,7 @@ class SceneMakerMain(ShowBase):
             frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
             #frameSize=(-2, 2, -2, 2),
             #canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.08),
             frameColor=self.FRAME_COLOR_1
             #frameColor=(0.3, 0.3, 0.3, 0)
         )
@@ -1505,7 +1265,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_g1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_3=self.ScrolledFrame_g1.getCanvas()
@@ -1567,7 +1327,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_h1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_4=self.ScrolledFrame_h1.getCanvas()
@@ -1630,7 +1390,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_i1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.05),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_5=self.ScrolledFrame_i1.getCanvas()
@@ -1930,7 +1690,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_j1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.2,0,-0.1),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_5=self.ScrolledFrame_j1.getCanvas()
@@ -2141,7 +1901,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_k1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.1),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_6=self.ScrolledFrame_k1.getCanvas()
