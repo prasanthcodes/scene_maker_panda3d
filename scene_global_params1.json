@@ -45,5 +45,8 @@
     "fog_B": 0.5,
     "fog_start": 150.0,
     "fog_end": 250.0,
-    "fog_density": 0.01
+    "fog_density": 0.01,
+    "LUT_enable": 1,
+    "LUT_file": "FGCineBright.cube",
+    "LUT_factor": 0.9
 }

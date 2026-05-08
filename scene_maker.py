@@ -152,6 +152,7 @@ class SceneMakerMain(ShowBase):
             self.TEXTFG_COLOR_3=(1, 0.7, 0.7, 1) #pale red color (to display highlight text, i.e. filenames)
             self.TEXTFG_COLOR_4=(0.7, 1, 0.7, 0.9) #pale green color (to display help text)
             self.TEXTBG_COLOR_1=(0, 0, 0, 0.4) #black transparent for text background
+
         else:
             self.FRAME_COLOR_1=(1, 1, 1, 0.4) #white transparent
             self.CButton_Pressed_FColor=(0,0.6,0,0.4)
@@ -211,7 +212,6 @@ class SceneMakerMain(ShowBase):
         self.unchecked_image = loader.loadTexture("icons/unchecked.png")
         self.checked_image = loader.loadTexture("icons/checked.png")
         
-
         self.light_name_list=[[],[]]
         self.light_list=[[],[]]
         self.light_node_list=[[],[]]
@@ -240,7 +240,6 @@ class SceneMakerMain(ShowBase):
         
         base.accept('tab', base.bufferViewer.toggleEnable)
         
-
         self.param_2={}
         self.current_property=1
         self.property_names=['position','scale','rotation','color']
@@ -249,8 +248,26 @@ class SceneMakerMain(ShowBase):
         self.scale_increment=0.01
         self.temp_count=1
         self.fog=""
-        self.create_top_level_main_gui()
         
+        self.tab_names={
+        '1':'Properties',
+        '2':'All Properties',
+        '3':'General Settings',
+        '4':'Light Settings',
+        '5':'Model Light Settings',
+        '6':'Model NodePaths Viewer',
+        '7':'Model Animation Viewer',
+        '8':'Model Parent Editor',
+        '9':'Skybox Settings',
+        '10':'HeightMap Loader',
+        '11':'Fog Settings',
+        '12':'LUT Loader',
+        }
+        self.tab_all=[]
+        
+        self.create_top_level_main_gui()
+        self.tooltip = OnscreenText(text="",pos=(0,0,0),scale=0.05,fg=(1,1,1,1),bg=(0,0,0,0.8),mayChange=True,align=TextNode.ALeft)
+
         self.entry_temp=""
         self.identifier_temp=""
         self.floating_slider= DirectSlider(
@@ -269,16 +286,7 @@ class SceneMakerMain(ShowBase):
         self.floating_slider.setTransparency(TransparencyAttrib.MAlpha)
         self.floating_slider.hide()
         
-        #---apply global params---
-        self.apply_global_params_1()
-        self.setupLights()
-        self.apply_global_params_2()
-        #self.set_skybox()
-        self.apply_global_params_3()
-        self.apply_global_params_4()
-        self.display_last_status(self.temp_status)
-
-        self.lut_tex = self.load_cube_lut("FGCineBright.cube")
+        self.lut_tex = ""
         #---load pbr pipeline---
         if self.global_params['skybox_enable_envmap']==True:
             env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
@@ -292,10 +300,21 @@ class SceneMakerMain(ShowBase):
         exposure=0,
         max_lights=16,
         enable_fog=True,
-        sdr_lut=self.lut_tex,
+        #sdr_lut=self.lut_tex,
         #sdr_lut_factor=1,
         use_330=True
         )
+        
+        #---apply global params---
+        self.apply_global_params_1()
+        self.setupLights()
+        self.apply_global_params_2()
+        #self.set_skybox()
+        self.apply_global_params_3()
+        self.apply_global_params_4()
+        self.apply_global_params_5()
+        self.display_last_status(self.temp_status)
+
         
     def clear_envmap_cache(self, filename: str):
         """Clear both disk and RAM cache for one envmap"""
@@ -399,6 +418,14 @@ class SceneMakerMain(ShowBase):
                 entry['image_color'] = (0.6, 0.6, 1, 1)   # hover color if indicatorValue on
             else:
                 entry['image_color'] = (0.6, 0.6, 1, 1)   # hover color
+            entry_pos=entry.getPos()
+            taskMgr.doMethodLater(
+                1.0,   # delay seconds
+                self.show_tooltip,
+                "tooltip_task",
+                extraArgs=[self.tab_names[entry["extraArgs"][0]],entry_pos],
+                appendTask=True
+            )
         else:
             if entry['indicatorValue']==True:
                 entry['image_color'] = (0.57, 0.88, 0.35, 1)   # indicatorValue color
@@ -408,8 +435,14 @@ class SceneMakerMain(ShowBase):
             taskMgr.remove("tooltip_task")
             self.tooltip.hide()
                 
+    def show_tooltip(self, text, entry_pos, task):
+        #x = base.mouseWatcherNode.getMouseX()
+        #y = base.mouseWatcherNode.getMouseY()
+        self.tooltip.setText(text)
+        self.tooltip.setPos(entry_pos[0], entry_pos[2]-0.055)
+        self.tooltip.show()
+        return task.done
                 
-            
     def create_shortcut_icons_top(self):
         self.ScrolledFrame_a0=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
@@ -421,8 +454,7 @@ class SceneMakerMain(ShowBase):
 
         start_x = -1.25
         spacing = 0.09
-
-        for i in range(1, 11):
+        for i in range(1, 13):
             x_pos = start_x + (i - 1) * spacing
             button = DirectCheckButton(parent=canvas_a1,pos=(x_pos, 1, 0.97),command=self.icons_command,extraArgs=[str(i)],scale=0.04,indicatorValue=0,image=f"icons/{i}.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
             setattr(self, f"checkbutton_a{i}", button)
@@ -431,33 +463,22 @@ class SceneMakerMain(ShowBase):
 
     def icons_command(self,InputValue,identifier):
         try:
-            mapping = {
-                "1":  (self.ScrolledFrame_b1, self.checkbutton_a1),
-                "2":  (self.ScrolledFrame_c1, self.checkbutton_a2),
-                "3":  (self.ScrolledFrame_d2, self.checkbutton_a3),
-                "4":  (self.ScrolledFrame_d1, self.checkbutton_a4),
-                "5":  (self.ScrolledFrame_e1, self.checkbutton_a5),
-                "6":  (self.ScrolledFrame_f1, self.checkbutton_a6),
-                "7":  (self.ScrolledFrame_g1, self.checkbutton_a7),
-                "8":  (self.ScrolledFrame_h1, self.checkbutton_a8),
-                "9":  (self.ScrolledFrame_i1, self.checkbutton_a9),
-                "10": (self.ScrolledFrame_j1, self.checkbutton_a10),
-            }
-            if identifier in mapping:
-                frame, button = mapping[identifier]
+            index=int(identifier)-1
+            frame=self.tab_all[index]
+            button = getattr(self, f"CheckButton_{identifier}")
 
-                if InputValue:
-                    frame.show()
-                    button['image_color'] = (0.57, 0.88, 0.35, 1)
-                    #self.cbutton_commands(InputValue, identifier, frame)
-                    #btn = getattr(self, f"CheckButton_{identifier}")
-                    #btn["indicatorValue"] = 1
-                else:
-                    frame.hide()
-                    button['image_color'] = (1, 1, 1, 1)
-                    #self.cbutton_commands(InputValue, identifier, frame)
-                    #btn = getattr(self, f"CheckButton_{identifier}")
-                    #btn["indicatorValue"] = 0
+            if InputValue:
+                frame.show()
+                button['image_color'] = (0.57, 0.88, 0.35, 1)
+                #self.cbutton_commands(InputValue, identifier, frame)
+                #btn = getattr(self, f"CheckButton_{identifier}")
+                #btn["indicatorValue"] = 1
+            else:
+                frame.hide()
+                button['image_color'] = (1, 1, 1, 1)
+                #self.cbutton_commands(InputValue, identifier, frame)
+                #btn = getattr(self, f"CheckButton_{identifier}")
+                #btn["indicatorValue"] = 0
                     
         except Exception as e:
             logger.error('error in shortcut icon click:')
@@ -516,6 +537,10 @@ class SceneMakerMain(ShowBase):
         self.global_params['fog_end']=150
         self.global_params['fog_density']=0.001
         
+        # LUT params
+        self.global_params['LUT_enable']=False
+        self.global_params['LUT_factor']=1
+        
     def apply_global_params_1(self): #settings params
         self.mouse_sensitivity=self.global_params['mouse_sensitivity']
         self.dentry_d2.enterText(str(self.mouse_sensitivity))
@@ -573,7 +598,6 @@ class SceneMakerMain(ShowBase):
         self.dlabel_i4.setText(self.global_params['skybox_image'])
             
     def apply_global_params_4(self): #fog params
-        print(self.global_params['fog_type'])
         self.fog_commands(self.global_params['fog_enable'],'enable')
         self.fog_commands(self.global_params['fog_R'],'R')
         self.fog_commands(self.global_params['fog_G'],'G')
@@ -581,7 +605,11 @@ class SceneMakerMain(ShowBase):
         self.fog_commands(self.global_params['fog_start'],'start')
         self.fog_commands(self.global_params['fog_end'],'end')
         self.fog_commands(self.global_params['fog_density'],'density')
-        
+
+    def apply_global_params_5(self): #lut params
+        self.LUT_commands(self.global_params['LUT_enable'],'enable')
+        self.LUT_commands(self.global_params['LUT_factor'],'LUT_factor')
+    
     def save_global_params(self):
         try:
             with open(self.scene_global_params_filename, 'w', encoding='utf-8') as f:
@@ -789,6 +817,23 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_j1.hide()
         self.create_fog_settings_gui()
         self.ScrolledFrame_k1.hide()
+        self.create_LUT_loader_gui()
+        self.ScrolledFrame_L1.hide()
+        
+        self.tab_all=[
+        self.ScrolledFrame_b1,
+        self.ScrolledFrame_c1,
+        self.ScrolledFrame_d2,
+        self.ScrolledFrame_d1,
+        self.ScrolledFrame_e1,
+        self.ScrolledFrame_f1,
+        self.ScrolledFrame_g1,
+        self.ScrolledFrame_h1,
+        self.ScrolledFrame_i1,
+        self.ScrolledFrame_j1,
+        self.ScrolledFrame_k1,
+        self.ScrolledFrame_L1,
+        ]
         
         #----switch_models menu is created last here to display it on top of other frames---
         # frameColor=(Ready, Pressed, Rollover, Disabled)
@@ -858,23 +903,9 @@ class SceneMakerMain(ShowBase):
             frameColor=self.FRAME_COLOR_1
         )
         
-        # button data
-        button_data = [
-            ("properties",self.ScrolledFrame_b1),
-            ("all properties",self.ScrolledFrame_c1),
-            ("General Settings",self.ScrolledFrame_d2),
-            ("Light Settings",self.ScrolledFrame_d1),
-            ("Model Light Settings",self.ScrolledFrame_e1),
-            ("Model NodePaths Viewer",self.ScrolledFrame_f1),
-            ("Model Animation Viewer",self.ScrolledFrame_g1),
-            ("Model Parent Editor",self.ScrolledFrame_h1),
-            ("Skybox Settings",self.ScrolledFrame_i1),
-            ("HeightMap Loader",self.ScrolledFrame_j1),
-            ("Fog Settings",self.ScrolledFrame_k1),
-        ]
-
-        for i, (text,frame) in enumerate(button_data):
-
+        for i in range(len(self.tab_names)):
+            text=self.tab_names[str(i+1)]
+            frame=self.tab_all[i]
             btn = DirectCheckButton(
                 parent=self.menu_dropdown_1.getCanvas(),
                 text=text,
@@ -1901,13 +1932,14 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_k1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,-0.1),
+            pos=(0.2,0,-0.1),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_6=self.ScrolledFrame_k1.getCanvas()
         
         self.dlabel_k0=DirectLabel(parent=canvas_6,text="FOG SETTINGS",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.7),text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.CheckButton_k1 = DirectCheckButton(parent=canvas_6,text = "Enable Fog" ,scale=.06,command=self.fog_commands,extraArgs=['enable'],pos=(-1.3, 1,0.6),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
+        self.CheckButton_k1 = DirectCheckButton(parent=canvas_6,text = "Enable Fog" ,scale=.06,command=self.fog_commands,extraArgs=['enable'],pos=(-1.3, 1,0.6),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_k1.setTransparency(TransparencyAttrib.MAlpha)
         self.dlabel_k2=DirectLabel(parent=canvas_6,text="Color:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.3, 0, 0.5),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_k3=DirectLabel(parent=canvas_6,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.5),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_k4 = self.PatchedDirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(-1, 1,0.5), command=self.fog_commands,extraArgs=['R'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
@@ -1917,9 +1949,11 @@ class SceneMakerMain(ShowBase):
         self.dentry_k8 = self.PatchedDirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(0, 1,0.5), command=self.fog_commands,extraArgs=['B'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.fog_radio_val=[self.global_params['fog_type']] # self.fog_radio_val=[1]
         self.RadioButtons_k9 = [
-            DirectRadioButton(parent=canvas_6,text='Linear Fog', variable=self.fog_radio_val, value=[0],scale=0.07, pos=(-1.3, 0, 0.4), command=self.fog_commands,extraArgs=['','radio_1'],text_align=TextNode.ALeft,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1),
-            DirectRadioButton(parent=canvas_6,text='Exponential Fog', variable=self.fog_radio_val, value=[1],scale=0.07, pos=(-1.3, 0, 0.1), command=self.fog_commands,extraArgs=['','radio_2'],text_align=TextNode.ALeft,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1)
+            DirectRadioButton(parent=canvas_6,text='Linear Fog', variable=self.fog_radio_val, value=[0],scale=0.07, pos=(-1.3, 0, 0.4), command=self.fog_commands,extraArgs=['','radio_1'],text_align=TextNode.ALeft,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=("icons/radio_1.png","icons/radio_3.png","icons/radio_2.png"),boxImageScale=(.6,.6,.6)),
+            DirectRadioButton(parent=canvas_6,text='Exponential Fog', variable=self.fog_radio_val, value=[1],scale=0.07, pos=(-1.3, 0, 0.1), command=self.fog_commands,extraArgs=['','radio_2'],text_align=TextNode.ALeft,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=("icons/radio_1.png","icons/radio_3.png","icons/radio_2.png"),boxImageScale=(.6,.6,.6))
         ]
+        self.RadioButtons_k9[0].setTransparency(TransparencyAttrib.MAlpha)
+        self.RadioButtons_k9[1].setTransparency(TransparencyAttrib.MAlpha)
 
         for button in self.RadioButtons_k9:
             button.setOthers(self.RadioButtons_k9)
@@ -2029,24 +2063,79 @@ class SceneMakerMain(ShowBase):
             logger.error(e)
             self.display_last_status('error in fog gui entry.')
             
+    def create_LUT_loader_gui(self):
+        self.ScrolledFrame_L1=DirectScrolledFrame(
+            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0,0,-0.05),
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_6=self.ScrolledFrame_L1.getCanvas()
+        
+        self.dlabel_L0=DirectLabel(parent=canvas_6,text="LUT Loader (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.7),text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.CheckButton_L1 = DirectCheckButton(parent=canvas_6,text = "Enable LUT" ,scale=.06,command=self.LUT_commands,extraArgs=['enable'],pos=(-1.1, 0,0.6),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_L1.setTransparency(TransparencyAttrib.MAlpha)
+        self.dlabel_L2=DirectLabel(parent=canvas_6,text="Current File:",text_scale=0.07,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.5),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_L3=DirectLabel(parent=canvas_6,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.7, 0, 0.5),text_fg=self.TEXTFG_COLOR_3,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_2)
+        self.dbutton_L4 = DirectButton(parent=canvas_6,text='Select .cube File',pos=(-1.2, 0, 0.4),scale=0.07,text_align=TextNode.ALeft,command=self.LUT_commands,extraArgs=['','select_file'],relief=None)
+        self.set_image_to_button(self.dbutton_L4)
+        self.dlabel_L5=DirectLabel(parent=canvas_6,text="LUT Factor:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.3),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_L6 = self.PatchedDirectEntry(parent=canvas_6,text = "", scale=0.06,width=6,pos=(-0.8, 0, 0.3),command=self.LUT_commands,extraArgs=['LUT_factor'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+    def LUT_commands(self,InputValue,identifier):
+        try:
+            if identifier=='enable':
+                self.CheckButton_L1['indicatorValue']=InputValue
+                self.global_params['LUT_enable']=InputValue
+                if self.global_params['LUT_enable']==True:
+                    if os.path.exists(self.global_params['LUT_file']):
+                        self.lut_tex = self.load_cube_lut(self.global_params['LUT_file'])#"FGCineBright.cube"
+                        self.dlabel_L3.setText(self.global_params['LUT_file'])
+                        self.pipeline.sdr_lut=self.lut_tex
+                        self.pipeline.sdr_lut_factor=self.global_params['LUT_factor']
+                else:
+                    self.pipeline.sdr_lut=None
+                    self.pipeline.sdr_lut_factor=1
+
+            if identifier=='select_file':
+                root = tk.Tk()
+                openedfilename=askopenfilename(title="open an .cube file",filetypes=[("LUT files", ".cube"),("All files", "*.*")])
+                root.destroy()
+                if len(openedfilename)>0:
+                    Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(Loadedfilepath)
+                    Loadedfilepath=Loadedfilepath.replace("\\","/")
+                    try:
+                        self.global_params['LUT_file']=Loadedfilepath
+                        self.lut_tex = self.load_cube_lut(self.global_params['LUT_file'])
+                        self.pipeline.sdr_lut=self.lut_tex
+                        self.pipeline.sdr_lut_factor=self.global_params['LUT_factor']
+                        self.dlabel_L3.setText(Loadedfilepath)
+                        self.display_last_status('LUT file is set.')
+                    except Exception as e:
+                        logger.error('LUT file not supported:')
+                        logger.error(e)
+                        self.display_last_status('LUT file not supported:')
+                else:
+                    self.display_last_status('no file selected.')
+            if identifier=='LUT_factor':
+                self.dentry_L6.enterText(str(InputValue))
+                InputValue=float(InputValue)
+                self.global_params['LUT_factor']=InputValue
+                if self.global_params['LUT_enable']==True:
+                    self.pipeline.sdr_lut_factor=self.global_params['LUT_factor']
+                    
+        except Exception as e:
+            logger.error('error in LUT gui entry:')
+            logger.error(e)
+            self.display_last_status('error in LUT gui entry.')
+            
     def cbuttondef_tst(self,status):
         if status:
             print('clickd')
         else:
             print('not clickd')
         
-    def cbuttondef_1(self,status):
-        if status:
-            self.ScrolledFrame_b1.show()
-        else:
-            self.ScrolledFrame_b1.hide()
-
-    def cbuttondef_2(self,status):
-        if status:
-            self.ScrolledFrame_c1.show()
-        else:
-            self.ScrolledFrame_c1.hide()
-
     def cbuttondef_3(self,status):
         if status:
             self.data_all[self.current_model_index]['enable']=True
@@ -2081,60 +2170,6 @@ class SceneMakerMain(ShowBase):
             self.data_all[self.current_model_index]['pickable']=True
         else:
             self.data_all[self.current_model_index]['pickable']=False
-
-    def cbuttondef_b3(self,status):
-        if status:
-            self.ScrolledFrame_d2.show()
-        else:
-            self.ScrolledFrame_d2.hide()
-
-    def cbuttondef_b4(self,status):
-        if status:
-            self.ScrolledFrame_d1.show()
-        else:
-            self.ScrolledFrame_d1.hide()
-
-    def cbuttondef_b5(self,status):
-        if status:
-            self.ScrolledFrame_e1.show()
-        else:
-            self.ScrolledFrame_e1.hide()
-
-    def cbuttondef_b6(self,status):
-        if status:
-            self.ScrolledFrame_f1.show()
-        else:
-            self.ScrolledFrame_f1.hide()
-            
-    def cbuttondef_b7(self,status):
-        if status:
-            self.ScrolledFrame_g1.show()
-        else:
-            self.ScrolledFrame_g1.hide()
-
-    def cbuttondef_b8(self,status):
-        if status:
-            self.ScrolledFrame_h1.show()
-        else:
-            self.ScrolledFrame_h1.hide()
-
-    def cbuttondef_b9(self,status):
-        if status:
-            self.ScrolledFrame_i1.show()
-        else:
-            self.ScrolledFrame_i1.hide()
-
-    def cbuttondef_b10(self,status):
-        if status:
-            self.ScrolledFrame_j1.show()
-        else:
-            self.ScrolledFrame_j1.hide()
-
-    def cbuttondef_b11(self,status):
-        if status:
-            self.ScrolledFrame_k1.show()
-        else:
-            self.ScrolledFrame_k1.hide()
 
     def cbuttondef_gs1(self,status):
         if status:

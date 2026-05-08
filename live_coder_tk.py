@@ -40,18 +40,25 @@ class LiveCoder(ShowBase):
         
         # Code text area with corrected example using loader for visible sphere
         self.initial_code = """
-# Example: Load and position a built-in sphere (visible primitive)
-sphere = loader.loadModel("models/sphere")
-if sphere:
-    sphere.reparentTo(scene)
-    sphere.setPos(0, 0, 0)
-    sphere.setScale(2)
-    sphere.setColor(1, 0, 0, 1)  # Red color
-else:
-    print("Failed to load sphere model")
-    
 from direct.gui.DirectGui import *
-DirectButton(text='Select Image',pos=(-0.1,1,0.4),scale=0.07,text_align=TextNode.ALeft)
+from panda3d.core import *
+
+ScrolledFrame_L1=DirectScrolledFrame(
+	frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+	canvasSize=(-2, 2, -2, 2),
+	pos=(0,0,0),
+	frameColor=(0.3, 0.3, 0.3, 0)
+)
+canvas_6=ScrolledFrame_L1.getCanvas()
+
+dlabel_L0=DirectLabel(parent=canvas_6,text="LUT Loader",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.3, 0, 0.7))
+CheckButton_L1 = DirectCheckButton(parent=canvas_6,text = "Enable LUT" ,scale=.06,pos=(-1.2, 1,0.6),text_align=TextNode.ALeft)
+dlabel_L2=DirectLabel(parent=canvas_6,text="Current File:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.5))
+dlabel_L3=DirectLabel(parent=canvas_6,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.8, 0, 0.5))
+dbutton_L4 = DirectButton(parent=canvas_6,text='Select File',pos=(-1.2, 0, 0.4),scale=0.07,text_align=TextNode.ALeft)
+dlabel_L5=DirectLabel(parent=canvas_6,text="LUT Factor:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.3))
+dentry_L6 = DirectEntry(parent=canvas_6,text = "", scale=0.06,width=6,pos=(-0.8, 0, 0.3),initialText="", numLines = 1, focus=0)
+
     """
         self.create_gui()
 
@@ -76,7 +83,17 @@ DirectButton(text='Select Image',pos=(-0.1,1,0.4),scale=0.07,text_align=TextNode
             left_frame, wrap=tk.NONE, font=("Consolas", 11), undo=True, tabs=('4c',)
         )
         self.code_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # Horizontal scrollbar
+        x_scroll = ttk.Scrollbar(
+            left_frame,
+            orient=tk.HORIZONTAL,
+            command=self.code_text.xview
+        )
 
+        x_scroll.pack(fill=tk.X, padx=5, pady=(0,5))
+
+        # Connect text widget to scrollbar
+        self.code_text.config(xscrollcommand=x_scroll.set)
         self.code_text.insert("1.0", self.initial_code)
         
         self.setup_syntax_highlighting()
