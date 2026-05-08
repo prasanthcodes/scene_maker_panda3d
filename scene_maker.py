@@ -1122,7 +1122,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_d2=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,-0.15),
+            pos=(0,0,-0.15),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_2=self.ScrolledFrame_d2.getCanvas()
@@ -1284,7 +1284,7 @@ class SceneMakerMain(ShowBase):
             frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
             #frameSize=(-2, 2, -2, 2),
             #canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,-0.08),
+            pos=(0,0,-0.08),
             frameColor=self.FRAME_COLOR_1
             #frameColor=(0.3, 0.3, 0.3, 0)
         )
@@ -1640,16 +1640,6 @@ class SceneMakerMain(ShowBase):
                 base.saveCubeMap('#_envmap.jpg', size = 512)
                 logger.info('envmap saved.')
                 self.display_last_status('envmap saved.')
-                
-                self.reload_environment("#_envmap.jpg")
-                # Normal load
-                #self.change_environment("#_envmap.jpg")
-
-                # Force full reload (recommended when you changed the file)
-                #self.change_environment("#_envmap.jpg", force_reload=True)
-
-                # Quick switch without clearing cache
-                #self.change_environment("new_env.hdr", force_reload=False)
 
             elif identifier=='enable_ibl':
                 self.CheckButton_i15['indicatorValue']=InputValue
@@ -3058,8 +3048,6 @@ class SceneMakerMain(ShowBase):
                 self.display_last_status('model file not loaded.')
         elif key=="delete_model":
             self.dialog_1 = YesNoDialog(dialogName="YesNoCancelDialog", text="Delete the current model?",command=self.DialogDef_1)
-            #self.pipeline.sdr_lut=self.lut_tex
-            self.pipeline.sdr_lut_factor=0.2
         else:
             self.keyMap[key] = value
 
