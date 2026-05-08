@@ -18,7 +18,8 @@ import sys
 import os
 import shutil
 import math
-
+import numpy as np
+    
 import tkinter
 from tkinter.filedialog import askopenfilename
 from tkinter import messagebox
@@ -151,6 +152,7 @@ class SceneMakerMain(ShowBase):
             self.TEXTFG_COLOR_3=(1, 0.7, 0.7, 1) #pale red color (to display highlight text, i.e. filenames)
             self.TEXTFG_COLOR_4=(0.7, 1, 0.7, 0.9) #pale green color (to display help text)
             self.TEXTBG_COLOR_1=(0, 0, 0, 0.4) #black transparent for text background
+
         else:
             self.FRAME_COLOR_1=(1, 1, 1, 0.4) #white transparent
             self.CButton_Pressed_FColor=(0,0.6,0,0.4)
@@ -210,7 +212,6 @@ class SceneMakerMain(ShowBase):
         self.unchecked_image = loader.loadTexture("icons/unchecked.png")
         self.checked_image = loader.loadTexture("icons/checked.png")
         
-
         self.light_name_list=[[],[]]
         self.light_list=[[],[]]
         self.light_node_list=[[],[]]
@@ -239,7 +240,6 @@ class SceneMakerMain(ShowBase):
         
         base.accept('tab', base.bufferViewer.toggleEnable)
         
-
         self.param_2={}
         self.current_property=1
         self.property_names=['position','scale','rotation','color']
@@ -248,8 +248,26 @@ class SceneMakerMain(ShowBase):
         self.scale_increment=0.01
         self.temp_count=1
         self.fog=""
-        self.create_top_level_main_gui()
         
+        self.tab_names={
+        '1':'Properties',
+        '2':'All Properties',
+        '3':'General Settings',
+        '4':'Light Settings',
+        '5':'Model Light Settings',
+        '6':'Model NodePaths Viewer',
+        '7':'Model Animation Viewer',
+        '8':'Model Parent Editor',
+        '9':'Skybox Settings',
+        '10':'HeightMap Loader',
+        '11':'Fog Settings',
+        '12':'LUT Loader',
+        }
+        self.tab_all=[]
+        
+        self.create_top_level_main_gui()
+        self.tooltip = OnscreenText(text="",pos=(0,0,0),scale=0.05,fg=(1,1,1,1),bg=(0,0,0,0.8),mayChange=True,align=TextNode.ALeft)
+
         self.entry_temp=""
         self.identifier_temp=""
         self.floating_slider= DirectSlider(
@@ -268,26 +286,7 @@ class SceneMakerMain(ShowBase):
         self.floating_slider.setTransparency(TransparencyAttrib.MAlpha)
         self.floating_slider.hide()
         
-        #---apply global params---
-        self.apply_global_params_1()
-        self.setupLights()
-        self.apply_global_params_2()
-        #self.set_skybox()
-        self.apply_global_params_3()
-        self.apply_global_params_4()
-        self.display_last_status(self.temp_status)
-        
-        """
-        #---this not works---
-        lut_tex = loader.loadTexture("LUT/FGCineBasic.cube-s16.png")
-        lut_tex.setFormat(Texture.F_srgb)
-        lut_tex.set_minfilter(Texture.FT_linear)   # or FT_linear_mipmap_linear
-        lut_tex.set_magfilter(Texture.FT_linear)
-        lut_tex.set_wrap_u(Texture.WM_clamp)
-        lut_tex.set_wrap_v(Texture.WM_clamp)
-        """
-        
-        
+        self.lut_tex = ""
         #---load pbr pipeline---
         if self.global_params['skybox_enable_envmap']==True:
             env_map = simplepbr.EnvPool.ptr().load('#_envmap.jpg')
@@ -301,12 +300,100 @@ class SceneMakerMain(ShowBase):
         exposure=0,
         max_lights=16,
         enable_fog=True,
-        #sdr_lut=lut_tex,
-        #sdr_lut_factor=0.8,
+        #sdr_lut=self.lut_tex,
+        #sdr_lut_factor=1,
+        use_330=True
         )
         
-        print('loading completed.')
+        #---apply global params---
+        self.apply_global_params_1()
+        self.setupLights()
+        self.apply_global_params_2()
+        #self.set_skybox()
+        self.apply_global_params_3()
+        self.apply_global_params_4()
+        self.apply_global_params_5()
+        self.display_last_status(self.temp_status)
+
         
+    def clear_envmap_cache(self, filename: str):
+        """Clear both disk and RAM cache for one envmap"""
+        filepath = Filename.from_os_specific(filename)
+        filepath.make_absolute()
+        
+        env_pool = simplepbr.EnvPool.ptr()
+        
+        # Clear RAM cache
+        if hasattr(env_pool, '_envmaps') and filepath in env_pool._envmaps:
+            del env_pool._envmaps[filepath]
+            print("envmap cleared from RAM cache")
+        
+        # Clear disk cache using internal method
+        try:
+            dummy = simplepbr.envmap.EnvMap.from_file_path(filepath, skip_prepare=True)
+            cache_path = env_pool._get_cache_path(dummy)
+            if cache_path.exists():
+                cache_path.unlink()
+                print(f"Deleted EnvMap disk cache: {cache_path}")
+        except:
+            pass  # ignore if internal method changes
+        
+    def load_cube_lut(self,file_path,swap_to_bgr=True):
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+
+        lut_size = 0
+        data_points = []
+
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            
+            # Detect the size of the LUT
+            if line.startswith("LUT_3D_SIZE"):
+                lut_size = int(line.split()[-1])
+                continue
+            
+            # Try to parse RGB data points
+            try:
+                parts = list(map(float, line.split()))
+                if len(parts) == 3:
+                    data_points.append(parts)
+            except ValueError:
+                continue
+
+        if lut_size == 0 or not data_points:
+            raise ValueError("Could not find LUT size or data in file.")
+
+        # Convert to a NumPy array (float32)
+        # Shape needs to be (Size, Size, Size, 3)
+        lut_array = np.array(data_points, dtype=np.float32)
+        
+        # This flips the last axis from [R, G, B] to [B, G, R]
+        if swap_to_bgr:
+            lut_array = lut_array[:, [2, 1, 0]]
+        
+        # Create the Panda3D Texture
+        lut_tex = Texture("sdr_lut")
+        lut_tex.setup_3d_texture(
+            lut_size, lut_size, lut_size, 
+            Texture.T_float, 
+            Texture.F_rgb32
+        )
+
+        # Set filtering (Crucial for smooth color transitions)
+        lut_tex.set_magfilter(Texture.FT_linear)
+        lut_tex.set_minfilter(Texture.FT_linear)
+        lut_tex.set_wrap_u(Texture.WM_clamp)
+        lut_tex.set_wrap_v(Texture.WM_clamp)
+        lut_tex.set_wrap_w(Texture.WM_clamp)
+
+        # Upload the data to the RAM image of the texture
+        lut_tex.set_ram_image(lut_array.tobytes())
+        
+        return lut_tex
+
     def hover_handler(self,entry,hover):
         if hover:
             if entry['focus']==True:
@@ -331,125 +418,68 @@ class SceneMakerMain(ShowBase):
                 entry['image_color'] = (0.6, 0.6, 1, 1)   # hover color if indicatorValue on
             else:
                 entry['image_color'] = (0.6, 0.6, 1, 1)   # hover color
+            entry_pos=entry.getPos()
+            taskMgr.doMethodLater(
+                1.0,   # delay seconds
+                self.show_tooltip,
+                "tooltip_task",
+                extraArgs=[self.tab_names[entry["extraArgs"][0]],entry_pos],
+                appendTask=True
+            )
         else:
             if entry['indicatorValue']==True:
                 entry['image_color'] = (0.57, 0.88, 0.35, 1)   # indicatorValue color
             else:
                 entry['image_color'] = (1,1,1,1)
-            
+                
+            taskMgr.remove("tooltip_task")
+            self.tooltip.hide()
+                
+    def show_tooltip(self, text, entry_pos, task):
+        #x = base.mouseWatcherNode.getMouseX()
+        #y = base.mouseWatcherNode.getMouseY()
+        self.tooltip.setText(text)
+        self.tooltip.setPos(entry_pos[0], entry_pos[2]-0.055)
+        self.tooltip.show()
+        return task.done
+                
     def create_shortcut_icons_top(self):
         self.ScrolledFrame_a0=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
-            pos=(0,0,0),
+            pos=(0,0,-0.1),
             frameColor=(0, 0, 0, 0)
         )
         canvas_a1=self.ScrolledFrame_a0.getCanvas()
-        
-        self.checkbutton_a1 = DirectCheckButton(parent=canvas_a1,pos=(-0.72, 1,0.97),command=self.icons_command,extraArgs=['1'],scale=0.03,indicatorValue=0,image="icons/1.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a2 = DirectCheckButton(parent=canvas_a1,pos=(-0.65, 1,0.97),command=self.icons_command,extraArgs=['2'],scale=0.03,indicatorValue=0,image="icons/2.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a3 = DirectCheckButton(parent=canvas_a1,pos=(-0.58, 1,0.97),command=self.icons_command,extraArgs=['3'],scale=0.03,indicatorValue=0,image="icons/3.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a4 = DirectCheckButton(parent=canvas_a1,pos=(-0.51, 1,0.97),command=self.icons_command,extraArgs=['4'],scale=0.03,indicatorValue=0,image="icons/4.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a5 = DirectCheckButton(parent=canvas_a1,pos=(-0.44, 1,0.97),command=self.icons_command,extraArgs=['5'],scale=0.03,indicatorValue=0,image="icons/5.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a6 = DirectCheckButton(parent=canvas_a1,pos=(-0.37, 1,0.97),command=self.icons_command,extraArgs=['6'],scale=0.03,indicatorValue=0,image="icons/6.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a7 = DirectCheckButton(parent=canvas_a1,pos=(-0.30, 1,0.97),command=self.icons_command,extraArgs=['7'],scale=0.03,indicatorValue=0,image="icons/7.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a8 = DirectCheckButton(parent=canvas_a1,pos=(-0.23, 1,0.97),command=self.icons_command,extraArgs=['8'],scale=0.03,indicatorValue=0,image="icons/8.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a9 = DirectCheckButton(parent=canvas_a1,pos=(-0.16, 1,0.97),command=self.icons_command,extraArgs=['9'],scale=0.03,indicatorValue=0,image="icons/9.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
-        self.checkbutton_a10 = DirectCheckButton(parent=canvas_a1,pos=(-0.09, 1,0.97),command=self.icons_command,extraArgs=['10'],scale=0.03,indicatorValue=0,image="icons/10.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
 
-        self.checkbutton_a1.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a1,True))
-        self.checkbutton_a1.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a1,False))
-        self.checkbutton_a2.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a2,True))
-        self.checkbutton_a2.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a2,False))
-        self.checkbutton_a3.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a3,True))
-        self.checkbutton_a3.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a3,False))
-        self.checkbutton_a4.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a4,True))
-        self.checkbutton_a4.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a4,False))
-        self.checkbutton_a5.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a5,True))
-        self.checkbutton_a5.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a5,False))
-        self.checkbutton_a6.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a6,True))
-        self.checkbutton_a6.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a6,False))
-        self.checkbutton_a7.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a7,True))
-        self.checkbutton_a7.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a7,False))
-        self.checkbutton_a8.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a8,True))
-        self.checkbutton_a8.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a8,False))
-        self.checkbutton_a9.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a9,True))
-        self.checkbutton_a9.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a9,False))
-        self.checkbutton_a10.bind(DGG.WITHIN, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a10,True))
-        self.checkbutton_a10.bind(DGG.WITHOUT, lambda event=None: self.checkbutton_hover_handler(self.checkbutton_a10,False))
-        
+        start_x = -1.25
+        spacing = 0.09
+        for i in range(1, 13):
+            x_pos = start_x + (i - 1) * spacing
+            button = DirectCheckButton(parent=canvas_a1,pos=(x_pos, 1, 0.97),command=self.icons_command,extraArgs=[str(i)],scale=0.04,indicatorValue=0,image=f"icons/{i}.jpg",relief=None,indicator_image=None,indicator_text_scale=0,indicator_relief=None,text="",boxPlacement="left",boxImage=None)
+            setattr(self, f"checkbutton_a{i}", button)
+            button.bind(DGG.WITHIN,lambda event=None, b=button: self.checkbutton_hover_handler(b, True))
+            button.bind(DGG.WITHOUT,lambda event=None, b=button: self.checkbutton_hover_handler(b, False))
+
     def icons_command(self,InputValue,identifier):
         try:
-            if identifier=="1":
-                if InputValue:
-                    self.ScrolledFrame_b1.show()
-                    self.checkbutton_a1['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_b1.hide()
-                    self.checkbutton_a1['image_color'] = (1, 1, 1, 1)
-            if identifier=="2":
-                if InputValue:
-                    self.ScrolledFrame_c1.show()
-                    self.checkbutton_a2['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_c1.hide()
-                    self.checkbutton_a2['image_color'] = (1, 1, 1, 1)
-            if identifier=="3":
-                if InputValue:
-                    self.ScrolledFrame_d2.show()
-                    self.checkbutton_a3['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_d2.hide()
-                    self.checkbutton_a3['image_color'] = (1, 1, 1, 1)
-            if identifier=="4":
-                if InputValue:
-                    self.ScrolledFrame_d1.show()
-                    self.checkbutton_a4['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_d1.hide()
-                    self.checkbutton_a4['image_color'] = (1, 1, 1, 1)
-            if identifier=="5":
-                if InputValue:
-                    self.ScrolledFrame_e1.show()
-                    self.checkbutton_a5['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_e1.hide()
-                    self.checkbutton_a5['image_color'] = (1, 1, 1, 1)
-            if identifier=="6":
-                if InputValue:
-                    self.ScrolledFrame_f1.show()
-                    self.checkbutton_a6['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_f1.hide()
-                    self.checkbutton_a6['image_color'] = (1, 1, 1, 1)
-            if identifier=="7":
-                if InputValue:
-                    self.ScrolledFrame_g1.show()
-                    self.checkbutton_a7['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_g1.hide()
-                    self.checkbutton_a7['image_color'] = (1, 1, 1, 1)
-            if identifier=="8":
-                if InputValue:
-                    self.ScrolledFrame_h1.show()
-                    self.checkbutton_a8['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_h1.hide()
-                    self.checkbutton_a8['image_color'] = (1, 1, 1, 1)
-            if identifier=="9":
-                if InputValue:
-                    self.ScrolledFrame_i1.show()
-                    self.checkbutton_a9['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_i1.hide()
-                    self.checkbutton_a9['image_color'] = (1, 1, 1, 1)
-            if identifier=="10":
-                if InputValue:
-                    self.ScrolledFrame_j1.show()
-                    self.checkbutton_a10['image_color'] = (0.57, 0.88, 0.35, 1)
-                else:
-                    self.ScrolledFrame_j1.hide()
-                    self.checkbutton_a10['image_color'] = (1, 1, 1, 1)
+            index=int(identifier)-1
+            frame=self.tab_all[index]
+            button = getattr(self, f"CheckButton_{identifier}")
+
+            if InputValue:
+                frame.show()
+                button['image_color'] = (0.57, 0.88, 0.35, 1)
+                #self.cbutton_commands(InputValue, identifier, frame)
+                #btn = getattr(self, f"CheckButton_{identifier}")
+                #btn["indicatorValue"] = 1
+            else:
+                frame.hide()
+                button['image_color'] = (1, 1, 1, 1)
+                #self.cbutton_commands(InputValue, identifier, frame)
+                #btn = getattr(self, f"CheckButton_{identifier}")
+                #btn["indicatorValue"] = 0
+                    
         except Exception as e:
             logger.error('error in shortcut icon click:')
             logger.error(e)
@@ -506,6 +536,10 @@ class SceneMakerMain(ShowBase):
         self.global_params['fog_start']=15
         self.global_params['fog_end']=150
         self.global_params['fog_density']=0.001
+        
+        # LUT params
+        self.global_params['LUT_enable']=False
+        self.global_params['LUT_factor']=1
         
     def apply_global_params_1(self): #settings params
         self.mouse_sensitivity=self.global_params['mouse_sensitivity']
@@ -564,7 +598,6 @@ class SceneMakerMain(ShowBase):
         self.dlabel_i4.setText(self.global_params['skybox_image'])
             
     def apply_global_params_4(self): #fog params
-        print(self.global_params['fog_type'])
         self.fog_commands(self.global_params['fog_enable'],'enable')
         self.fog_commands(self.global_params['fog_R'],'R')
         self.fog_commands(self.global_params['fog_G'],'G')
@@ -572,7 +605,11 @@ class SceneMakerMain(ShowBase):
         self.fog_commands(self.global_params['fog_start'],'start')
         self.fog_commands(self.global_params['fog_end'],'end')
         self.fog_commands(self.global_params['fog_density'],'density')
-        
+
+    def apply_global_params_5(self): #lut params
+        self.LUT_commands(self.global_params['LUT_enable'],'enable')
+        self.LUT_commands(self.global_params['LUT_factor'],'LUT_factor')
+    
     def save_global_params(self):
         try:
             with open(self.scene_global_params_filename, 'w', encoding='utf-8') as f:
@@ -755,8 +792,8 @@ class SceneMakerMain(ShowBase):
         self.MenuButton_1.setTransparency(TransparencyAttrib.MAlpha)
         self.dbutton_1 = DirectButton(text=("Save"),scale=.06, pos=(0.1, 1,0.95),command=self.ButtonDef_1,image=[self.button_normal,self.button_pressed,self.button_hover,self.button_normal],relief=None,image_pos=(0,0,0.2),image_scale=(1.5, 1, 0.8))
         self.dbutton_1.setTransparency(TransparencyAttrib.MAlpha)
-        self.dlabel_status=DirectLabel(text='Last Status: ',pos=(-1.3,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.85),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_status=DirectLabel(text='Last Status: ',pos=(-1.3,1,0.75),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_status2=DirectLabel(text='',pos=(-0.92,1,0.75),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.create_shortcut_icons_top()
         self.create_properties_gui()
         self.ScrolledFrame_b1.hide()
@@ -780,14 +817,31 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_j1.hide()
         self.create_fog_settings_gui()
         self.ScrolledFrame_k1.hide()
+        self.create_LUT_loader_gui()
+        self.ScrolledFrame_L1.hide()
+        
+        self.tab_all=[
+        self.ScrolledFrame_b1,
+        self.ScrolledFrame_c1,
+        self.ScrolledFrame_d2,
+        self.ScrolledFrame_d1,
+        self.ScrolledFrame_e1,
+        self.ScrolledFrame_f1,
+        self.ScrolledFrame_g1,
+        self.ScrolledFrame_h1,
+        self.ScrolledFrame_i1,
+        self.ScrolledFrame_j1,
+        self.ScrolledFrame_k1,
+        self.ScrolledFrame_L1,
+        ]
         
         #----switch_models menu is created last here to display it on top of other frames---
         # frameColor=(Ready, Pressed, Rollover, Disabled)
         self.menu_2 = DirectButton(text=("switch_models                                                 ."),scale=.07,command=self.show_ScrolledFrame_menu_2,pos=(0.2, 1,0.95),frameColor=(self.FRAME_COLOR_2,self.FRAME_COLOR_2,(0, 0, 0.5, 0.6),self.FRAME_COLOR_2),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
         self.ScrolledFrame_menu_2=DirectScrolledFrame(
-            frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
+            frameSize=(-1.2, 1.2, -0.9, 0.8),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0.5)
         )
         self.ScrolledFrame_menu_2.accept("wheel_up",  self.scroll_vertical,extraArgs=[self.ScrolledFrame_menu_2,False,0.1])
@@ -849,253 +903,59 @@ class SceneMakerMain(ShowBase):
             frameColor=self.FRAME_COLOR_1
         )
         
-        self.CheckButton_1 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "properties " ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_1,
-            pos=(0.1,1,-0.1),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
+        for i in range(len(self.tab_names)):
+            text=self.tab_names[str(i+1)]
+            frame=self.tab_all[i]
+            btn = DirectCheckButton(
+                parent=self.menu_dropdown_1.getCanvas(),
+                text=text,
+                text_align=TextNode.ALeft,
+                scale=.06,
+                command=self.cbutton_commands,
+                extraArgs=[str(i+1),frame],
+                pos=(0.1, 1, -0.1 - (i * 0.1)),
+                text_fg=self.TEXTFG_COLOR_1,
+                indicatorValue=0,
+                frameColor=(
+                    self.FRAME_COLOR_1,
+                    self.CButton_Pressed_FColor,
+                    self.CButton_Hover_FColor,
+                    self.FRAME_COLOR_1
+                ),
+                indicator_text_scale=0,
+                indicator_relief=None,
+                boxPlacement="left",
+                boxImage=(
+                    self.unchecked_image,
+                    self.checked_image,
+                    self.unchecked_image
+                ),
+                boxImageScale=(.5, .5, .5),
             )
-        self.CheckButton_1.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_2 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "all properties" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_2,
-            pos=(0.1, 1,-0.2),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_2.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_3 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "General Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b3,
-            pos=(0.1, 1,-0.3),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_3.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_4 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Light Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b4,
-            pos=(0.1, 1,-0.4),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_4.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_5 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Model Light Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b5,
-            pos=(0.1, 1,-0.5),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_5.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_6 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Model NodePaths Viewer" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b6,
-            pos=(0.1, 1,-0.6),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_6.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_7 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Model Animation Viewer" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b7,
-            pos=(0.1, 1,-0.7),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_7.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_8 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Model Parent Editor" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b8,
-            pos=(0.1, 1,-0.8),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_8.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_9 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Skybox Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b9,
-            pos=(0.1, 1,-0.9),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_9.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_10 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "HeightMap Loader" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b10,
-            pos=(0.1, 1,-1.0),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-        self.CheckButton_10.setTransparency(TransparencyAttrib.MAlpha)
-        self.CheckButton_11 = DirectCheckButton(
-            parent=self.menu_dropdown_1.getCanvas(),
-            text = "Fog Settings" ,
-            text_align=TextNode.ALeft,
-            scale=.06,
-            command=self.cbuttondef_b11,
-            pos=(0.1, 1,-1.1),
-            text_fg=self.TEXTFG_COLOR_1,
-            indicatorValue=0,
-            frameColor=(
-                self.FRAME_COLOR_1, # normal
-                self.CButton_Pressed_FColor,  # Pressed
-                self.CButton_Hover_FColor,  # hover
-                self.FRAME_COLOR_1  # disabled
-            ),
-            indicator_text_scale=0,
-            indicator_relief=None,
-            boxPlacement="left",
-            boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),
-            boxImageScale=(.5,.5,.5),
-            )
-                                
+
+            btn.setTransparency(TransparencyAttrib.MAlpha)
+
+            # optional dynamic variable names
+            setattr(self, f"CheckButton_{i+1}", btn)
+
+    def cbutton_commands(self, status, identifier, frame):
+        if status:
+            frame.show()
+            #btn = getattr(self, f"CheckButton_{identifier}")
+            #btn["indicatorValue"] = 1
+            #self.icons_command(True,identifier)
+        else:
+            frame.hide()
+            #btn = getattr(self, f"CheckButton_{identifier}")
+            #btn["indicatorValue"] = 0
+            #self.icons_command(False,identifier)
+        self.menu_dropdown_1.hide()
+        
     def create_properties_gui(self):
         self.ScrolledFrame_b1=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.1),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_1=self.ScrolledFrame_b1.getCanvas()
@@ -1122,7 +982,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_c1=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_1=self.ScrolledFrame_c1.getCanvas()
@@ -1217,7 +1077,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_d1=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.1),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_1=self.ScrolledFrame_d1.getCanvas()
@@ -1262,7 +1122,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_d2=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0,0,-0.15),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_2=self.ScrolledFrame_d2.getCanvas()
@@ -1327,7 +1187,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_e1=DirectScrolledFrame(
             #canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
             frameSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
 
@@ -1424,7 +1284,7 @@ class SceneMakerMain(ShowBase):
             frameSize=(-1, 1, -0.9, 0.8),  # left, right, bottom, top
             #frameSize=(-2, 2, -2, 2),
             #canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0,0,-0.08),
             frameColor=self.FRAME_COLOR_1
             #frameColor=(0.3, 0.3, 0.3, 0)
         )
@@ -1436,7 +1296,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_g1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_3=self.ScrolledFrame_g1.getCanvas()
@@ -1498,7 +1358,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_h1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_4=self.ScrolledFrame_h1.getCanvas()
@@ -1561,7 +1421,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_i1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.1,0,-0.05),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_5=self.ScrolledFrame_i1.getCanvas()
@@ -1622,10 +1482,12 @@ class SceneMakerMain(ShowBase):
         self.dbutton_i14 = DirectButton(parent=canvas_5,text='Save Environment Map',pos=(-1.2,1,-0.6),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','save_envmap'],relief=None)
         self.set_image_to_button(self.dbutton_i14)
         self.dlabel_i14_2=DirectLabel(parent=canvas_5,text=" *it saves the background(skybox) as 6 cubemap images",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.4, 0, -0.6),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.7),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.dbutton_i14_3 = DirectButton(parent=canvas_5,text='Clear envmap cache',pos=(-1.2,1,-0.7),scale=0.07,text_align=TextNode.ALeft,command=self.skybox_commands,extraArgs=['','clear_cache'],relief=None)
+        self.set_image_to_button(self.dbutton_i14_3)
+        self.CheckButton_i15 = DirectCheckButton(parent=canvas_5,text = "enable envmap+IBL" ,scale=.06,command=self.skybox_commands,extraArgs=['enable_ibl'],pos=(-1.15, 1,-0.8),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
         self.CheckButton_i15.setTransparency(TransparencyAttrib.MAlpha)
-        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.7),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.8),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_i15_2=DirectLabel(parent=canvas_5,text=" *it sets the saved cubemap as envmap+IBL in simplepbr",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.5, 0, -0.8),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_i15_3=DirectLabel(parent=canvas_5,text=" (save the program and restart to see this takes effect)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.45, 0, -0.9),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
 
     def set_skybox_tonemapping_method(self,InputValue):
         try:
@@ -1778,6 +1640,7 @@ class SceneMakerMain(ShowBase):
                 base.saveCubeMap('#_envmap.jpg', size = 512)
                 logger.info('envmap saved.')
                 self.display_last_status('envmap saved.')
+
             elif identifier=='enable_ibl':
                 self.CheckButton_i15['indicatorValue']=InputValue
                 if InputValue==True:
@@ -1834,6 +1697,10 @@ class SceneMakerMain(ShowBase):
                 except:
                     self.display_last_status('error when setting skybox_gamma')
                     logger.error('error when setting skybox_gamma')
+            elif identifier=='clear_cache':
+                self.clear_envmap_cache("#_envmap.jpg")
+                self.display_last_status('envmap cache cleared')
+                logger.error('envmap cache of simplepbr cleared.')
                 
         except Exception as e:
             logger.error('error in skybox gui entry:')
@@ -1844,7 +1711,7 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_j1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.2,0,-0.1),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_5=self.ScrolledFrame_j1.getCanvas()
@@ -2055,13 +1922,14 @@ class SceneMakerMain(ShowBase):
         self.ScrolledFrame_k1=DirectScrolledFrame(
             frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
-            pos=(0.1,0,0),
+            pos=(0.2,0,-0.1),
             frameColor=(0.3, 0.3, 0.3, 0)
         )
         canvas_6=self.ScrolledFrame_k1.getCanvas()
         
         self.dlabel_k0=DirectLabel(parent=canvas_6,text="FOG SETTINGS",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.4, 0, 0.7),text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.CheckButton_k1 = DirectCheckButton(parent=canvas_6,text = "Enable Fog" ,scale=.06,command=self.fog_commands,extraArgs=['enable'],pos=(-1.3, 1,0.6),frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
+        self.CheckButton_k1 = DirectCheckButton(parent=canvas_6,text = "Enable Fog" ,scale=.06,command=self.fog_commands,extraArgs=['enable'],pos=(-1.3, 1,0.6),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_k1.setTransparency(TransparencyAttrib.MAlpha)
         self.dlabel_k2=DirectLabel(parent=canvas_6,text="Color:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.3, 0, 0.5),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dlabel_k3=DirectLabel(parent=canvas_6,text="R:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.1, 0, 0.5),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_k4 = self.PatchedDirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(-1, 1,0.5), command=self.fog_commands,extraArgs=['R'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
@@ -2071,9 +1939,11 @@ class SceneMakerMain(ShowBase):
         self.dentry_k8 = self.PatchedDirectEntry(parent=canvas_6,text = "", scale=0.06,width=5,pos=(0, 1,0.5), command=self.fog_commands,extraArgs=['B'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.fog_radio_val=[self.global_params['fog_type']] # self.fog_radio_val=[1]
         self.RadioButtons_k9 = [
-            DirectRadioButton(parent=canvas_6,text='Linear Fog', variable=self.fog_radio_val, value=[0],scale=0.07, pos=(-1.3, 0, 0.4), command=self.fog_commands,extraArgs=['','radio_1'],text_align=TextNode.ALeft,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1),
-            DirectRadioButton(parent=canvas_6,text='Exponential Fog', variable=self.fog_radio_val, value=[1],scale=0.07, pos=(-1.3, 0, 0.1), command=self.fog_commands,extraArgs=['','radio_2'],text_align=TextNode.ALeft,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1)
+            DirectRadioButton(parent=canvas_6,text='Linear Fog', variable=self.fog_radio_val, value=[0],scale=0.07, pos=(-1.3, 0, 0.4), command=self.fog_commands,extraArgs=['','radio_1'],text_align=TextNode.ALeft,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=("icons/radio_1.png","icons/radio_3.png","icons/radio_2.png"),boxImageScale=(.6,.6,.6)),
+            DirectRadioButton(parent=canvas_6,text='Exponential Fog', variable=self.fog_radio_val, value=[1],scale=0.07, pos=(-1.3, 0, 0.1), command=self.fog_commands,extraArgs=['','radio_2'],text_align=TextNode.ALeft,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=("icons/radio_1.png","icons/radio_3.png","icons/radio_2.png"),boxImageScale=(.6,.6,.6))
         ]
+        self.RadioButtons_k9[0].setTransparency(TransparencyAttrib.MAlpha)
+        self.RadioButtons_k9[1].setTransparency(TransparencyAttrib.MAlpha)
 
         for button in self.RadioButtons_k9:
             button.setOthers(self.RadioButtons_k9)
@@ -2183,24 +2053,79 @@ class SceneMakerMain(ShowBase):
             logger.error(e)
             self.display_last_status('error in fog gui entry.')
             
+    def create_LUT_loader_gui(self):
+        self.ScrolledFrame_L1=DirectScrolledFrame(
+            frameSize=(-2, 2, -2, 2),  # left, right, bottom, top
+            canvasSize=(-2, 2, -2, 2),
+            pos=(0,0,-0.05),
+            frameColor=(0.3, 0.3, 0.3, 0)
+        )
+        canvas_6=self.ScrolledFrame_L1.getCanvas()
+        
+        self.dlabel_L0=DirectLabel(parent=canvas_6,text="LUT Loader (simplepbr specific)",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.7),text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.CheckButton_L1 = DirectCheckButton(parent=canvas_6,text = "Enable LUT" ,scale=.06,command=self.LUT_commands,extraArgs=['enable'],pos=(-1.1, 0,0.6),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,indicatorValue=0,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+        self.CheckButton_L1.setTransparency(TransparencyAttrib.MAlpha)
+        self.dlabel_L2=DirectLabel(parent=canvas_6,text="Current File:",text_scale=0.07,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.5),text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_L3=DirectLabel(parent=canvas_6,text="",text_scale=0.06,text_align=TextNode.ALeft,pos=(-0.7, 0, 0.5),text_fg=self.TEXTFG_COLOR_3,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_2)
+        self.dbutton_L4 = DirectButton(parent=canvas_6,text='Select .cube File',pos=(-1.2, 0, 0.4),scale=0.07,text_align=TextNode.ALeft,command=self.LUT_commands,extraArgs=['','select_file'],relief=None)
+        self.set_image_to_button(self.dbutton_L4)
+        self.dlabel_L5=DirectLabel(parent=canvas_6,text="LUT Factor:",text_scale=0.06,text_align=TextNode.ALeft,pos=(-1.2, 0, 0.3),text_fg=self.TEXTFG_COLOR_4,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_L6 = self.PatchedDirectEntry(parent=canvas_6,text = "", scale=0.06,width=6,pos=(-0.8, 0, 0.3),command=self.LUT_commands,extraArgs=['LUT_factor'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_1,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+    def LUT_commands(self,InputValue,identifier):
+        try:
+            if identifier=='enable':
+                self.CheckButton_L1['indicatorValue']=InputValue
+                self.global_params['LUT_enable']=InputValue
+                if self.global_params['LUT_enable']==True:
+                    if os.path.exists(self.global_params['LUT_file']):
+                        self.lut_tex = self.load_cube_lut(self.global_params['LUT_file'])#"FGCineBright.cube"
+                        self.dlabel_L3.setText(self.global_params['LUT_file'])
+                        self.pipeline.sdr_lut=self.lut_tex
+                        self.pipeline.sdr_lut_factor=self.global_params['LUT_factor']
+                else:
+                    self.pipeline.sdr_lut=None
+                    self.pipeline.sdr_lut_factor=1
+
+            if identifier=='select_file':
+                root = tk.Tk()
+                openedfilename=askopenfilename(title="open an .cube file",filetypes=[("LUT files", ".cube"),("All files", "*.*")])
+                root.destroy()
+                if len(openedfilename)>0:
+                    Loadedfilepath=os.path.relpath(openedfilename, os.getcwd())
+                    uqname=os.path.basename(Loadedfilepath)
+                    Loadedfilepath=Loadedfilepath.replace("\\","/")
+                    try:
+                        self.global_params['LUT_file']=Loadedfilepath
+                        self.lut_tex = self.load_cube_lut(self.global_params['LUT_file'])
+                        self.pipeline.sdr_lut=self.lut_tex
+                        self.pipeline.sdr_lut_factor=self.global_params['LUT_factor']
+                        self.dlabel_L3.setText(Loadedfilepath)
+                        self.display_last_status('LUT file is set.')
+                    except Exception as e:
+                        logger.error('LUT file not supported:')
+                        logger.error(e)
+                        self.display_last_status('LUT file not supported:')
+                else:
+                    self.display_last_status('no file selected.')
+            if identifier=='LUT_factor':
+                self.dentry_L6.enterText(str(InputValue))
+                InputValue=float(InputValue)
+                self.global_params['LUT_factor']=InputValue
+                if self.global_params['LUT_enable']==True:
+                    self.pipeline.sdr_lut_factor=self.global_params['LUT_factor']
+                    
+        except Exception as e:
+            logger.error('error in LUT gui entry:')
+            logger.error(e)
+            self.display_last_status('error in LUT gui entry.')
+            
     def cbuttondef_tst(self,status):
         if status:
             print('clickd')
         else:
             print('not clickd')
         
-    def cbuttondef_1(self,status):
-        if status:
-            self.ScrolledFrame_b1.show()
-        else:
-            self.ScrolledFrame_b1.hide()
-
-    def cbuttondef_2(self,status):
-        if status:
-            self.ScrolledFrame_c1.show()
-        else:
-            self.ScrolledFrame_c1.hide()
-
     def cbuttondef_3(self,status):
         if status:
             self.data_all[self.current_model_index]['enable']=True
@@ -2235,60 +2160,6 @@ class SceneMakerMain(ShowBase):
             self.data_all[self.current_model_index]['pickable']=True
         else:
             self.data_all[self.current_model_index]['pickable']=False
-
-    def cbuttondef_b3(self,status):
-        if status:
-            self.ScrolledFrame_d2.show()
-        else:
-            self.ScrolledFrame_d2.hide()
-
-    def cbuttondef_b4(self,status):
-        if status:
-            self.ScrolledFrame_d1.show()
-        else:
-            self.ScrolledFrame_d1.hide()
-
-    def cbuttondef_b5(self,status):
-        if status:
-            self.ScrolledFrame_e1.show()
-        else:
-            self.ScrolledFrame_e1.hide()
-
-    def cbuttondef_b6(self,status):
-        if status:
-            self.ScrolledFrame_f1.show()
-        else:
-            self.ScrolledFrame_f1.hide()
-            
-    def cbuttondef_b7(self,status):
-        if status:
-            self.ScrolledFrame_g1.show()
-        else:
-            self.ScrolledFrame_g1.hide()
-
-    def cbuttondef_b8(self,status):
-        if status:
-            self.ScrolledFrame_h1.show()
-        else:
-            self.ScrolledFrame_h1.hide()
-
-    def cbuttondef_b9(self,status):
-        if status:
-            self.ScrolledFrame_i1.show()
-        else:
-            self.ScrolledFrame_i1.hide()
-
-    def cbuttondef_b10(self,status):
-        if status:
-            self.ScrolledFrame_j1.show()
-        else:
-            self.ScrolledFrame_j1.hide()
-
-    def cbuttondef_b11(self,status):
-        if status:
-            self.ScrolledFrame_k1.show()
-        else:
-            self.ScrolledFrame_k1.hide()
 
     def cbuttondef_gs1(self,status):
         if status:
@@ -3176,8 +3047,7 @@ class SceneMakerMain(ShowBase):
                 print('opened file name empty')
                 self.display_last_status('model file not loaded.')
         elif key=="delete_model":
-            self.dialog_1 = YesNoDialog(dialogName="YesNoCancelDialog", text="Delete the current model?",
-                     command=self.DialogDef_1)
+            self.dialog_1 = YesNoDialog(dialogName="YesNoCancelDialog", text="Delete the current model?",command=self.DialogDef_1)
         else:
             self.keyMap[key] = value
 
