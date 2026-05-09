@@ -1,0 +1,119 @@
+2026-05-09 15:10:06,791 | INFO | program started
+2026-05-09 15:10:08,617 | INFO | global params json loaded
+2026-05-09 15:10:09,448 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 15:10:21,071 | INFO | model col/CollisionBox.bam loaded
+2026-05-09 15:12:07,091 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\ShowBase.py", line 2158, in __igLoop
+    self.graphicsEngine.renderFrame()
+AssertionError: has_mat() at line 461 of c:\buildslave\sdk-windows-amd64\build\built1.10\include\transformState.I
+2026-05-09 15:12:07,107 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "E:\downloads 2025\ytdl\panda\current\github_repo\scene_maker_panda3d\scene_maker.py", line 4357, in <module>
+    Scene_1.run()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\ShowBase.py", line 3331, in run
+    self.taskMgr.run()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\task\Task.py", line 553, in run
+    self.step()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\task\Task.py", line 504, in step
+    self.mgr.poll()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\ShowBase.py", line 2158, in __igLoop
+    self.graphicsEngine.renderFrame()
+AssertionError: has_mat() at line 461 of c:\buildslave\sdk-windows-amd64\build\built1.10\include\transformState.I
+2026-05-09 15:12:22,017 | INFO | program started
+2026-05-09 15:12:23,101 | INFO | global params json loaded
+2026-05-09 15:12:23,368 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 15:12:33,808 | INFO | model col/CollisionSphere.bam loaded
+2026-05-09 15:33:50,408 | INFO | program exiting.
+2026-05-09 16:13:07,880 | INFO | program started
+2026-05-09 16:13:08,901 | INFO | global params json loaded
+2026-05-09 16:13:09,162 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:13:41,575 | INFO | scene json saved
+2026-05-09 16:13:41,584 | INFO | json saved(light data)
+2026-05-09 16:13:41,586 | INFO | global params json saved
+2026-05-09 16:19:53,136 | INFO | program exiting.
+2026-05-09 16:19:55,080 | INFO | program started
+2026-05-09 16:19:56,049 | INFO | global params json loaded
+2026-05-09 16:19:56,299 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:20:47,117 | INFO | program exiting.
+2026-05-09 16:20:48,903 | INFO | program started
+2026-05-09 16:20:49,876 | INFO | global params json loaded
+2026-05-09 16:20:50,128 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:21:11,400 | INFO | program exiting.
+2026-05-09 16:21:21,704 | INFO | program started
+2026-05-09 16:21:22,683 | INFO | global params json loaded
+2026-05-09 16:21:22,914 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:21:35,413 | INFO | program exiting.
+2026-05-09 16:21:50,312 | INFO | program started
+2026-05-09 16:21:51,463 | INFO | global params json loaded
+2026-05-09 16:21:51,737 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:23:04,169 | INFO | program exiting.
+2026-05-09 16:23:06,012 | INFO | program started
+2026-05-09 16:23:07,004 | INFO | global params json loaded
+2026-05-09 16:23:07,254 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:24:09,490 | INFO | program exiting.
+2026-05-09 16:24:11,322 | INFO | program started
+2026-05-09 16:24:12,316 | INFO | global params json loaded
+2026-05-09 16:24:12,540 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:24:19,163 | INFO | program exiting.
+2026-05-09 16:24:53,491 | INFO | program started
+2026-05-09 16:24:54,621 | INFO | global params json loaded
+2026-05-09 16:24:54,848 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:25:00,959 | INFO | program exiting.
+2026-05-09 16:25:09,675 | INFO | program started
+2026-05-09 16:25:10,663 | INFO | global params json loaded
+2026-05-09 16:25:10,890 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:25:40,015 | INFO | program exiting.
+2026-05-09 16:31:49,062 | INFO | program started
+2026-05-09 16:31:50,070 | INFO | global params json loaded
+2026-05-09 16:31:50,290 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:32:08,385 | INFO | program exiting.
+2026-05-09 16:32:22,823 | INFO | program started
+2026-05-09 16:32:23,912 | INFO | global params json loaded
+2026-05-09 16:32:24,136 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 16:32:32,809 | INFO | program exiting.
+2026-05-09 17:02:11,337 | INFO | program started
+2026-05-09 17:02:12,356 | INFO | global params json loaded
+2026-05-09 17:02:12,627 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 17:02:31,890 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\EventManager.py", line 49, in eventLoopTask
+    self.doEvents()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\EventManager.py", line 43, in doEvents
+    processFunc(dequeueFunc())
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\EventManager.py", line 99, in processEvent
+    messenger.send(eventName, paramList)
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\Messenger.py", line 337, in send
+    self.__dispatch(acceptorDict, event, sentArgs, foundWatch)
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\Messenger.py", line 422, in __dispatch
+    result = method (*(extraArgs + sentArgs))
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\gui\DirectCheckButton.py", line 178, in commandFunc
+    self['command'](*[self['indicatorValue']] + self['extraArgs'])
+TypeError: SceneMakerMain.ModelPicker_model_show() missing 1 required positional argument: 'index'
+2026-05-09 17:02:31,917 | ERROR | Unhandled error: 
+Traceback (most recent call last):
+  File "E:\downloads 2025\ytdl\panda\current\github_repo\scene_maker_panda3d\scene_maker.py", line 4434, in <module>
+    Scene_1.run()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\ShowBase.py", line 3331, in run
+    self.taskMgr.run()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\task\Task.py", line 553, in run
+    self.step()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\task\Task.py", line 504, in step
+    self.mgr.poll()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\EventManager.py", line 49, in eventLoopTask
+    self.doEvents()
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\EventManager.py", line 43, in doEvents
+    processFunc(dequeueFunc())
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\EventManager.py", line 99, in processEvent
+    messenger.send(eventName, paramList)
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\Messenger.py", line 337, in send
+    self.__dispatch(acceptorDict, event, sentArgs, foundWatch)
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\showbase\Messenger.py", line 422, in __dispatch
+    result = method (*(extraArgs + sentArgs))
+  File "C:\Users\skill\AppData\Local\Programs\Python\Python310\lib\site-packages\direct\gui\DirectCheckButton.py", line 178, in commandFunc
+    self['command'](*[self['indicatorValue']] + self['extraArgs'])
+TypeError: SceneMakerMain.ModelPicker_model_show() missing 1 required positional argument: 'index'
+2026-05-09 17:02:59,721 | INFO | program started
+2026-05-09 17:03:00,885 | INFO | global params json loaded
+2026-05-09 17:03:01,116 | INFO | Found Point Lights: SpotLight.bam
+2026-05-09 17:03:17,192 | INFO | program exiting.

@@ -314,7 +314,6 @@ class SceneMakerMain(ShowBase):
         self.apply_global_params_4()
         self.apply_global_params_5()
         self.display_last_status(self.temp_status)
-
         
     def clear_envmap_cache(self, filename: str):
         """Clear both disk and RAM cache for one envmap"""
@@ -839,7 +838,7 @@ class SceneMakerMain(ShowBase):
         # frameColor=(Ready, Pressed, Rollover, Disabled)
         self.menu_2 = DirectButton(text=("switch_models                                                 ."),scale=.07,command=self.show_ScrolledFrame_menu_2,pos=(0.2, 1,0.95),frameColor=(self.FRAME_COLOR_2,self.FRAME_COLOR_2,(0, 0, 0.5, 0.6),self.FRAME_COLOR_2),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
         self.ScrolledFrame_menu_2=DirectScrolledFrame(
-            frameSize=(-1.2, 1.2, -0.9, 0.8),  # left, right, bottom, top
+            frameSize=(-1.3, 1.3, -0.9, 0.8),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
             pos=(0,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0.5)
@@ -4053,6 +4052,48 @@ class SceneMakerMain(ShowBase):
         for name in self.models_names_all:
             modellist.append(name)
 
+        #--- add header names---
+        # Add label
+        label = DirectLabel(
+            parent=canvas,
+            text="NO.",
+            scale=0.06,
+            text_fg=self.TEXTFG_COLOR_2,
+            frameColor=self.FRAME_COLOR_1,
+            pos=(0, 0, 0),
+            text_align=TextNode.ALeft
+        )
+
+        label = DirectLabel(
+            parent=canvas,
+            text="Model Name",
+            scale=0.06,
+            text_fg=self.TEXTFG_COLOR_2,
+            frameColor=self.FRAME_COLOR_1,
+            pos=(0.2, 0, 0),
+            text_align=TextNode.ALeft
+        )
+        
+        label = DirectLabel(
+            parent=canvas,
+            text="Enable",
+            scale=0.06,
+            text_fg=self.TEXTFG_COLOR_2,
+            frameColor=self.FRAME_COLOR_1,
+            pos=(1.5, 0, 0),
+            text_align=TextNode.ALeft
+        )
+        
+        label = DirectLabel(
+            parent=canvas,
+            text="Show",
+            scale=0.06,
+            text_fg=self.TEXTFG_COLOR_2,
+            frameColor=self.FRAME_COLOR_1,
+            pos=(1.7, 0, 0),
+            text_align=TextNode.ALeft
+        )
+        
         # Add clickable items to the list
         for i in range(len(modellist)):
 
@@ -4063,7 +4104,7 @@ class SceneMakerMain(ShowBase):
                 scale=0.07,
                 text_fg=self.TEXTFG_COLOR_1,
                 frameColor=self.FRAME_COLOR_1,
-                pos=(0, 0, -0.1*i),
+                pos=(0, 0, -0.1*(i+1)),
                 text_align=TextNode.ALeft
             )
 
@@ -4073,17 +4114,23 @@ class SceneMakerMain(ShowBase):
                 text=modellist[i],
                 text_fg=self.TEXTFG_COLOR_1,
                 scale=0.07,
-                pos=(0.1, 0, -0.1*i),
+                pos=(0.15, 0, -0.1*(i+1)),
                 command=self.menudef_2_new,
                 frameColor=self.FRAME_COLOR_1,
                 text_align=TextNode.ALeft,
                 extraArgs=[i]  # Pass item number to callback
             )
+            
+            CheckButton= DirectCheckButton(parent=canvas,text ="",scale=.06,command=self.ModelPicker_model_enable,extraArgs=[i],pos=(1.6, 0, -0.1*(i+1)),text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+            CheckButton.setTransparency(TransparencyAttrib.MAlpha)
+            CheckButton= DirectCheckButton(parent=canvas,text ="",scale=.06,command=self.ModelPicker_model_show,extraArgs=[i],pos=(1.8, 0, -0.1*(i+1)),text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+            CheckButton.setTransparency(TransparencyAttrib.MAlpha)
+
             # Define hover events
             button.bind(DGG.WITHIN, self.on_hover_1, [button])
             button.bind(DGG.WITHOUT, self.on_exit_1, [button])
             
-            canvas_left=-0.1
+            canvas_left=-0.05
             canvas_right=6
             #canvas_bottom=-(len(modellist)*button.getHeight()/10)
             canvas_bottom=-(len(modellist)*0.1)
@@ -4092,7 +4139,37 @@ class SceneMakerMain(ShowBase):
 
             # Force scrollbars to recompute
             self.ScrolledFrame_menu_2.guiItem.remanage()
-
+            
+    def ModelPicker_model_enable(self,status,index):
+        if status:
+            self.data_all[index]['enable']=True
+            self.models_all[index]=loader.loadModel(self.data_all[index]["filename"])
+            #self.load_model_from_param(fileload_flag=False,indexload_flag=True)
+            """
+            self.set_model_values_to_gui()
+            self.makeup_lights_gui()
+            self.add_model_nodepaths_to_gui_f1()
+            self.add_model_animations_to_gui_g1()
+            if self.model_parent_enabled_all[index]==True:
+                self.attach_to_parent_2(self.models_all[self.current_model_index],self.model_parent_indices_all[self.current_model_index])
+            """
+        else:
+            self.data_all[index]['enable']=False
+            self.models_all[index].detachNode()
+            self.models_all[index].removeNode()
+            self.models_all[index]=''
+            
+    def ModelPicker_model_show(self,status,index):
+        if type(self.models_all[index])==type(NodePath()):
+            if status:
+                self.data_all[index]['show']=True
+                self.models_all[index].show()
+            else:
+                self.data_all[index]['show']=False
+                self.models_all[index].hide()
+        else:
+            self.display_last_status("model is not a valid(nodepath) type")
+            
     def on_item_click_f1(self, item_index):
         pass
 

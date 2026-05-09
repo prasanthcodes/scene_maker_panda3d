@@ -30,7 +30,7 @@ y - z increase
 h - z decrease
 
 delete - delete the current model
-
+Esc - exit the program
 
 onscreen controls
 --------------------------------
