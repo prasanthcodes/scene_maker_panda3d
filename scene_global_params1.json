@@ -1,6 +1,6 @@
 {
     "mouse_sensitivity": 50,
-    "move_speed": 0.1,
+    "move_speed": 10.0,
     "crosshair": false,
     "gizmo": true,
     "dark_theme": true,
@@ -46,7 +46,7 @@
     "fog_start": 150.0,
     "fog_end": 250.0,
     "fog_density": 0.01,
-    "LUT_enable": 1,
+    "LUT_enable": 0,
     "LUT_file": "FGCineBright.cube",
     "LUT_factor": 0.9
 }

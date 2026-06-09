@@ -1,7 +1,29 @@
+
+# --- Standard library ---
+import datetime
+import json
+import logging
+import math
+import os
+import shutil
+import sys
+import time
+from math import cos, pi, sin
+
+# --- Third-party ---
+import numpy as np
+import tkinter as tk
+from tkinter.filedialog import askopenfilename
+from tkinter import messagebox
+
+import simplepbr
+import gltf
+
+# --- Panda3D ---
 import panda3d
-from direct.showbase.ShowBase import ShowBase
 from panda3d.core import *
 import panda3d.core as p3d
+from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from direct.task.Task import Task
 from direct.gui.OnscreenText import OnscreenText
@@ -9,58 +31,41 @@ from direct.gui.OnscreenImage import OnscreenImage
 from direct.showbase.DirectObject import DirectObject
 from direct.gui.DirectGui import *
 from direct.gui import DirectGuiGlobals as DGG
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
 
-#from direct.filter.FilterManager import FilterManager
-#from direct.filter.CommonFilters import CommonFilters
+def _setup_logging() -> logging.Logger:
+    """Configure root logger to write to stdout and a log file."""
+    fmt = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
 
-import random
-import sys
-import os
-import shutil
-import math
-import numpy as np
-    
-import tkinter
-from tkinter.filedialog import askopenfilename
-from tkinter import messagebox
-import tkinter as tk
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(logging.DEBUG)
+    stdout_handler.setFormatter(fmt)
 
-import simplepbr
-import gltf
+    file_handler = logging.FileHandler('logs.log')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(fmt)
 
-import json
-import datetime
-import time
-from math import sin, cos, pi
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+    root.addHandler(stdout_handler)
+    root.addHandler(file_handler)
+    # Prevent propagation to root logger
+    root.propagate = False
+    return root
 
-import logging
 
-# logging to text file and cmd output
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+logger = _setup_logging()
 
-stdout_handler = logging.StreamHandler(sys.stdout)
-stdout_handler.setLevel(logging.DEBUG)
-stdout_handler.setFormatter(formatter)
 
-file_handler = logging.FileHandler('logs.log')
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
+def _global_exception_handler(exc_type, exc_value, exc_traceback):
+    """Log all unhandled exceptions before they propagate."""
+    logger.error("Unhandled error", exc_info=(exc_type, exc_value, exc_traceback))
 
-logger.addHandler(file_handler)
-logger.addHandler(stdout_handler)
 
-# To handle all uncaught exceptions
-def error_handler(exc_type, exc_value, exc_traceback):
-    logger.error("Unhandled error: ",exc_info=(exc_type, exc_value, exc_traceback))
-
-# Install exception handler
-sys.excepthook = error_handler
-
+sys.excepthook = _global_exception_handler
 logger.info('program started')
-
-
 panda3d.core.load_prc_file_data("", """
     textures-power-2 none
     gl-coordinate-system default
@@ -103,14 +108,14 @@ class SceneMakerMain(ShowBase):
 
     def __init__(self):
         ShowBase.__init__(self)
-        print('initializing...')
+        logger.info('initializing...')
         self.props = WindowProperties()
         self.disable_mouse()
         #self.FilterManager_1 = FilterManager(base.win, base.cam)
         #self.Filters=CommonFilters(base.win, base.cam)
         #self.pstats = True
         
-        #---adjustable parameters---
+        #--- File paths ---
         base_path = os.path.dirname(os.path.abspath(__file__))
         self.scene_data_filename=os.path.join(base_path,'scene_params1.json')
         self.scene_data_backup_filename=os.path.join(base_path,'scene_params1_tempbackup.json')
@@ -120,7 +125,7 @@ class SceneMakerMain(ShowBase):
 
         self.load_lights_from_json=True #set this False if you dont want to load point light properties from json file
 
-        # Camera param initializations
+        # --- Camera initialisation ---
         self.cameraHeight = 1.5     # camera Height above ground
         self.cameraAngleH = 0     # Horizontal angle (yaw)
         self.cameraAngleP = 0   # Vertical angle (pitch)
@@ -135,71 +140,18 @@ class SceneMakerMain(ShowBase):
         #self.cam_node.setHpr(0,-90,0)
         #self.camera.reparentTo(self.cam_node)
         
-        #---load global params---
+        # --- Global params ---
         self.temp_status=''
         self.global_params={}
         self.load_global_params()
         
-        #---theme colors---
-        self.dark_theme = self.global_params['dark_theme']
-        if self.dark_theme==True:
-            self.FRAME_COLOR_1=(0, 0, 0, 0.4) #black transparent
-            self.CButton_Pressed_FColor=(0,0.6,0,0.4)
-            self.CButton_Hover_FColor=(0,0,0.7,0.7)
-            self.FRAME_COLOR_2=(0, 0, 0, 0.5) #black and slight less transparent
-            self.TEXTFG_COLOR_1=(1,1,1,0.9) #white color
-            self.TEXTFG_COLOR_2=(0.7,0.7,1,0.9) #pale blue color (to display info text)
-            self.TEXTFG_COLOR_3=(1, 0.7, 0.7, 1) #pale red color (to display highlight text, i.e. filenames)
-            self.TEXTFG_COLOR_4=(0.7, 1, 0.7, 0.9) #pale green color (to display help text)
-            self.TEXTBG_COLOR_1=(0, 0, 0, 0.4) #black transparent for text background
+        # --- Theme colours ---
+        self._apply_theme_colors()
 
-        else:
-            self.FRAME_COLOR_1=(1, 1, 1, 0.4) #white transparent
-            self.CButton_Pressed_FColor=(0,0.6,0,0.4)
-            self.CButton_Hover_FColor=(0,0,0.7,0.7)
-            self.FRAME_COLOR_2=(1, 1, 1, 0.5) #white and slight less transparent
-            self.TEXTFG_COLOR_1=(0,0,0,0.9) #black color
-            self.TEXTFG_COLOR_2=(0,0,0.6,0.9) #pale blue color (to display info text)
-            self.TEXTFG_COLOR_3=(0.6, 0, 0, 1) #pale red color (to display highlight text, i.e. filenames)
-            self.TEXTFG_COLOR_4=(0, 0.6, 0, 0.9) #pale green color (to display help text)
-            self.TEXTBG_COLOR_1=(1, 1, 1, 0.4) #white transparent for text background
-            
+        # --- Patched DirectEntry (focus/hover colours) ---
+        self._setup_patched_entry()
         
-        from direct.gui.DirectGui import DirectEntry
-        # Do this once at the beginning of your program
-        original_DirectEntry = DirectEntry
-
-        def PatchedDirectEntry(*args, **kwargs):
-            entry = original_DirectEntry(*args, **kwargs)
-            default_color = entry['frameColor']
-
-            def on_focus_in():
-                entry['frameColor'] = (0, 0.4, 0, 0.7)   # focus color
-                self.set_keymap()
-                self.ignoreAll()
-                self.accept('escape', self.exit_program)
-                entry['focus']=1
-                
-            def on_focus_out():
-                entry['frameColor'] = default_color
-                self.set_keymap()
-                entry['focus']=0
-
-            # Bind the focus commands
-            entry['focusInCommand'] = on_focus_in
-            entry['focusOutCommand'] = on_focus_out
-            
-            # Make sure it can receive mouse events
-            entry['state'] = DGG.NORMAL
-
-            entry.bind(DGG.WITHIN, lambda event=None: self.hover_handler(entry,True))
-            entry.bind(DGG.WITHOUT, lambda event=None: self.hover_handler(entry,False))
-            
-            return entry
-
-        # Replace the class
-        self.PatchedDirectEntry = PatchedDirectEntry
-        #--- new UI parameters---
+        # --- UI asset paths ---
         self.thumb_texture = base.loader.loadTexture("icons/thumb_1.png")
         self.thumb_hover_texture = base.loader.loadTexture("icons/thumb_2.png")
         self.thumb_clicked_texture = base.loader.loadTexture("icons/thumb_3.png")
@@ -226,6 +178,7 @@ class SceneMakerMain(ShowBase):
         taskMgr.add(self.camera_rotate, "camera_rotateTask")
         taskMgr.add(self.camera_move, "camera_move")
         taskMgr.add(self.general_tasks, "general_tasks")
+        #taskMgr.add(self.update_dlight, "update_dlight")
         #self.sun_rotate()
         
         self.gizmo=self.create_gizmo(scale=10)
@@ -315,6 +268,57 @@ class SceneMakerMain(ShowBase):
         self.apply_global_params_5()
         self.display_last_status(self.temp_status)
 
+    def _apply_theme_colors(self) -> None:
+        """Set theme colour constants from the dark/light theme global param."""
+        self.dark_theme = self.global_params['dark_theme']
+        # Shared button colours
+        self.CButton_Pressed_FColor = (0, 0.6, 0, 0.4)
+        self.CButton_Hover_FColor = (0, 0, 0.7, 0.7)
+        if self.dark_theme:
+            self.FRAME_COLOR_1   = (0, 0, 0, 0.4)    # black transparent
+            self.FRAME_COLOR_2   = (0, 0, 0, 0.5)    # black, less transparent
+            self.TEXTFG_COLOR_1  = (1, 1, 1, 0.9)    # white
+            self.TEXTFG_COLOR_2  = (0.7, 0.7, 1, 0.9) # pale blue – info text
+            self.TEXTFG_COLOR_3  = (1, 0.7, 0.7, 1)   # pale red – filenames
+            self.TEXTFG_COLOR_4  = (0.7, 1, 0.7, 0.9) # pale green – help text
+            self.TEXTBG_COLOR_1  = (0, 0, 0, 0.4)    # black transparent
+        else:
+            self.FRAME_COLOR_1   = (1, 1, 1, 0.4)    # white transparent
+            self.FRAME_COLOR_2   = (1, 1, 1, 0.5)    # white, less transparent
+            self.TEXTFG_COLOR_1  = (0, 0, 0, 0.9)    # black
+            self.TEXTFG_COLOR_2  = (0, 0, 0.6, 0.9)  # dark blue – info text
+            self.TEXTFG_COLOR_3  = (0.6, 0, 0, 1)    # dark red – filenames
+            self.TEXTFG_COLOR_4  = (0, 0.6, 0, 0.9)  # dark green – help text
+            self.TEXTBG_COLOR_1  = (1, 1, 1, 0.4)    # white transparent
+
+    def _setup_patched_entry(self) -> None:
+        """Create self.PatchedDirectEntry – a DirectEntry with focus/hover colours."""
+        original_cls = DirectEntry
+
+        def PatchedDirectEntry(*args, **kwargs):
+            entry = original_cls(*args, **kwargs)
+            default_color = entry['frameColor']
+
+            def on_focus_in():
+                entry['frameColor'] = (0, 0.4, 0, 0.7)
+                self.set_keymap()
+                self.ignoreAll()
+                self.accept('escape', self.exit_program)
+                entry['focus'] = 1
+
+            def on_focus_out():
+                entry['frameColor'] = default_color
+                self.set_keymap()
+                entry['focus'] = 0
+
+            entry['focusInCommand'] = on_focus_in
+            entry['focusOutCommand'] = on_focus_out
+            entry['state'] = DGG.NORMAL
+            entry.bind(DGG.WITHIN, lambda event=None: self.hover_handler(entry, True))
+            entry.bind(DGG.WITHOUT, lambda event=None: self.hover_handler(entry, False))
+            return entry
+
+        self.PatchedDirectEntry = PatchedDirectEntry
         
     def clear_envmap_cache(self, filename: str):
         """Clear both disk and RAM cache for one envmap"""
@@ -326,7 +330,7 @@ class SceneMakerMain(ShowBase):
         # Clear RAM cache
         if hasattr(env_pool, '_envmaps') and filepath in env_pool._envmaps:
             del env_pool._envmaps[filepath]
-            print("envmap cleared from RAM cache")
+            logger.info("envmap cleared from RAM cache")
         
         # Clear disk cache using internal method
         try:
@@ -334,8 +338,8 @@ class SceneMakerMain(ShowBase):
             cache_path = env_pool._get_cache_path(dummy)
             if cache_path.exists():
                 cache_path.unlink()
-                print(f"Deleted EnvMap disk cache: {cache_path}")
-        except:
+                logger.info(f"Deleted EnvMap disk cache: {cache_path}")
+        except Exception:
             pass  # ignore if internal method changes
         
     def load_cube_lut(self,file_path,swap_to_bgr=True):
@@ -489,7 +493,7 @@ class SceneMakerMain(ShowBase):
         self.global_params={}
         # settings params
         self.global_params['mouse_sensitivity']=50
-        self.global_params['move_speed']=0.1
+        self.global_params['move_speed']=10
         self.global_params['crosshair']=False
         self.global_params['gizmo']=True
         self.global_params['dark_theme']=True
@@ -616,7 +620,7 @@ class SceneMakerMain(ShowBase):
                 json.dump(self.global_params, f, ensure_ascii=False, indent=4)
             self.display_last_status('global params json saved')
             logger.info('global params json saved')
-        except:
+        except Exception:
             self.display_last_status('error while saving global params json file.')
             logger.error('error while saving global params json file.')
     
@@ -632,7 +636,7 @@ class SceneMakerMain(ShowBase):
                     self.global_params = json.load(json_data)
                 self.temp_status='global params json loaded'
                 logger.info('global params json loaded')
-        except:
+        except Exception:
             self.temp_status='error while loading global params json file.'
             logger.error('error while loading global params json file.')
     
@@ -839,7 +843,7 @@ class SceneMakerMain(ShowBase):
         # frameColor=(Ready, Pressed, Rollover, Disabled)
         self.menu_2 = DirectButton(text=("switch_models                                                 ."),scale=.07,command=self.show_ScrolledFrame_menu_2,pos=(0.2, 1,0.95),frameColor=(self.FRAME_COLOR_2,self.FRAME_COLOR_2,(0, 0, 0.5, 0.6),self.FRAME_COLOR_2),text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft)
         self.ScrolledFrame_menu_2=DirectScrolledFrame(
-            frameSize=(-1.2, 1.2, -0.9, 0.8),  # left, right, bottom, top
+            frameSize=(-1.3, 1.3, -0.9, 0.8),  # left, right, bottom, top
             canvasSize=(-2, 2, -2, 2),
             pos=(0,0,-0.08),
             frameColor=(0.3, 0.3, 0.3, 0.5)
@@ -1003,76 +1007,76 @@ class SceneMakerMain(ShowBase):
         self.dlabel_b9_2=DirectLabel(parent=canvas_1,text='description: ',pos=(-1.3,1,-0.7),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_b11 = self.PatchedDirectEntry(parent=canvas_1,text = "", scale=0.06,width=30,pos=(-0.9, 1,-0.7), command=self.SetEntryText_7,initialText="", numLines = 4, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,text_align=TextNode.ALeft,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
-    def daylight_commands(self,textEntered,identifier):
+
+    def daylight_commands(self, textEntered, identifier):
         try:
-            # textEntered value may be integer if it called from other than gui
-            textEntered_num=float(textEntered)
-            textEntered_str=str(textEntered)
-            if identifier=='ambientlight_intensity':
-                self.dentry_c2.enterText(textEntered_str)
-                self.global_params['ambientlight_intensity']=textEntered_num
-                #self.dentry_c6.enterText(str(self.ambientLight_Intensity))
-            elif identifier=='ambientlight_R':
-                self.dentry_c6.enterText(textEntered_str)
-                self.global_params['ambientlight_R']=textEntered_num
-            elif identifier=='ambientlight_G':
-                self.dentry_c7.enterText(textEntered_str)
-                self.global_params['ambientlight_G']=textEntered_num
-            elif identifier=='ambientlight_B':
-                self.dentry_c8.enterText(textEntered_str)
-                self.global_params['ambientlight_B']=textEntered_num
-            elif identifier=='DL_intensity':
-                self.dentry_c10.enterText(textEntered_str)
-                self.global_params['directionallight_intensity']=textEntered_num
-            elif identifier=='DL_R':
-                self.dentry_c14.enterText(textEntered_str)
-                self.global_params['directionallight_R']=textEntered_num
-            elif identifier=='DL_G':
-                self.dentry_c15.enterText(textEntered_str)
-                self.global_params['directionallight_G']=textEntered_num
-            elif identifier=='DL_B':
-                self.dentry_c16.enterText(textEntered_str)
-                self.global_params['directionallight_B']=textEntered_num
-            elif identifier=='DL_H':
-                self.dentry_c20.enterText(textEntered_str)
-                self.global_params['directionallight_H']=textEntered_num
-            elif identifier=='DL_P':
-                self.dentry_c21.enterText(textEntered_str)
-                self.global_params['directionallight_P']=textEntered_num
-            elif identifier=='DL_RO':
-                self.dentry_c22.enterText(textEntered_str)
-                self.global_params['directionallight_RO']=textEntered_num
-            elif identifier=='DL_X':
-                self.dentry_c24.enterText(textEntered_str)
-                self.global_params['directionallight_X']=textEntered_num
-            elif identifier=='DL_Y':
-                self.dentry_c26.enterText(textEntered_str)
-                self.global_params['directionallight_Y']=textEntered_num
-            elif identifier=='DL_Z':
-                self.dentry_c28.enterText(textEntered_str)
-                self.global_params['directionallight_Z']=textEntered_num
+            value = float(textEntered)
+            text = str(textEntered)
 
-            r=self.global_params['ambientlight_R']*self.global_params['ambientlight_intensity']
-            g=self.global_params['ambientlight_G']*self.global_params['ambientlight_intensity']
-            b=self.global_params['ambientlight_B']*self.global_params['ambientlight_intensity']
-            self.ambientLight.setColor((r,g,b, 1))
-            r=self.global_params['directionallight_R']*self.global_params['directionallight_intensity']
-            g=self.global_params['directionallight_G']*self.global_params['directionallight_intensity']
-            b=self.global_params['directionallight_B']*self.global_params['directionallight_intensity']
-            h=self.global_params['directionallight_H']
-            p=self.global_params['directionallight_P']
-            ro=self.global_params['directionallight_RO']
-            x=self.global_params['directionallight_X']
-            y=self.global_params['directionallight_Y']
-            z=self.global_params['directionallight_Z']
-            self.directionalLight.setColor((r,g,b, 1))
-            self.dlight1.setHpr(h,p,ro)
-            self.dlight1.setPos(x,y,z)
+            # Mapping: identifier -> (entry_widget, global_param_key)
+            field_map = {
+                'ambientlight_intensity': (self.dentry_c2,  'ambientlight_intensity'),
+                'ambientlight_R':         (self.dentry_c6,  'ambientlight_R'),
+                'ambientlight_G':         (self.dentry_c7,  'ambientlight_G'),
+                'ambientlight_B':         (self.dentry_c8,  'ambientlight_B'),
+
+                'DL_intensity':           (self.dentry_c10, 'directionallight_intensity'),
+                'DL_R':                   (self.dentry_c14, 'directionallight_R'),
+                'DL_G':                   (self.dentry_c15, 'directionallight_G'),
+                'DL_B':                   (self.dentry_c16, 'directionallight_B'),
+
+                'DL_H':                   (self.dentry_c20, 'directionallight_H'),
+                'DL_P':                   (self.dentry_c21, 'directionallight_P'),
+                'DL_RO':                  (self.dentry_c22, 'directionallight_RO'),
+
+                'DL_X':                   (self.dentry_c24, 'directionallight_X'),
+                'DL_Y':                   (self.dentry_c26, 'directionallight_Y'),
+                'DL_Z':                   (self.dentry_c28, 'directionallight_Z'),
+            }
+
+            # Update GUI entry + parameter
+            if identifier in field_map:
+                entry_widget, param_key = field_map[identifier]
+                entry_widget.enterText(text)
+                self.global_params[param_key] = value
+            else:
+                logger.warning(f"Unknown daylight identifier: {identifier}")
+                return
+
+            gp = self.global_params
+
+            # Ambient light
+            self.ambientLight.setColor((
+                gp['ambientlight_R'] * gp['ambientlight_intensity'],
+                gp['ambientlight_G'] * gp['ambientlight_intensity'],
+                gp['ambientlight_B'] * gp['ambientlight_intensity'],
+                1
+            ))
+
+            # Directional light
+            self.directionalLight.setColor((
+                gp['directionallight_R'] * gp['directionallight_intensity'],
+                gp['directionallight_G'] * gp['directionallight_intensity'],
+                gp['directionallight_B'] * gp['directionallight_intensity'],
+                1
+            ))
+
+            self.dlight1.setHpr(
+                gp['directionallight_H'],
+                gp['directionallight_P'],
+                gp['directionallight_RO']
+            )
+
+            self.dlight1.setPos(
+                gp['directionallight_X'],
+                gp['directionallight_Y'],
+                gp['directionallight_Z']
+            )
+
         except Exception as e:
-            logger.error('error in daylight gui entry:')
-            logger.error(e)
-            self.display_last_status('error in daylight gui entry.')
-
+            logger.exception("Error in daylight gui entry")
+            self.display_last_status("Error in daylight gui entry.")
+        
     def create_daylight_gui(self):
         self.ScrolledFrame_d1=DirectScrolledFrame(
             canvasSize=(-2, 2, -2, 2),  # left, right, bottom, top
@@ -1129,8 +1133,8 @@ class SceneMakerMain(ShowBase):
         
         self.dlabel_d1 = DirectLabel(parent=canvas_2,text='Mouse Sensitivity (0-100,default 50): ',pos=(-1.1,1,0.75),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
         self.dentry_d2 = self.PatchedDirectEntry(parent=canvas_2,text = "", scale=0.06,width=10,pos=(0.3, 1,0.75), command=self.SetEntryText_d1,initialText="50", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_d3 = DirectLabel(parent=canvas_2,text='Move Speed (0-1,default 0.1): ',pos=(-1.1,1,0.65),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_d4 = self.PatchedDirectEntry(parent=canvas_2,text = "", scale=0.06,width=10,pos=(0.3, 1,0.65), command=self.SetEntryText_d4,initialText="0.1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_d3 = DirectLabel(parent=canvas_2,text='Move Speed (0-100,default 10): ',pos=(-1.1,1,0.65),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_d4 = self.PatchedDirectEntry(parent=canvas_2,text = "", scale=0.06,width=10,pos=(0.3, 1,0.65), command=self.SetEntryText_d4,initialText="10", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.CheckButton_gs1 = DirectCheckButton(
             parent=canvas_2,
             text = " crosshair" ,
@@ -1226,41 +1230,58 @@ class SceneMakerMain(ShowBase):
 
         # Track scroll index manually
         self.current_scroll_index = 0
-        
-        self.dlabel_e1=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='SelectedLight: ',pos=(0.57,0,-0.4),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_e2=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='',pos=(1,0,-0.4),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_e3=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Overall Intensity: ',pos=(0.5,0,-0.5),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e4 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1, 0,-0.5), scale=0.06,width=8, command=self.SetEntryText_e,extraArgs=['Overall_Intensity'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e5=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Intensity: ',pos=(0.5,0,-0.7),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e6 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.8, 0,-0.7), scale=0.06,width=8, command=self.SetEntryText_e,extraArgs=['Intensity'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        canvas_2=self.ScrolledFrame_e1.getCanvas()
 
-        self.dlabel_e7=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Color: ',pos=(0.5,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_e8=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='R:',pos=(0.75,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e9 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.85, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['R'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e10=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='G:',pos=(1.15,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e11 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.25, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['G'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e12=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='B:',pos=(1.55,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e13 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.65, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['B'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        
-        self.dlabel_e14=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Attenuation: ',pos=(0.5,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_e15=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='C:',pos=(0.9,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e16 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['C'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e17=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='L:',pos=(1.3,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e18 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.4, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['L'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e19=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Q:',pos=(1.7,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e20 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.8, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['Q'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e1=DirectLabel(parent=canvas_2,text='SelectedLight: ',pos=(0.57,0,-0.4),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_e2=DirectLabel(parent=canvas_2,text='',pos=(1,0,-0.4),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_e3=DirectLabel(parent=canvas_2,text='Overall Intensity: ',pos=(0.5,0,-0.5),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e4 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(1, 0,-0.5), scale=0.06,width=8, command=self.SetEntryText_e,extraArgs=['Overall_Intensity'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e5=DirectLabel(parent=canvas_2,text='Intensity: ',pos=(0.5,0,-0.7),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e6 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(0.8, 0,-0.7), scale=0.06,width=8, command=self.SetEntryText_e,extraArgs=['Intensity'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
 
-        self.dlabel_e21=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Notes:',pos=(0.5,0,-1),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e22 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(0.7, 0,-1), scale=0.06,width=25, command=self.SetEntryText_e,extraArgs=['Notes'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e7=DirectLabel(parent=canvas_2,text='Color: ',pos=(0.5,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_e8=DirectLabel(parent=canvas_2,text='R:',pos=(0.75,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e9 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(0.85, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['R'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e10=DirectLabel(parent=canvas_2,text='G:',pos=(1.15,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e11 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(1.25, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['G'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e12=DirectLabel(parent=canvas_2,text='B:',pos=(1.55,0,-0.8),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e13 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(1.65, 0,-0.8), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['B'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+        self.dlabel_e14=DirectLabel(parent=canvas_2,text='Attenuation: ',pos=(0.5,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_e15=DirectLabel(parent=canvas_2,text='C:',pos=(0.9,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e16 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(1, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['C'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e17=DirectLabel(parent=canvas_2,text='L:',pos=(1.3,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e18 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(1.4, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['L'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e19=DirectLabel(parent=canvas_2,text='Q:',pos=(1.7,0,-0.9),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e20 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(1.8, 0,-0.9), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['Q'],initialText="1", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+                                                                                                                                                                                                                                       
+                                                                                                                                                                                                                                   
+                                                                                                                                                                                                                                                                                                                                                         
+                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                          
         
-        self.dlabel_e23=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='SpotLight Params:',pos=(0.5,0,-1.2),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_e24=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Lens FOV (0-360 degree):',pos=(0.5,0,-1.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dlabel_e25=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='X:',pos=(1.25,0,-1.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e26 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.35, 0,-1.3), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['FOV_X'],initialText="40", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
-        self.dlabel_e27=DirectLabel(parent=self.ScrolledFrame_e1.getCanvas(),text='Y:',pos=(1.7,0,-1.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
-        self.dentry_e28 = self.PatchedDirectEntry(parent=self.ScrolledFrame_e1.getCanvas(),text = "",pos=(1.8, 0,-1.3), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['FOV_Y'],initialText="40", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+                                                                                                                                                                                                                                              
+        self.dlabel_e21=DirectLabel(parent=canvas_2,text='Notes:',pos=(0.5,0,-1),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+                                                                                                                                                                                                                                                                                                                                                       
+                                                                                                                                                                                                                                   
+                                                                                                                                                                                                                                                                                                                                                         
+                                                                                                                                                                                                                                   
+        self.dentry_e22 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(0.7, 0,-1), scale=0.06,width=25, command=self.SetEntryText_e,extraArgs=['Notes'],initialText="", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+
+                                                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                                                                                                                           
+        
+        self.dlabel_e23=DirectLabel(parent=canvas_2,text='SpotLight Params:',pos=(0.5,0,-1.2),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_2,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_e24=DirectLabel(parent=canvas_2,text='Lens FOV (0-360 degree):',pos=(0.5,0,-1.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dlabel_e25=DirectLabel(parent=canvas_2,text='X:',pos=(1.25,0,-1.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e26 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(1.35, 0,-1.3), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['FOV_X'],initialText="40", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
+        self.dlabel_e27=DirectLabel(parent=canvas_2,text='Y:',pos=(1.7,0,-1.3),scale=0.06,text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,text_bg=self.TEXTBG_COLOR_1,frameColor=self.FRAME_COLOR_1)
+        self.dentry_e28 = self.PatchedDirectEntry(parent=canvas_2,text = "",pos=(1.8, 0,-1.3), scale=0.06,width=4, command=self.SetEntryText_e,extraArgs=['FOV_Y'],initialText="40", numLines = 1, focus=0,frameColor=self.FRAME_COLOR_2,text_fg=self.TEXTFG_COLOR_1,focusInCommand=self.focusInDef,focusOutCommand=self.focusOutDef)
         self.CheckButton_e29 = DirectCheckButton(
-            parent=self.ScrolledFrame_e1.getCanvas(),
+            parent=canvas_2,
             text = "ShadowCaster" ,
             text_align=TextNode.ALeft,
             scale=0.06,
@@ -1277,6 +1298,7 @@ class SceneMakerMain(ShowBase):
             boxImageScale=(.5,.5,.5)
             )
         self.CheckButton_e29.setTransparency(TransparencyAttrib.MAlpha)
+
                 
     def create_model_nodepaths_viewer_gui(self):
         
@@ -1499,7 +1521,7 @@ class SceneMakerMain(ShowBase):
                 self.skybox_commands(self.global_params['skybox_gamma'],'gamma')
             else:
                 self.display_last_status('skybox tonemapping is not enabled.')
-        except:
+        except Exception:
             self.display_last_status('error when setting tonemapping_method')
         
     def skybox_commands(self,InputValue,identifier):
@@ -1558,7 +1580,7 @@ class SceneMakerMain(ShowBase):
                     b=self.global_params['skybox_ambientlight_B']*IN
                     self.ambientLight_skybox.setColor((r,g,b, 1))
                     self.dentry_i5_4.enterText(str(InputValue))
-                except:
+                except Exception:
                     self.display_last_status('error when setting skybox intensity')
                     logger.error('error when setting skybox intensity')
             elif identifier=='R':
@@ -1571,7 +1593,7 @@ class SceneMakerMain(ShowBase):
                     b=self.global_params['skybox_ambientlight_B']*IN
                     self.ambientLight_skybox.setColor((r,g,b, 1))
                     self.dentry_i8.enterText(str(InputValue))
-                except:
+                except Exception:
                     self.display_last_status('error when setting skybox color')
                     logger.error('error when setting skybox color R')
             elif identifier=='G':
@@ -1584,7 +1606,7 @@ class SceneMakerMain(ShowBase):
                     b=self.global_params['skybox_ambientlight_B']*IN
                     self.ambientLight_skybox.setColor((r,g,b, 1))
                     self.dentry_i10.enterText(str(InputValue))
-                except:
+                except Exception:
                     self.display_last_status('error when setting skybox color')
                     logger.error('error when setting skybox color G')
             elif identifier=='B':
@@ -1597,7 +1619,7 @@ class SceneMakerMain(ShowBase):
                     b=self.global_params['skybox_ambientlight_B']*IN
                     self.ambientLight_skybox.setColor((r,g,b, 1))
                     self.dentry_i12.enterText(str(InputValue))
-                except:
+                except Exception:
                     self.display_last_status('error when setting skybox color')
                     logger.error('error when setting skybox color B')
             elif identifier=='R0':
@@ -1606,7 +1628,7 @@ class SceneMakerMain(ShowBase):
                     self.global_params['sky_background_color'][0]=InputValue
                     self.setBackgroundColor(self.global_params['sky_background_color'])
                     self.dentry_i8_2.enterText(str(InputValue))
-                except:
+                except Exception:
                     self.display_last_status('error when setting background color')
                     logger.error('error when setting background color R')
             elif identifier=='G0':
@@ -1615,7 +1637,7 @@ class SceneMakerMain(ShowBase):
                     self.global_params['sky_background_color'][1]=InputValue
                     self.setBackgroundColor(self.global_params['sky_background_color'])
                     self.dentry_i10_2.enterText(str(InputValue))
-                except:
+                except Exception:
                     self.display_last_status('error when setting background color')
                     logger.error('error when setting background color G')
             elif identifier=='B0':
@@ -1624,7 +1646,7 @@ class SceneMakerMain(ShowBase):
                     self.global_params['sky_background_color'][2]=InputValue
                     self.setBackgroundColor(self.global_params['sky_background_color'])
                     self.dentry_i12_2.enterText(str(InputValue))
-                except:
+                except Exception:
                     self.display_last_status('error when setting background color')
                     logger.error('error when setting background color B')
             elif identifier=='A0':
@@ -1633,7 +1655,7 @@ class SceneMakerMain(ShowBase):
                     self.global_params['sky_background_color'][3]=InputValue
                     self.setBackgroundColor(self.global_params['sky_background_color'])
                     self.dentry_i14_2.enterText(str(InputValue))
-                except:
+                except Exception:
                     self.display_last_status('error when setting background color')
                     logger.error('error when setting background color A')
             elif identifier=='save_envmap':
@@ -1682,7 +1704,7 @@ class SceneMakerMain(ShowBase):
                         self.skybox.setShaderInput('exposure', self.global_params['skybox_exposure'])
                     else:
                         self.display_last_status('skybox tonemapping is not enabled.')
-                except:
+                except Exception:
                     self.display_last_status('error when setting skybox_exposure')
                     logger.error('error when setting skybox_exposure')
             elif identifier=='gamma':
@@ -1694,7 +1716,7 @@ class SceneMakerMain(ShowBase):
                         self.skybox.setShaderInput('gamma', self.global_params['skybox_gamma'])
                     else:
                         self.display_last_status('skybox tonemapping is not enabled.')
-                except:
+                except Exception:
                     self.display_last_status('error when setting skybox_gamma')
                     logger.error('error when setting skybox_gamma')
             elif identifier=='clear_cache':
@@ -1781,7 +1803,7 @@ class SceneMakerMain(ShowBase):
                         self.dentry_j7.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
-                except:
+                except Exception:
                     self.display_last_status('error when setting the entered number.')
                     self.dentry_j7.enterText("32")
             elif identifier=='near':
@@ -1793,7 +1815,7 @@ class SceneMakerMain(ShowBase):
                         self.dentry_j9.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
-                except:
+                except Exception:
                     self.display_last_status('error when setting the entered number.')
                     self.dentry_j9.enterText("40")
             elif identifier=='far':
@@ -1805,7 +1827,7 @@ class SceneMakerMain(ShowBase):
                         self.dentry_j11.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
-                except:
+                except Exception:
                     self.display_last_status('error when setting the entered number.')
                     self.dentry_j11.enterText("100")
             elif identifier=='select_texture':
@@ -1842,7 +1864,7 @@ class SceneMakerMain(ShowBase):
                         self.dentry_j19.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
-                except:
+                except Exception:
                     self.display_last_status('error when setting the entered number.')
                     self.dentry_j19.enterText("10")
             elif identifier=='Y':
@@ -1855,7 +1877,7 @@ class SceneMakerMain(ShowBase):
                         self.dentry_j21.enterText(str(InputValue))
                     else:
                         self.display_last_status('current model not a terrain.')
-                except:
+                except Exception:
                     self.display_last_status('error when setting the entered number.')
                     self.dentry_j21.enterText("10")
             elif identifier=='generate_terrain':
@@ -1991,7 +2013,6 @@ class SceneMakerMain(ShowBase):
                 if self.global_params['fog_enable']==True:
                     self.fog.setColor(Vec4(self.global_params['fog_R'], self.global_params['fog_G'], self.global_params['fog_B'], 1))
             if identifier=='radio_1':
-                print('r1')
                 self.global_params['fog_type']=0
                 self.fog_radio_val=[0]
                 #--fog enable code--
@@ -2046,7 +2067,6 @@ class SceneMakerMain(ShowBase):
                         self.fog.setExpDensity(self.global_params['fog_density'])
                         #self.render.clearFog()
                         self.render.setFog(self.fog)
-                        print('hh')
 
         except Exception as e:
             logger.error('error in fog gui entry:')
@@ -2086,6 +2106,8 @@ class SceneMakerMain(ShowBase):
                 else:
                     self.pipeline.sdr_lut=None
                     self.pipeline.sdr_lut_factor=1
+                    if os.path.exists(self.global_params['LUT_file']):
+                        self.dlabel_L3.setText(self.global_params['LUT_file'])
 
             if identifier=='select_file':
                 root = tk.Tk()
@@ -2120,11 +2142,6 @@ class SceneMakerMain(ShowBase):
             logger.error(e)
             self.display_last_status('error in LUT gui entry.')
             
-    def cbuttondef_tst(self,status):
-        if status:
-            print('clickd')
-        else:
-            print('not clickd')
         
     def cbuttondef_3(self,status):
         if status:
@@ -2145,7 +2162,7 @@ class SceneMakerMain(ShowBase):
             self.models_all[self.current_model_index]=''
             
     def cbuttondef_4(self,status):
-        if type(self.models_all[self.current_model_index])==type(NodePath()):
+        if isinstance(self.models_all[self.current_model_index], NodePath):
             if status:
                 self.data_all[self.current_model_index]['show']=True
                 self.models_all[self.current_model_index].show()
@@ -2244,21 +2261,21 @@ class SceneMakerMain(ShowBase):
             self.dslider_1['value']=self.dentry_1_value
             self.update_model_property(self.dslider_1['value'],1)
         except ValueError:
-            print('value entered in entry1 is not number')
+            logger.warning('value entered in entry1 is not number')
 
     def SetEntryText_d1(self,textEntered):
         try:
             self.mouse_sensitivity=float(textEntered)
             self.global_params['mouse_sensitivity']=float(textEntered)
         except ValueError:
-            print('value entered in entry d1 is not number')
+            logger.warning('value entered in entry d1 is not number')
 
     def SetEntryText_d4(self,textEntered):
         try:
             self.move_speed=float(textEntered)
             self.global_params['move_speed']=float(textEntered)
         except ValueError:
-            print('value entered in entry d4 is not number')
+            logger.warning('value entered in entry d4 is not number')
             
     def GetSliderValue_2(self):
             self.dentry_2.enterText(str(self.dslider_2['value']))
@@ -2272,7 +2289,7 @@ class SceneMakerMain(ShowBase):
             self.dslider_2['value']=self.dentry_2_value
             self.update_model_property(self.dslider_2['value'],2)
         except ValueError:
-            print('value entered in entry2 is not number')
+            logger.warning('value entered in entry2 is not number')
 
     def GetSliderValue_3(self):
             self.dentry_3.enterText(str(self.dslider_3['value']))
@@ -2286,7 +2303,7 @@ class SceneMakerMain(ShowBase):
             self.dslider_3['value']=self.dentry_3_value
             self.update_model_property(self.dslider_3['value'],3)
         except ValueError:
-            print('value entered in entry3 is not number')
+            logger.warning('value entered in entry3 is not number')
 
     def SetEntryText_4(self, textEntered):
         try:
@@ -2321,27 +2338,27 @@ class SceneMakerMain(ShowBase):
                 else:
                     logger.info('entered uniquename already exist.')
                     self.display_last_status('entered uniquename already exist.')
-        except:
+        except Exception:
             logger.error('error in entry4')
             self.display_last_status('error in entry4')
 
     def SetEntryText_5(self,textEntered):
         try:
             self.data_all[self.current_model_index]['details']=textEntered
-        except:
-            print('error in entry5')
+        except Exception:
+            logger.error('error in entry5')
             
     def SetEntryText_6(self,textEntered):
         try:
             self.data_all[self.current_model_index]['notes']=textEntered
-        except:
-            print('error in entry6')
+        except Exception:
+            logger.error('error in entry6')
             
     def SetEntryText_7(self,textEntered):
         try:
             self.data_all[self.current_model_index]['pickable'][1]=textEntered
-        except:
-            print('error in entry7')
+        except Exception:
+            logger.error('error in entry7')
 
     def SetEntryText_e(self,textEntered,identifier):
         #if 1:
@@ -2508,16 +2525,16 @@ class SceneMakerMain(ShowBase):
                         self.light_list[1][idx3].showFrustum()
                 
         #else:
-        except:
+        except Exception:
             logger.error('error in entry_e')
             self.display_last_status('error in entry_e.')
 
     def SetEntryText_g12(self,textEntered):
         try:
             #self.data_all[self.current_model_index]['pickable'][1]=textEntered
-            print('')
-        except:
-            print('error in entry g12')
+            pass
+        except Exception:
+            logger.error('error in entry g12')
 
     def focusInDef(self):
         pass
@@ -2534,7 +2551,7 @@ class SceneMakerMain(ShowBase):
         try:
             value=float(value)
             self.floating_slider['value']=value
-        except:
+        except Exception:
             self.display_last_status('error occurred when converting the value')
             logger.error('error occurred when converting the value to float in focusInDef_arg')
             return
@@ -2568,14 +2585,14 @@ class SceneMakerMain(ShowBase):
         if self.current_animation is not None:
             self.current_animation.play()
         else:
-            print('current_animation is none')
+            logger.warning('current_animation is none')
 
     def ButtonDef_g7(self):
         if self.current_animation is not None:
             if self.current_animation.isPlaying():
                 self.current_animation.stop()
         else:
-            print('current_animation is none')
+            logger.warning('current_animation is none')
         
     def ButtonDef_g8(self):
         if self.current_animation is not None:
@@ -2583,7 +2600,7 @@ class SceneMakerMain(ShowBase):
                 self.current_animation.stop()
                 self.current_animation.pose(0)
         else:
-            print('current_animation is none')
+            logger.warning('current_animation is none')
             
     def ButtonDef_g10(self):
         try:
@@ -2599,7 +2616,7 @@ class SceneMakerMain(ShowBase):
                 self.add_model_animations_to_gui_g1()
                 
             else:
-                print('not an Actor')
+                logger.warning('not an Actor')
                 self.display_last_status('not an Actor.')
         except Exception as e:
             logger.error('anim loading error:')
@@ -2630,7 +2647,7 @@ class SceneMakerMain(ShowBase):
                         self.add_model_animations_to_gui_g1()
                     self.display_last_status('animation unloaded.')
                 else:
-                    print('not an Actor')
+                    logger.warning('not an Actor')
                     self.display_last_status('not an Actor.')
 
             else:
@@ -2647,7 +2664,7 @@ class SceneMakerMain(ShowBase):
                 json.dump(self.data_all, f, ensure_ascii=False, indent=4)
             self.display_last_status('json saved')
             logger.info('scene json saved')
-        except:
+        except Exception:
             shutil.copyfile(self.scene_data_backup_filename, self.scene_data_filename)
             self.display_last_status('error while saving scene json file.')
             logger.error('error while saving scene json file.')
@@ -2658,7 +2675,7 @@ class SceneMakerMain(ShowBase):
                 json.dump(self.data_all_light, f, ensure_ascii=False, indent=4)
             self.display_last_status('json saved(light data)')
             logger.info('json saved(light data)')
-        except:
+        except Exception:
             shutil.copyfile(self.scene_light_data_backup_filename, self.scene_light_data_filename)
             self.display_last_status('json(light data) save error')
             logger.error('json(light data) save error')
@@ -2705,7 +2722,7 @@ class SceneMakerMain(ShowBase):
                 del self.models_names_all[self.current_model_index]
                 if isinstance(self.models_all[self.current_model_index], Actor):
                     self.models_all[self.current_model_index].cleanup()
-                if type(self.models_all[self.current_model_index])==type(NodePath()):
+                if isinstance(self.models_all[self.current_model_index], NodePath):
                     self.models_all[self.current_model_index].removeNode()
                 del self.models_all[self.current_model_index]
                 del self.data_all[self.current_model_index]
@@ -2740,7 +2757,7 @@ class SceneMakerMain(ShowBase):
                 self.menudef_2_new(self.current_model_index)
                 self.display_last_status('current model deleted.')
                 self.dialog_1.cleanup()
-                print('deleted.')
+                logger.info('model deleted.')
             except Exception as e:
                 logger.error('error while deleting the model:')
                 logger.error(e)
@@ -2748,7 +2765,7 @@ class SceneMakerMain(ShowBase):
                 self.dialog_1.cleanup()
                 pass
         else:
-            print('model not deleted.')
+            logger.warning('model not deleted.')
             self.display_last_status('current model not deleted. (option NO selected?)')
             self.dialog_1.cleanup()
         
@@ -2773,13 +2790,13 @@ class SceneMakerMain(ShowBase):
         self.models_light_all=[]
         self.models_light_node_all=[]
         for i in range(len(self.data_all)):
-            print(f"loading models: {i+1}/{len(self.data_all)}")
+            logger.info(f"loading models: {i+1}/{len(self.data_all)}")
             data=self.data_all[i]
             self.models_names_all.append(data["uniquename"])
             if 'actor' not in data:
                 data['actor']=[False, "",False,[]]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
             if 'parent' not in data:
-                data['parent']=[True, "render"]#[load Actor?,animation name,loop on?,[animation file 1.egg,2.egg]]
+                data['parent']=[True, "render"]#[enable parent?,parent name]
             if 'type' not in data:
                 data['type']="3d_model"
             if 'heightmap_param' not in data:
@@ -2822,12 +2839,12 @@ class SceneMakerMain(ShowBase):
                     self.ModelTemp=loader.loadModel(data["filename"])
                     self.terrain_all.append('')
                 #--- uncomment the below code to load the point and spot lights from model and use save button to save the params
-                #(param_2,light_name_list,light_list,light_node_list)=self.get_point_and_spot_light_properties_from_model(self.ModelTemp,data)
+                #(param_2,light_name_list,light_list,light_node_list)=self.get_pointlight_and_spotlight_properties_from_model(self.ModelTemp,data)
                 #if len(param_2)>0:
                 #    self.data_all_light.append(param_2.copy())
                 if data["uniquename"] in self.models_with_lights:
                     idx=self.models_with_lights.index(data["uniquename"])
-                    (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_point_and_spot_light_properties_from_model(self.ModelTemp,data)
+                    (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_pointlight_and_spotlight_properties_from_model(self.ModelTemp,data)
                     if len(self.param_2)>0:
                         if self.load_lights_from_json==True:
                             self.current_light_model_index=idx
@@ -2862,7 +2879,7 @@ class SceneMakerMain(ShowBase):
                         if data['actor'][2]==True:
                             self.current_animation.loop(0)
                     except Exception as err:
-                        print(err)
+                        logger.error(err)
                 else:
                     pass
                 
@@ -3019,7 +3036,7 @@ class SceneMakerMain(ShowBase):
             self.param_1=data
             self.menudef_2_new(self.current_model_index)
         elif key=="load_model":
-            print('opening askfilename dialog to load a model')
+            logger.info('opening askfilename dialog to load a model')
             self.keyMap['load_model']=False
             len_curdir=len(os.getcwd())+1
             root = tk.Tk()
@@ -3044,7 +3061,7 @@ class SceneMakerMain(ShowBase):
                     logger.info('model '+modelfilepath+' loaded')
                 self.display_last_status('model files are loaded.')
             else:
-                print('opened file name empty')
+                logger.warning('opened file name empty')
                 self.display_last_status('model file not loaded.')
         elif key=="delete_model":
             self.dialog_1 = YesNoDialog(dialogName="YesNoCancelDialog", text="Delete the current model?",command=self.DialogDef_1)
@@ -3057,7 +3074,7 @@ class SceneMakerMain(ShowBase):
         self.param_1['filename']=modelfilepath
         self.param_1['enable']=True
         self.param_1['show']=True
-        tempos=self.get_an_point_front_of_camera(0,self.camera.getH(),self.camera.getP())
+        tempos=self.get_an_point_front_of_camera(0)
         self.param_1['pos']=[True,tempos]
         self.param_1['scale']=[False,[0,0,0]]
         self.param_1['color']=[False,[0,0,0,1]]
@@ -3108,20 +3125,34 @@ class SceneMakerMain(ShowBase):
         self.ambientLight = AmbientLight("ambientLight")
         self.render.setLight(self.render.attachNewNode(self.ambientLight))
         self.directionalLight = DirectionalLight("directionalLight_1")
-        self.directionalLight.setShadowCaster(True, 512,512)
+        self.directionalLight.setShadowCaster(True, 2048,2048)
         self.dlight1=self.render.attachNewNode(self.directionalLight)
         self.dlight1.setHpr(0, -45, 0)
-        self.dlight1.setPos(0,0,20)
+        self.dlight1.setPos(0,0,60)
         
         #self.suncube = loader.loadModel("cube_arrow.glb")
         #self.suncube.reparentTo(self.dlight1)
-        #self.suncube.setScale(1.5,1.5,1.5)              
+        #self.suncube.setScale(1.5,1.5,1.5) 
+        
+        # Clear any accidental inherited scale
+        self.dlight1.setScale(1, 1, 1)
 
-        self.dlight1.node().get_lens().set_film_size(50, 50)
-        self.dlight1.node().get_lens().setNearFar(1, 50)
+        # Get the lens and force a clean orthographic setup
+        lens = self.directionalLight.get_lens()
+        lens.set_film_size(50, 50)
+        lens.set_near_far(0, 30) # Increased far plane just in case
+        
+        #self.dlight1.node().get_lens().set_film_size(50, 50)
+        #self.dlight1.node().get_lens().setNearFar(1, 50)
         self.dlight1.node().show_frustum()
         self.render.setLight(self.dlight1)
-        
+
+    def update_dlight(self,task):
+        CamPos=self.camera.getPos()
+        self.dlight1.setPos(CamPos)
+        self.dlight1.setPos(CamPos[0],CamPos[1]-15,CamPos[2]+10)
+        return Task.cont
+    
     def camera_rotate(self,task):
         # Check to make sure the mouse is readable
         if self.mouseWatcherNode.hasMouse():
@@ -3173,278 +3204,180 @@ class SceneMakerMain(ShowBase):
         #self.suncube_rot.loop()
         return 1
     
-    def camera_move(self,task):
-        pos_val=self.camera.getPos()
-        heading=(math.pi*(self.camera.getH()))/180
-        pitch=(math.pi*(self.camera.getP()))/180
-        newval_1=pos_val[1]
-        newval_2=pos_val[0]
-        newval_3=pos_val[2]
-        if self.keyMap['move_forward']==True:#forward is y direction
-            newval_1=pos_val[1]+self.move_speed*math.cos(heading)*math.cos(pitch)
-            newval_2=pos_val[0]-self.move_speed*math.sin(heading)*math.cos(pitch)
-            newval_3=pos_val[2]+self.move_speed*math.sin(pitch)
-            #print([newval_2,newval_1,newval_3])
-            #print(self.cam_node.getPos())
-            #print(self.render.getRelativePoint(self.camera, Vec3(0, 0, 0)))
-        if self.keyMap['move_backward']==True:
-            newval_1=pos_val[1]-self.move_speed*math.cos(heading)*math.cos(pitch)
-            newval_2=pos_val[0]+self.move_speed*math.sin(heading)*math.cos(pitch)
-            newval_3=pos_val[2]-self.move_speed*math.sin(pitch)
-        if self.keyMap['move_left']==True==1:
-            newval_1=pos_val[1]+self.move_speed*math.cos(heading+(math.pi/2))
-            newval_2=pos_val[0]-self.move_speed*math.sin(heading+(math.pi/2))
-        if self.keyMap['move_right']==True:#right is x direction
-            newval_1=pos_val[1]-self.move_speed*math.cos(heading+(math.pi/2))
-            newval_2=pos_val[0]+self.move_speed*math.sin(heading+(math.pi/2))
-        if self.keyMap['gravity_on']==True:
-            newval_3=1
-        self.camera.setPos(newval_2,newval_1,newval_3)
-        self.bottom_cam_label.setText('CamPos: %0.2f,%0.2f,%0.2f'%(newval_2,newval_1,newval_3))
-        #print([newval_2,newval_1,newval_3])
-        return Task.cont
 
-    def general_tasks(self,task):
-        if self.keyMap['set_camera_pos']==True:
-            #rel_pos=self.cam_node.getRelativePoint(self.render,Vec3(self.param_1['pos'][1][0],self.param_1['pos'][1][1],self.param_1['pos'][1][2]))
-            #self.camera.setPos((rel_pos[0],rel_pos[1],rel_pos[2]))                                                                                                                                                                                                       
-            self.camera.setPos((self.param_1['pos'][1][0],self.param_1['pos'][1][1],self.param_1['pos'][1][2]))
-            self.keyMap['set_camera_pos']=False
-            self.display_last_status('camera position is set to center of current model.')
-            
-        if self.keyMap['look_at']==True:
-            self.camera.lookAt(self.models_all[self.current_model_index])
-            self.keyMap['look_at']=False
-        if self.keyMap['take_screenshot']==True:
-            self.take_screenshot()
-            self.keyMap['take_screenshot']=False
-        if self.keyMap['x_increase']==True:
-            if type(self.models_all[self.current_model_index])==type(NodePath()):
-                if self.current_property==1:
-                    value=self.models_all[self.current_model_index].getX()+self.temp_count*self.pos_increment
-                    self.models_all[self.current_model_index].setX(value)
-                    self.temp_count=self.temp_count+1
-                    self.data_all[self.current_model_index]['pos'][1][0]=value
-                    self.dentry_1_value=value
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                if self.current_property==2:
-                    cur_scale=self.models_all[self.current_model_index].getScale()
-                    cur_scale[0]=cur_scale[0]+self.temp_count*self.scale_increment
-                    cur_scale[1]=cur_scale[1]+self.temp_count*self.scale_increment
-                    cur_scale[2]=cur_scale[2]+self.temp_count*self.scale_increment
-                    self.models_all[self.current_model_index].setScale(cur_scale)
-                    self.data_all[self.current_model_index]['scale'][1]=[cur_scale[0],cur_scale[1],cur_scale[2]]
-                    self.dentry_1_value=cur_scale[0]
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                    self.dentry_2_value=cur_scale[1]
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                    self.dentry_3_value=cur_scale[2]
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==3:
-                    cval=self.models_all[self.current_model_index].getH()+1
-                    if cval>360: cval=0
-                    self.models_all[self.current_model_index].setH(cval)
-                    self.data_all[self.current_model_index]['hpr'][1][0]=cval
-                    self.dentry_1_value=cval
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                if self.current_property==4:
-                    cur_color=self.models_all[self.current_model_index].getColorScale()
-                    cval=cur_color.getX()
-                    cval=cval+(1.0/256)
-                    if cval>1:
-                        self.models_all[self.current_model_index].setColorScale(1,cur_color[1],cur_color[2],cur_color[3])
-                    else:
-                        self.models_all[self.current_model_index].setColorScale(cval,cur_color[1],cur_color[2],cur_color[3])
-                    self.data_all[self.current_model_index]['color'][1][0]=cval
-                    self.dentry_1_value=cval
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-        elif self.keyMap['x_decrease']==True:
-            if type(self.models_all[self.current_model_index])==type(NodePath()):
-                if self.current_property==1:
-                    value=self.models_all[self.current_model_index].getX()-self.temp_count*self.pos_increment
-                    self.models_all[self.current_model_index].setX(value)
-                    self.temp_count=self.temp_count+1
-                    self.data_all[self.current_model_index]['pos'][1][0]=value
-                    self.dentry_1_value=value
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                if self.current_property==2:
-                    cur_scale=self.models_all[self.current_model_index].getScale()
-                    if sum(cur_scale)>0:
-                        cur_scale[0]=cur_scale[0]-self.temp_count*self.scale_increment
-                        cur_scale[1]=cur_scale[1]-self.temp_count*self.scale_increment
-                        cur_scale[2]=cur_scale[2]-self.temp_count*self.scale_increment
-                        self.models_all[self.current_model_index].setScale(cur_scale)
-                        self.data_all[self.current_model_index]['scale'][1]=[cur_scale[0],cur_scale[1],cur_scale[2]]
-                        self.dentry_1_value=cur_scale[0]
-                        self.dentry_1.enterText(str(self.dentry_1_value))
-                        self.dslider_1['value']=self.dentry_1_value
-                        self.dentry_2_value=cur_scale[1]
-                        self.dentry_2.enterText(str(self.dentry_2_value))
-                        self.dslider_2['value']=self.dentry_2_value
-                        self.dentry_3_value=cur_scale[2]
-                        self.dentry_3.enterText(str(self.dentry_3_value))
-                        self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==3:
-                    cval=self.models_all[self.current_model_index].getH()-1
-                    if cval<0: cval=360
-                    self.models_all[self.current_model_index].setH(cval)
-                    self.data_all[self.current_model_index]['hpr'][1][0]=cval
-                    self.dentry_1_value=cval
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                if self.current_property==4:
-                    cur_color=self.models_all[self.current_model_index].getColorScale()
-                    cval=cur_color.getX()
-                    cval=cval-(1.0/256)
-                    if cval<0:
-                        self.models_all[self.current_model_index].setColorScale(0,cur_color[1],cur_color[2],cur_color[3])
-                    else:
-                        self.models_all[self.current_model_index].setColorScale(cval,cur_color[1],cur_color[2],cur_color[3])
-                    self.data_all[self.current_model_index]['color'][1][0]=cval
-                    self.dentry_1_value=cval
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-        elif self.keyMap['y_increase']==True:
-            if type(self.models_all[self.current_model_index])==type(NodePath()):
-                if self.current_property==1:
-                    value=self.models_all[self.current_model_index].getY()+self.temp_count*self.pos_increment
-                    self.models_all[self.current_model_index].setY(value)
-                    self.temp_count=self.temp_count+1
-                    self.data_all[self.current_model_index]['pos'][1][1]=value
-                    self.dentry_2_value=value
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                if self.current_property==3:
-                    cval=self.models_all[self.current_model_index].getP()+1
-                    if cval>360: cval=0
-                    self.models_all[self.current_model_index].setP(cval)
-                    self.data_all[self.current_model_index]['hpr'][1][1]=cval
-                    self.dentry_2_value=cval
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                if self.current_property==4:
-                    cur_color=self.models_all[self.current_model_index].getColorScale()
-                    cval=cur_color.getY()
-                    cval=cval+(1.0/256)
-                    if cval>1:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],1,cur_color[2],cur_color[3])
-                    else:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],cval,cur_color[2],cur_color[3])
-                    self.data_all[self.current_model_index]['color'][1][1]=cval
-                    self.dentry_2_value=cval
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-        elif self.keyMap['y_decrease']==True:
-            if type(self.models_all[self.current_model_index])==type(NodePath()):
-                if self.current_property==1:
-                    value=self.models_all[self.current_model_index].getY()-self.temp_count*self.pos_increment
-                    self.models_all[self.current_model_index].setY(value)
-                    self.temp_count=self.temp_count+1
-                    self.data_all[self.current_model_index]['pos'][1][1]=value
-                    self.dentry_2_value=value
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                if self.current_property==3:
-                    cval=self.models_all[self.current_model_index].getP()-1
-                    if cval<0: cval=360
-                    self.models_all[self.current_model_index].setP(cval)
-                    self.data_all[self.current_model_index]['hpr'][1][1]=cval
-                    self.dentry_2_value=cval
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                if self.current_property==4:
-                    cur_color=self.models_all[self.current_model_index].getColorScale()
-                    cval=cur_color.getY()
-                    cval=cval-(1.0/256)
-                    if cval<0:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],0,cur_color[2],cur_color[3])
-                    else:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],cval,cur_color[2],cur_color[3])
-                    self.data_all[self.current_model_index]['color'][1][1]=cval
-                    self.dentry_2_value=cval
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-        elif self.keyMap['z_increase']==True:
-            if type(self.models_all[self.current_model_index])==type(NodePath()):
-                if self.current_property==1:
-                    value=self.models_all[self.current_model_index].getZ()+self.temp_count*self.pos_increment
-                    self.models_all[self.current_model_index].setZ(value)
-                    self.temp_count=self.temp_count+1
-                    self.data_all[self.current_model_index]['pos'][1][2]=value
-                    self.dentry_3_value=value
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==3:
-                    cval=self.models_all[self.current_model_index].getR()+1
-                    if cval>360: cval=0
-                    self.models_all[self.current_model_index].setR(cval)
-                    self.data_all[self.current_model_index]['hpr'][1][2]=cval
-                    self.dentry_3_value=cval
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==4:
-                    cur_color=self.models_all[self.current_model_index].getColorScale()
-                    cval=cur_color.getZ()
-                    cval=cval+(1.0/256)
-                    if cval>1:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],cur_color[1],1,cur_color[3])
-                    else:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],cur_color[1],cval,cur_color[3])
-                    self.data_all[self.current_model_index]['color'][1][2]=cval
-                    self.dentry_3_value=cval
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-        elif self.keyMap['z_decrease']==True:
-            if type(self.models_all[self.current_model_index])==type(NodePath()):
-                if self.current_property==1:
-                    value=self.models_all[self.current_model_index].getZ()-self.temp_count*self.pos_increment
-                    self.models_all[self.current_model_index].setZ(value)
-                    self.temp_count=self.temp_count+1
-                    self.data_all[self.current_model_index]['pos'][1][2]=value
-                    self.dentry_3_value=value
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==3:
-                    cval=self.models_all[self.current_model_index].getR()-1
-                    if cval<0: cval=360
-                    self.models_all[self.current_model_index].setR(cval)
-                    self.data_all[self.current_model_index]['hpr'][1][2]=cval
-                    self.dentry_3_value=cval
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==4:
-                    cur_color=self.models_all[self.current_model_index].getColorScale()
-                    cval=cur_color.getZ()
-                    cval=cval-(1.0/256)
-                    if cval<0:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],cur_color[1],0,cur_color[3])
-                    else:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],cur_color[1],cval,cur_color[3])
-                    self.data_all[self.current_model_index]['color'][1][2]=cval
-                    self.dentry_3_value=cval
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-        else:
-            self.temp_count=1
-            
+    def camera_move(self, task):
+
+        dt = globalClock.getDt()
+        move_vec = Vec3(0, 0, 0)
+
+        # Forward direction
+        forward = self.camera.getQuat(self.render).getForward()
+        forward.normalize()
+
+        # Right direction
+        right = self.camera.getQuat(self.render).getRight()
+        right.normalize()
+
+        # Movement input
+        if self.keyMap['move_forward']:
+            move_vec += forward
+
+        if self.keyMap['move_backward']:
+            move_vec -= forward
+
+        if self.keyMap['move_right']:
+            move_vec += right
+
+        if self.keyMap['move_left']:
+            move_vec -= right
+
+        # Prevent faster diagonal movement
+        if move_vec.length() > 0:
+            move_vec.normalize()
+
+        # Apply movement
+        new_pos = self.camera.getPos(self.render) + move_vec * self.move_speed * dt
+
+        # Gravity / fixed height
+        if self.keyMap['gravity_on']:
+            new_pos.z = 1
+
+        self.camera.setPos(self.render, new_pos)
+        self.bottom_cam_label.setText('CamPos: %.2f, %.2f, %.2f' %(new_pos.x, new_pos.y, new_pos.z))
+
         return Task.cont
     
-    def get_an_point_front_of_camera(self,distance,H,P):
-        pos_val=self.camera.getPos()
-        #pos_val=self.render.getRelativePoint(self.camera, Vec3(0,0,0))
-        heading=(math.pi*(H))/180
-        pitch=(math.pi*(P))/180
-        newval_1=pos_val[1]+distance*math.cos(heading)*math.cos(pitch)
-        newval_2=pos_val[0]-distance*math.sin(heading)*math.cos(pitch)
-        newval_3=pos_val[2]+distance*math.sin(pitch)
-        return [newval_2,newval_1,newval_3]
+    def general_tasks(self, task):
+        # 1. Camera & Utility tasks (Independent, decoupled blocks)
+        if self.keyMap.get('set_camera_pos'):
+            pos = self.param_1['pos'][1]
+            self.camera.setPos(pos[0], pos[1], pos[2])
+            self.keyMap['set_camera_pos'] = False
+            self.display_last_status('camera position is set to center of current model.')
+            
+        if self.keyMap.get('look_at'):
+            self.camera.lookAt(self.models_all[self.current_model_index])
+            self.keyMap['look_at'] = False
+            
+        if self.keyMap.get('take_screenshot'):
+            self.take_screenshot()
+            self.keyMap['take_screenshot'] = False
+
+        # 2. Map structural directions to an axis index and a multiplier
+        directions = {
+            'x_increase': (0, 1),  'x_decrease': (0, -1),
+            'y_increase': (1, 1),  'y_decrease': (1, -1),
+            'z_increase': (2, 1),  'z_decrease': (2, -1)
+        }
+
+        # Find which key is actively pressed
+        active_key = next((k for k, v in self.keyMap.items() if v and k in directions), None)
+
+        if not active_key:
+            self.temp_count = 1
+            return Task.cont
+
+        # Guard clause: Check model validity once
+        model = self.models_all[self.current_model_index]
+        if not isinstance(model, NodePath):
+            return Task.cont
+
+        axis, sign = directions[active_key]
+        prop = self.current_property
+
+        # --- PROPERTY 1: POSITION ---
+        if prop == 1:
+            # Extract current coordinates dynamically
+            coords = list(model.getPos())
+            coords[axis] += sign * self.temp_count * self.pos_increment
+            model.setPos(*coords)
+            
+            self.temp_count += 1
+            self.data_all[self.current_model_index]['pos'][1][axis] = coords[axis]
+            
+            # Map structural UI elements based on the altered axis
+            dentry = [self.dentry_1, self.dentry_2, self.dentry_3][axis]
+            dslider = [self.dslider_1, self.dslider_2, self.dslider_3][axis]
+            
+            setattr(self, f'dentry_{axis+1}_value', coords[axis])
+            dentry.enterText(str(coords[axis]))
+            dslider['value'] = coords[axis]
+
+        # --- PROPERTY 2: SCALE ---
+        elif prop == 2:
+            cur_scale = list(model.getScale())
+            # Scale affects all 3 axes uniformly in your original code
+            if sign > 0 or sum(cur_scale) > 0:
+                delta = sign * self.temp_count * self.scale_increment
+                cur_scale = [s + delta for s in cur_scale]
+                model.setScale(*cur_scale)
+                
+                self.data_all[self.current_model_index]['scale'][1] = cur_scale
+                
+                # Bulk update all 3 slider/entry UI groups
+                for i in range(3):
+                    setattr(self, f'dentry_{i+1}_value', cur_scale[i])
+                    entries = [self.dentry_1, self.dentry_2, self.dentry_3]
+                    sliders = [self.dslider_1, self.dslider_2, self.dslider_3]
+                    entries[i].enterText(str(cur_scale[i]))
+                    sliders[i]['value'] = cur_scale[i]
+
+        # --- PROPERTY 3: HPR (Rotation) ---
+        elif prop == 3:
+            # Dynamically fetch H, P, or R depending on axis index (0=H, 1=P, 2=R)
+            hpr_getters = [model.getH, model.getP, model.getR]
+            hpr_setters = [model.setH, model.setP, model.setR]
+            hpr_keys = ['h', 'p', 'r']
+            
+            cval = hpr_getters[axis]() + sign
+            if cval > 360: cval = 0
+            elif cval < 0: cval = 360
+            
+            hpr_setters[axis](cval)
+            self.data_all[self.current_model_index]['hpr'][1][axis] = cval
+            
+            dentry = [self.dentry_1, self.dentry_2, self.dentry_3][axis]
+            dslider = [self.dslider_1, self.dslider_2, self.dslider_3][axis]
+            
+            setattr(self, f'dentry_{axis+1}_value', cval)
+            dentry.enterText(str(cval))
+            dslider['value'] = cval
+
+        # --- PROPERTY 4: COLOR SCALE ---
+        elif prop == 4:
+            cur_color = model.getColorScale()
+            cval = cur_color[axis] + (sign * (1.0 / 256))
+            cval = max(0.0, min(1.0, cval)) # Clean clamping framework
+            
+            # Rebuild color tuple dynamically substituting the active axis value
+            color_args = list(cur_color)
+            color_args[axis] = cval
+            model.setColorScale(*color_args)
+            
+            self.data_all[self.current_model_index]['color'][1][axis] = cval
+            
+            dentry = [self.dentry_1, self.dentry_2, self.dentry_3][axis]
+            dslider = [self.dslider_1, self.dslider_2, self.dslider_3][axis]
+            
+            setattr(self, f'dentry_{axis+1}_value', cval)
+            dentry.enterText(str(cval))
+            dslider['value'] = cval
+
+        return Task.cont   
+        
+    def get_an_point_front_of_camera(self, distance):
+
+        # Camera world position
+        cam_pos = self.camera.getPos(self.render)
+
+        # Forward direction in world space
+        forward = self.camera.getQuat(self.render).getForward()
+        forward.normalize()
+
+        # Point in front of camera
+        point = cam_pos + forward * distance
+        point=[point.x,point.y,point.z]
+        return point
 
     def load_model_from_param(self,fileload_flag,indexload_flag):
         if self.param_1["uniquename"] not in self.models_names_all:
@@ -3455,17 +3388,17 @@ class SceneMakerMain(ShowBase):
             indexload_flag=False
             self.current_model_index=len(self.models_names_all)-1
         else:
-            if indexload_flag==True:
-                fileload_flag=False
-                print('model file loading from index '+str(self.current_model_index))
-                self.display_last_status('model file is loading... (index:'+str(self.current_model_index)+')')
+            if indexload_flag:
+                fileload_flag = False
+                logger.debug('model file loading from index %d', self.current_model_index)
+                self.display_last_status('model file is loading... (index:%d)' % self.current_model_index)
             else:
-                if fileload_flag==False:
-                    indexload_flag==True
-                    print('model file is loading from index '+str(self.current_model_index))
-                    self.display_last_status('model file is loading... (index:'+str(self.current_model_index)+')')
+                if not fileload_flag:
+                    indexload_flag = True
+                    logger.debug('model file is loading from index %d', self.current_model_index)
+                    self.display_last_status('model file is loading... (index:%d)' % self.current_model_index)
                 else:
-                    print('model file loading from disk.')
+                    logger.debug('model file loading from disk.')
                     self.display_last_status('model file is loading... (from drive)')
             
         if self.param_1['enable']==True:
@@ -3473,7 +3406,7 @@ class SceneMakerMain(ShowBase):
                 if self.param_1['type']=='3d_model':
                     self.ModelTemp=loader.loadModel(self.param_1["filename"])
                 #---get and load light properties---
-                (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_point_and_spot_light_properties_from_model(self.ModelTemp,self.param_1)
+                (self.param_2,self.light_name_list,self.light_list,self.light_node_list)=self.get_pointlight_and_spotlight_properties_from_model(self.ModelTemp,self.param_1)
                 if len(self.param_2)>0:
                     self.models_with_lights.append(self.param_1["uniquename"])
                     self.current_light_model_index=len(self.models_with_lights)-1
@@ -3555,7 +3488,7 @@ class SceneMakerMain(ShowBase):
                 self.models_all.append(self.ModelTemp)
                 self.create_model_parent_vars()
             if indexload_flag==True:
-                if type(self.models_all[self.current_model_index])==type(NodePath()):
+                if isinstance(self.models_all[self.current_model_index], NodePath):
                     self.data_all[self.current_model_index]['show']=False
                     self.models_all[self.current_model_index].hide()
 
@@ -3574,138 +3507,64 @@ class SceneMakerMain(ShowBase):
         # Step 4: Set the local scale to preserve the world-space scale
         node.setScale(local_scale)
 
-    def update_model_property(self,value,option):
-        # option 1 is x slider, 2 is y slider and 3 is z slider
-        if option==1:
-            if type(self.models_all[self.current_model_index])==type(NodePath()):
-                if self.current_property==1:
-                    self.models_all[self.current_model_index].setX(value)
-                    self.data_all[self.current_model_index]['pos'][1][0]=value
-                    self.dentry_1_value=value
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                if self.current_property==2:
-                    cur_scale=self.models_all[self.current_model_index].getScale()
-                    cur_scale[0]=value
-                    #cur_scale[1]=value
-                    #cur_scale[2]=value
-                    self.models_all[self.current_model_index].setScale(cur_scale)
-                    self.data_all[self.current_model_index]['scale'][1]=[cur_scale[0],cur_scale[1],cur_scale[2]]
-                    self.dentry_1_value=cur_scale[0]
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                    self.dentry_2_value=cur_scale[1]
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                    self.dentry_3_value=cur_scale[2]
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==3:
-                    cval=value
-                    if cval>360: cval=0
-                    self.models_all[self.current_model_index].setH(cval)
-                    self.data_all[self.current_model_index]['hpr'][1][0]=cval
-                    self.dentry_1_value=cval
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                if self.current_property==4:
-                    cur_color=self.models_all[self.current_model_index].getColorScale()
-                    cval=value
-                    if cval>1:
-                        self.models_all[self.current_model_index].setColorScale(1,cur_color[1],cur_color[2],cur_color[3])
-                    else:
-                        self.models_all[self.current_model_index].setColorScale(cval,cur_color[1],cur_color[2],cur_color[3])
-                    self.data_all[self.current_model_index]['color'][1][0]=cval
-                    self.dentry_1_value=cval
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-        elif option==2:
-            if type(self.models_all[self.current_model_index])==type(NodePath()):
-                if self.current_property==1:
-                    self.models_all[self.current_model_index].setY(value)
-                    self.data_all[self.current_model_index]['pos'][1][1]=value
-                    self.dentry_2_value=value
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                if self.current_property==2:
-                    cur_scale=self.models_all[self.current_model_index].getScale()
-                    #cur_scale[0]=value
-                    cur_scale[1]=value
-                    #cur_scale[2]=value
-                    self.models_all[self.current_model_index].setScale(cur_scale)
-                    self.data_all[self.current_model_index]['scale'][1]=[cur_scale[0],cur_scale[1],cur_scale[2]]
-                    self.dentry_1_value=cur_scale[0]
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                    self.dentry_2_value=cur_scale[1]
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                    self.dentry_3_value=cur_scale[2]
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==3:
-                    cval=value
-                    if cval>360: cval=0
-                    self.models_all[self.current_model_index].setP(cval)
-                    self.data_all[self.current_model_index]['hpr'][1][1]=cval
-                    self.dentry_2_value=cval
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                if self.current_property==4:
-                    cur_color=self.models_all[self.current_model_index].getColorScale()
-                    cval=value
-                    if cval>1:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],1,cur_color[2],cur_color[3])
-                    else:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],cval,cur_color[2],cur_color[3])
-                    self.data_all[self.current_model_index]['color'][1][1]=cval
-                    self.dentry_2_value=cval
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-        elif option==3:
-            if type(self.models_all[self.current_model_index])==type(NodePath()):
-                if self.current_property==1:
-                    self.models_all[self.current_model_index].setZ(value)
-                    self.data_all[self.current_model_index]['pos'][1][2]=value
-                    self.dentry_3_value=value
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==2:
-                    cur_scale=self.models_all[self.current_model_index].getScale()
-                    #cur_scale[0]=value
-                    #cur_scale[1]=value
-                    cur_scale[2]=value
-                    self.models_all[self.current_model_index].setScale(cur_scale)
-                    self.data_all[self.current_model_index]['scale'][1]=[cur_scale[0],cur_scale[1],cur_scale[2]]
-                    self.dentry_1_value=cur_scale[0]
-                    self.dentry_1.enterText(str(self.dentry_1_value))
-                    self.dslider_1['value']=self.dentry_1_value
-                    self.dentry_2_value=cur_scale[1]
-                    self.dentry_2.enterText(str(self.dentry_2_value))
-                    self.dslider_2['value']=self.dentry_2_value
-                    self.dentry_3_value=cur_scale[2]
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==3:
-                    cval=value
-                    if cval>360: cval=0
-                    self.models_all[self.current_model_index].setR(cval)
-                    self.data_all[self.current_model_index]['hpr'][1][2]=cval
-                    self.dentry_3_value=cval
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
-                if self.current_property==4:
-                    cur_color=self.models_all[self.current_model_index].getColorScale()
-                    cval=value
-                    if cval>1:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],cur_color[1],1,cur_color[3])
-                    else:
-                        self.models_all[self.current_model_index].setColorScale(cur_color[0],cur_color[1],cval,cur_color[3])
-                    self.data_all[self.current_model_index]['color'][1][2]=cval
-                    self.dentry_3_value=cval
-                    self.dentry_3.enterText(str(self.dentry_3_value))
-                    self.dslider_3['value']=self.dentry_3_value
+    def update_model_property(self, value, option):
+        # Map options (1, 2, 3) to 0-based array indices (0, 1, 2)
+        if option not in (1, 2, 3):
+            return
+        idx = option - 1
+        
+        # Early exit if the model isn't a valid NodePath
+        model = self.models_all[self.current_model_index]
+        if not isinstance(model, NodePath):
+            return
 
+        # Helper to update UI elements (entry and slider) dynamically
+        def update_ui(target_idx, val):
+            setattr(self, f"dentry_{target_idx}_value", val)
+            getattr(self, f"dentry_{target_idx}").enterText(str(val))
+            getattr(self, f"dslider_{target_idx}")['value'] = val
+
+        # 1. POSITION PROPERTY
+        if self.current_property == 1:
+            # Map indices to Panda3D setters: 0 -> setX, 1 -> setY, 2 -> setZ
+            setters = [model.setX, model.setY, model.setZ]
+            setters[idx](value)
+            
+            self.data_all[self.current_model_index]['pos'][1][idx] = value
+            update_ui(option, value)
+
+        # 2. SCALE PROPERTY
+        elif self.current_property == 2:
+            cur_scale = list(model.getScale())
+            cur_scale[idx] = value
+            model.setScale(*cur_scale)
+            
+            self.data_all[self.current_model_index]['scale'][1] = cur_scale
+            # Scale updates all 3 UI channels simultaneously 
+            for i in range(3):
+                update_ui(i + 1, cur_scale[i])
+
+        # 3. HPR (ROTATION) PROPERTY
+        elif self.current_property == 3:
+            cval = 0 if value > 360 else value
+            
+            # Map indices to Panda3D HPR setters
+            setters = [model.setH, model.setP, model.setR]
+            setters[idx](cval)
+            
+            self.data_all[self.current_model_index]['hpr'][1][idx] = cval
+            update_ui(option, cval)
+
+        # 4. COLOR PROPERTY
+        elif self.current_property == 4:
+            cur_color = list(model.getColorScale())
+            cval = 1.0 if value > 1 else value
+            cur_color[idx] = cval
+            
+            model.setColorScale(*cur_color)
+            self.data_all[self.current_model_index]['color'][1][idx] = cval
+            update_ui(option, cval)
+        
     def find_point_lights(self, root_node):
         """
         Traverses the scene graph from the given root node and returns a list of
@@ -3727,13 +3586,12 @@ class SceneMakerMain(ShowBase):
                 spot_lights.append((node, nodepath))
         return spot_lights
         
-    def get_point_and_spot_light_properties_from_model(self,model,data):
+    def get_pointlight_and_spotlight_properties_from_model(self,model,data):
         # load point lights from model
         #model.ls()
         point_lights = self.find_point_lights(model)
         spot_lights = self.find_spot_lights(model)
-        print(point_lights)
-        print(spot_lights)
+
         self.param_2={}
         light_name_list=[]
         light_list=[]
@@ -3919,7 +3777,7 @@ class SceneMakerMain(ShowBase):
             if self.current_scroll_index > 0:
                 self.current_scroll_index -= 1
                 self.scrolled_list_e1.scrollTo(self.current_scroll_index)
-                print("Scroll Up Triggered | Index:", self.current_scroll_index)
+                logger.info("Scroll Up Triggered | Index:", self.current_scroll_index)
         else:
             pass
             #print("Scroll Up Ignored - Mouse outside list")
@@ -3930,7 +3788,7 @@ class SceneMakerMain(ShowBase):
             if self.current_scroll_index < max_index:
                 self.current_scroll_index += 1
                 self.scrolled_list_e1.scrollTo(self.current_scroll_index)
-                print("Scroll Down Triggered | Index:", self.current_scroll_index)
+                logger.info("Scroll Down Triggered | Index:", self.current_scroll_index)
         else:
             pass
             #print("Scroll Down Ignored - Mouse outside list")
@@ -4053,6 +3911,48 @@ class SceneMakerMain(ShowBase):
         for name in self.models_names_all:
             modellist.append(name)
 
+        #--- add header names---
+        # Add label
+        label = DirectLabel(
+            parent=canvas,
+            text="NO.",
+            scale=0.06,
+            text_fg=self.TEXTFG_COLOR_2,
+            frameColor=self.FRAME_COLOR_1,
+            pos=(0, 0, 0),
+            text_align=TextNode.ALeft
+        )
+
+        label = DirectLabel(
+            parent=canvas,
+            text="Model Name",
+            scale=0.06,
+            text_fg=self.TEXTFG_COLOR_2,
+            frameColor=self.FRAME_COLOR_1,
+            pos=(0.2, 0, 0),
+            text_align=TextNode.ALeft
+        )
+        
+        label = DirectLabel(
+            parent=canvas,
+            text="Enable",
+            scale=0.06,
+            text_fg=self.TEXTFG_COLOR_2,
+            frameColor=self.FRAME_COLOR_1,
+            pos=(1.5, 0, 0),
+            text_align=TextNode.ALeft
+        )
+        
+        label = DirectLabel(
+            parent=canvas,
+            text="Show",
+            scale=0.06,
+            text_fg=self.TEXTFG_COLOR_2,
+            frameColor=self.FRAME_COLOR_1,
+            pos=(1.7, 0, 0),
+            text_align=TextNode.ALeft
+        )
+        
         # Add clickable items to the list
         for i in range(len(modellist)):
 
@@ -4063,7 +3963,7 @@ class SceneMakerMain(ShowBase):
                 scale=0.07,
                 text_fg=self.TEXTFG_COLOR_1,
                 frameColor=self.FRAME_COLOR_1,
-                pos=(0, 0, -0.1*i),
+                pos=(0, 0, -0.1*(i+1)),
                 text_align=TextNode.ALeft
             )
 
@@ -4073,17 +3973,23 @@ class SceneMakerMain(ShowBase):
                 text=modellist[i],
                 text_fg=self.TEXTFG_COLOR_1,
                 scale=0.07,
-                pos=(0.1, 0, -0.1*i),
+                pos=(0.15, 0, -0.1*(i+1)),
                 command=self.menudef_2_new,
                 frameColor=self.FRAME_COLOR_1,
                 text_align=TextNode.ALeft,
                 extraArgs=[i]  # Pass item number to callback
             )
+            
+            #CheckButton= DirectCheckButton(parent=canvas,text ="",scale=.06,command=self.ModelPicker_model_enable,extraArgs=[i],pos=(1.6, 0, -0.1*(i+1)),text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+            #CheckButton.setTransparency(TransparencyAttrib.MAlpha)
+            CheckButton= DirectCheckButton(parent=canvas,text ="",scale=.06,command=self.ModelPicker_model_show,extraArgs=[i],pos=(1.8, 0, -0.1*(i+1)),text_align=TextNode.ALeft,text_fg=self.TEXTFG_COLOR_1,frameColor=(self.FRAME_COLOR_1,self.CButton_Pressed_FColor,self.CButton_Hover_FColor,self.FRAME_COLOR_1),indicator_text_scale=0,indicator_relief=None,boxPlacement="left",boxImage=(self.unchecked_image,self.checked_image,self.unchecked_image),boxImageScale=(.5,.5,.5))
+            CheckButton.setTransparency(TransparencyAttrib.MAlpha)
+
             # Define hover events
             button.bind(DGG.WITHIN, self.on_hover_1, [button])
             button.bind(DGG.WITHOUT, self.on_exit_1, [button])
             
-            canvas_left=-0.1
+            canvas_left=-0.05
             canvas_right=6
             #canvas_bottom=-(len(modellist)*button.getHeight()/10)
             canvas_bottom=-(len(modellist)*0.1)
@@ -4092,7 +3998,37 @@ class SceneMakerMain(ShowBase):
 
             # Force scrollbars to recompute
             self.ScrolledFrame_menu_2.guiItem.remanage()
-
+            
+    def ModelPicker_model_enable(self,status,index):
+        if status:
+            self.data_all[index]['enable']=True
+            self.models_all[index]=loader.loadModel(self.data_all[index]["filename"])
+            #self.load_model_from_param(fileload_flag=False,indexload_flag=True)
+            """
+            self.set_model_values_to_gui()
+            self.makeup_lights_gui()
+            self.add_model_nodepaths_to_gui_f1()
+            self.add_model_animations_to_gui_g1()
+            if self.model_parent_enabled_all[index]==True:
+                self.attach_to_parent_2(self.models_all[self.current_model_index],self.model_parent_indices_all[self.current_model_index])
+            """
+        else:
+            self.data_all[index]['enable']=False
+            self.models_all[index].detachNode()
+            self.models_all[index].removeNode()
+            self.models_all[index]=''
+            
+    def ModelPicker_model_show(self,status,index):
+        if isinstance(self.models_all[index], NodePath):
+            if status:
+                self.data_all[index]['show']=True
+                self.models_all[index].show()
+            else:
+                self.data_all[index]['show']=False
+                self.models_all[index].hide()
+        else:
+            self.display_last_status("model is not a valid(nodepath) type")
+            
     def on_item_click_f1(self, item_index):
         pass
 
@@ -4287,7 +4223,7 @@ class SceneMakerMain(ShowBase):
                 self.model_parent_indices_all[index]=idx+1
                 self.display_last_status('model reparented.')
             else:
-                print('model name not present.')
+                logger.warning('model name not present.')
                 self.display_last_status('model name not present.')
         except Exception as e:
             logger.error('model is not reparented. there is an error occurs:')
@@ -4298,7 +4234,7 @@ class SceneMakerMain(ShowBase):
         try:
             idx=int(textEntered)
             self.Tentry_MIndices[index].enterText(str(idx))
-        except:
+        except Exception:
             logger.error('entry in parenting gui is not a number')
             return
 
@@ -4325,10 +4261,10 @@ class SceneMakerMain(ShowBase):
                 self.model_parent_indices_all[index]=idx
                 self.display_last_status('model reparented.')
             else:
-                print('index is not in range.')
+                logger.warning('index is not in range.')
                 self.display_last_status('index is not in range.')
-        except:
-            print('model is not reparented. there is an error occurs.')
+        except Exception:
+            logger.error('model is not reparented. there is an error occurs.')
 
     def attach_to_parent_2(self,model,idx):
         #now = datetime.datetime.now()
@@ -4344,7 +4280,7 @@ class SceneMakerMain(ShowBase):
         timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
         filename = Filename(f"screenshot_{timestamp}.jpg")
         base.win.saveScreenshot(filename)
-        print("Screenshot saved")
+        logger.info("Screenshot saved")
         self.display_last_status("Screenshot saved")
         
     def scroll_vertical(self,ObjectIn,is_up,increment=0.1):
@@ -4353,7 +4289,8 @@ class SceneMakerMain(ShowBase):
         new_value = max(0, min(1, current_value + (increment if is_up else -increment)))
         ObjectIn.verticalScroll["value"] = new_value
 
-Scene_1=SceneMakerMain()
-Scene_1.run()
+if __name__ == '__main__':
+    app = SceneMakerMain()
+    app.run()
 
 
